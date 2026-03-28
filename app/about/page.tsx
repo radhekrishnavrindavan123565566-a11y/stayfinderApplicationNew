@@ -13,7 +13,7 @@ const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   show: (i = 0) => ({
     opacity: 1, y: 0,
-    transition: { delay: i * 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    transition: { delay: i * 0.1, duration: 0.55, ease: "easeOut" },
   }),
 };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } };
@@ -100,7 +100,7 @@ export default function AboutPage() {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.15, duration: 0.7, ease: "easeOut" }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
           >
             We&apos;re on a mission to make
@@ -158,7 +158,7 @@ export default function AboutPage() {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <div className="inline-flex items-center gap-2 bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-medium px-3 py-1.5 rounded-full mb-5">
                 <Award className="w-4 h-4" /> Our Mission
@@ -200,7 +200,7 @@ export default function AboutPage() {
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
               className="relative"
             >
               <div className="relative h-72 sm:h-96 rounded-3xl overflow-hidden">

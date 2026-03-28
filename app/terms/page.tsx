@@ -10,7 +10,7 @@ const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   show: (i = 0) => ({
     opacity: 1, y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" },
   }),
 };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -198,7 +198,7 @@ export default function TermsPage() {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.1, duration: 0.7, ease: "easeOut" }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-5 leading-tight"
           >
             Terms &amp;{" "}
@@ -324,7 +324,7 @@ export default function TermsPage() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
                     <div className="px-5 sm:px-6 pb-6 pt-0">
