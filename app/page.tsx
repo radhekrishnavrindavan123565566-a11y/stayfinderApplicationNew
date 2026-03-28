@@ -14,12 +14,12 @@ import axios from "axios";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 
 const CATEGORIES = [
-  { label: "Apartments", icon: "??", type: "apartment" },
-  { label: "Houses", icon: "??", type: "house" },
-  { label: "Villas", icon: "???", type: "villa" },
-  { label: "Studios", icon: "???", type: "studio" },
-  { label: "Cabins", icon: "??", type: "cabin" },
-  { label: "Condos", icon: "???", type: "condo" },
+  { label: "Apartments", icon: "🏢", type: "apartment" },
+  { label: "Houses", icon: "🏠", type: "house" },
+  { label: "Villas", icon: "🏡", type: "villa" },
+  { label: "Studios", icon: "🛋️", type: "studio" },
+  { label: "Cabins", icon: "🌲", type: "cabin" },
+  { label: "Condos", icon: "🏙️", type: "condo" },
 ];
 
 const STATS = [
