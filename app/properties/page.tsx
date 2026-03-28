@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { usePropertyStore } from "@/store/propertyStore";
 import PropertyCard from "@/components/property/PropertyCard";
 import SearchBar from "@/components/property/SearchBar";
@@ -10,11 +10,11 @@ import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import CompareBar from "@/components/property/CompareBar";
 import AISearchBar from "@/components/search/AISearchBar";
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.05 } },
 };
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };

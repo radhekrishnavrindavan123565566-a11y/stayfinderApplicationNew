@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
@@ -19,8 +19,8 @@ const statusVariant: Record<string, "success" | "warning" | "danger" | "info" | 
   approved: "success", pending: "warning", rejected: "danger", cancelled: "danger", completed: "info",
 };
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
-const fadeUp = {
+const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };

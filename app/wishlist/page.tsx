@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
@@ -12,11 +12,11 @@ import { Property } from "@/store/propertyStore";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06 } },
 };
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };

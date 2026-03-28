@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { X, Star, MapPin, Bed, Bath, Users, Check, Minus, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useCompareStore } from "@/store/compareStore";
@@ -29,11 +29,11 @@ interface Property {
 
 const ALL_AMENITIES = ["WiFi", "Parking", "Pool", "Kitchen", "AC", "Gym", "Washer", "TV", "Balcony", "Pet Friendly"];
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06 } },
 };
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };

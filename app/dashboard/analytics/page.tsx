@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { TrendingUp, DollarSign, Home, Calendar, Star, Zap } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
@@ -20,8 +20,8 @@ interface AnalyticsData {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const fadeUp = {
+const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };

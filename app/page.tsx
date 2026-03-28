@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, type Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Star, Shield, Clock, MapPin, Sparkles, TrendingUp, Users, Home } from "lucide-react";
@@ -38,11 +38,11 @@ const WHY_US = [
   { icon: <Sparkles className="w-6 h-6" />, title: "AI Recommendations", desc: "Smart suggestions tailored to your preferences and history.", color: "bg-indigo-50 text-indigo-500" },
 ];
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.07 } },
 };
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
