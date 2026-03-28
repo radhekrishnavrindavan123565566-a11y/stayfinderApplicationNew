@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -14,19 +14,19 @@ import axios from "axios";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 
 const CATEGORIES = [
-  { label: "Apartments", icon: "🏢", type: "apartment" },
-  { label: "Houses", icon: "🏡", type: "house" },
-  { label: "Villas", icon: "🏖️", type: "villa" },
-  { label: "Studios", icon: "🛋️", type: "studio" },
-  { label: "Cabins", icon: "🌲", type: "cabin" },
-  { label: "Condos", icon: "🏙️", type: "condo" },
+  { label: "Apartments", icon: "??", type: "apartment" },
+  { label: "Houses", icon: "??", type: "house" },
+  { label: "Villas", icon: "???", type: "villa" },
+  { label: "Studios", icon: "???", type: "studio" },
+  { label: "Cabins", icon: "??", type: "cabin" },
+  { label: "Condos", icon: "???", type: "condo" },
 ];
 
 const STATS = [
   { value: "10K+", label: "Properties" },
   { value: "50K+", label: "Happy Guests" },
   { value: "120+", label: "Cities" },
-  { value: "4.9★", label: "Avg Rating" },
+  { value: "4.9?", label: "Avg Rating" },
 ];
 
 const WHY_US = [
@@ -44,7 +44,7 @@ const stagger = {
 };
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as number[] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 function RecommendationsSection() {
@@ -157,7 +157,7 @@ export default function HomePage() {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="inline-block bg-rose-500/20 backdrop-blur-sm border border-rose-500/30 text-rose-300 text-sm font-medium px-4 py-1.5 rounded-full mb-6"
             >
-              🏡 Find your perfect stay
+              ?? Find your perfect stay
             </motion.span>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight mb-6">
               Discover Your
@@ -170,7 +170,7 @@ export default function HomePage() {
               transition={{ delay: 0.4, duration: 0.7 }}
               className="text-base sm:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto mb-10"
             >
-              Browse thousands of unique properties. From cozy studios to luxury villas — find the perfect place for your next stay.
+              Browse thousands of unique properties. From cozy studios to luxury villas � find the perfect place for your next stay.
             </motion.p>
           </motion.div>
 
@@ -279,7 +279,7 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               className="text-center py-20"
             >
-              <div className="text-6xl mb-4">🏠</div>
+              <div className="text-6xl mb-4">??</div>
               <p className="text-zinc-400 text-lg mb-4">No properties found. Be the first to list one!</p>
               <Link href="/auth/register"><Button>Get Started</Button></Link>
             </motion.div>
