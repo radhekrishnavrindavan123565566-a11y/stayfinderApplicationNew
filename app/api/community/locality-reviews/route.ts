@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
       .limit(20);
 
     // Aggregate averages
-    const avg = reviews.reduce(
-      (acc, r) => {
+    const avg: Record<string, number> = reviews.reduce(
+      (acc: Record<string, number>, r) => {
         acc.safety += r.ratings.safety;
         acc.connectivity += r.ratings.connectivity;
         acc.amenities += r.ratings.amenities;
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     );
     const count = reviews.length;
     const averages = count > 0
-      ? Object.fromEntries(Object.entries(avg).map(([k, v]) => [k, Math.round((v / count) * 10) / 10]))
+      ? Object.fromEntries(Object.entries(avg).map(([k, v]) => [k, Math.round(((v as number) / count) * 10) / 10]))
       : null;
 
     return successResponse({ reviews, averages, count });

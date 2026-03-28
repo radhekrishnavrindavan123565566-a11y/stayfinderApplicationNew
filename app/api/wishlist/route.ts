@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
     const user = await User.findById(userId);
     if (!user) return errorResponse("User not found", 404);
 
-    const isWishlisted = user.wishlist.some((id) => id.toString() === propertyId);
+    const isWishlisted = user.wishlist.some((id: { toString(): string }) => id.toString() === propertyId);
     if (isWishlisted) {
-      user.wishlist = user.wishlist.filter((id) => id.toString() !== propertyId);
+      user.wishlist = user.wishlist.filter((id: { toString(): string }) => id.toString() !== propertyId);
     } else {
       user.wishlist.push(propertyId);
     }

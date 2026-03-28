@@ -84,12 +84,10 @@ export default function AISearchBar() {
               <span className="text-xs text-zinc-400 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-rose-400" /> AI extracted:
               </span>
-              {Object.entries(parsedFilters).map(([k, v]) => (
-                v && (
-                  <span key={k} className="text-xs bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full capitalize">
-                    {k}: {Array.isArray(v) ? v.join(", ") : String(v)}
-                  </span>
-                )
+              {(Object.entries(parsedFilters) as [string, unknown][]).filter(([, v]) => !!v).map(([k, v]) => (
+                <span key={k} className="text-xs bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full capitalize">
+                  {k}: {Array.isArray(v) ? (v as unknown[]).join(", ") : String(v)}
+                </span>
               ))}
             </motion.div>
           )}

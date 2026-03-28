@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import {
   MapPin, Bed, Bath, Users, Star, Wifi, Car, Utensils,
@@ -42,10 +42,10 @@ interface Review {
   createdAt: string;
 }
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const fadeUp = {
+const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as number[] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
 export default function PropertyDetailPage() {
@@ -249,12 +249,12 @@ export default function PropertyDetailPage() {
 
             {/* Price Intelligence */}
             <motion.div variants={fadeUp}>
-              <PriceIntelligence property={property} />
+              <PriceIntelligence property={property as never} />
             </motion.div>
 
             {/* Location Intelligence */}
             <motion.div variants={fadeUp}>
-              <LocationIntelligence property={property} />
+              <LocationIntelligence property={property as never} />
             </motion.div>
 
             {/* Community */}
