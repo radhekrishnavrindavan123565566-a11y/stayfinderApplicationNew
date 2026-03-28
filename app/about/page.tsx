@@ -1,5 +1,5 @@
 "use client";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,14 +9,14 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
   show: (i = 0) => ({
     opacity: 1, y: 0,
     transition: { delay: i * 0.1, duration: 0.55, ease: "easeOut" },
   }),
 };
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } };
+const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } };
 
 const STATS = [
   { value: "10K+", label: "Properties Listed", icon: <Home className="w-5 h-5" />, color: "text-rose-500" },

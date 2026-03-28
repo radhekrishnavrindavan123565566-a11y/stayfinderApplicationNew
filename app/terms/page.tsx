@@ -1,19 +1,19 @@
 "use client";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   FileText, Shield, CreditCard, Users, AlertTriangle,
   Lock, RefreshCw, Mail, ChevronDown, BookOpen, Scale,
 } from "lucide-react";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: (i = 0) => ({
     opacity: 1, y: 0,
     transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" },
   }),
 };
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 
 const SECTIONS = [
   {

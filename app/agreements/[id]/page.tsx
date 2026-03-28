@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
@@ -17,11 +17,11 @@ const PDFDownloadLink = dynamic(
 );
 import { AgreementPDF } from "@/lib/agreementTemplate";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: (i: number) => ({
     opacity: 1, y: 0,
-    transition: { delay: i * 0.1, duration: 0.45, ease: [0.22, 1, 0.36, 1] as number[] },
+    transition: { delay: i * 0.1, duration: 0.45, ease: "easeOut" },
   }),
 };
 

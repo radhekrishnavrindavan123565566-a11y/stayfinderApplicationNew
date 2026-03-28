@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera } from "lucide-r
 import Image from "next/image";
 import TrustProfile from "@/components/trust/TrustProfile";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: (i: number) => ({
     opacity: 1, y: 0,

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import toast from "react-hot-toast";
 import { usePreferencesStore, UserPreferencesData } from "@/store/preferencesStore";
 import { useAuthStore } from "@/store/authStore";
@@ -23,7 +23,7 @@ interface SavedSearch {
   alertEnabled: boolean;
 }
 
-const sectionVariants = {
+const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: (i: number) => ({
     opacity: 1, y: 0,
