@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StayFinder — Rental Property Platform
 
-## Getting Started
+A full-featured Airbnb-inspired rental platform built with Next.js 16, MongoDB, JWT auth, Stripe payments, and Framer Motion animations.
 
-First, run the development server:
+## Quick Start
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Copy env file and fill in values
+cp .env.example .env.local
+
+# 3. Seed the database (optional)
+npx ts-node utils/seed.ts
+
+# 4. Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `.env.example` for all required variables.
 
-## Learn More
+| Variable | Description |
+|---|---|
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `JWT_SECRET` | Secret for access tokens |
+| `JWT_REFRESH_SECRET` | Secret for refresh tokens |
+| `CLOUDINARY_*` | Cloudinary credentials for image uploads |
+| `STRIPE_SECRET_KEY` | Stripe secret key for payments |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key |
 
-To learn more about Next.js, take a look at the following resources:
+## Seed Accounts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+After running the seed script:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@stayfinder.com | admin123 |
+| Owner | owner@stayfinder.com | owner123 |
+| Tenant | tenant@stayfinder.com | tenant123 |
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- JWT auth (access + refresh tokens)
+- Role-based access (tenant / owner / admin)
+- Property CRUD with image uploads (Cloudinary)
+- Booking system with conflict detection
+- Reviews & star ratings
+- Wishlist / favorites
+- Stripe payment integration
+- Admin dashboard
+- Framer Motion animations throughout
+- Fully responsive mobile-first design
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+
+- **Frontend**: Next.js 16, React 19, Tailwind CSS v4, Framer Motion
+- **Backend**: Next.js API Routes, MongoDB + Mongoose
+- **Auth**: JWT (bcryptjs)
+- **Payments**: Stripe
+- **Images**: Cloudinary
+- **State**: Zustand
+- **Forms**: React Hook Form + Zod
+- **UI**: Lucide React, React Hot Toast
