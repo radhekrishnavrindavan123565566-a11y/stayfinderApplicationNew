@@ -170,7 +170,7 @@ export default function HomePage() {
               transition={{ delay: 0.4, duration: 0.7 }}
               className="text-base sm:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto mb-10"
             >
-              Browse thousands of unique properties. From cozy studios to luxury villas — find the perfect place for your next stay.
+              Browse thousands of unique properties. From cozy studios to luxury villas - find the perfect place for your next stay.
             </motion.p>
           </motion.div>
 

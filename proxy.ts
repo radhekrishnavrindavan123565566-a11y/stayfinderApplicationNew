@@ -37,7 +37,7 @@ function getToken(req: NextRequest): string | null {
   return req.cookies.get("accessToken")?.value ?? null;
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const token = getToken(req);
