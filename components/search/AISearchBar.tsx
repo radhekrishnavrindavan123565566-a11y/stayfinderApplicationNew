@@ -54,7 +54,7 @@ export default function AISearchBar() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && search()}
-            placeholder="Describe your ideal home... e.g. 2-bedroom apartment in NYC under $150/night with WiFi"
+            placeholder="Describe your ideal home... e.g. 2BHK apartment in Mumbai under ₹15000/month with WiFi"
             className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none"
           />
           {query && (

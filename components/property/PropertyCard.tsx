@@ -114,8 +114,8 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-bold text-zinc-900">${property.price}</span>
-              <span className="text-xs text-zinc-500"> / night</span>
+              <span className="font-bold text-zinc-900">₹{property.price.toLocaleString("en-IN")}</span>
+              <span className="text-xs text-zinc-500"> / month</span>
             </div>
             {property.totalReviews > 0 && (
               <span className="text-xs text-zinc-400">{property.totalReviews} reviews</span>

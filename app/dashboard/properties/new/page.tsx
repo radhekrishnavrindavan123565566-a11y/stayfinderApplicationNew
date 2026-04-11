@@ -151,11 +151,11 @@ export default function NewPropertyPage() {
                     </select>
                   </div>
                   <div>
-                    <Input label="Price / Night ($)" type="number" placeholder="100" error={errors.price?.message}
+                    <Input label="Price / Month (₹)" type="number" placeholder="10000" error={errors.price?.message}
                       {...register("price", { valueAsNumber: true })} />
                     {priceSuggestion && (
                       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-blue-600 mt-1 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> AI suggests ${priceSuggestion.suggested} (${priceSuggestion.range.min}–${priceSuggestion.range.max})
+                        <Sparkles className="w-3 h-3" /> AI suggests ₹{priceSuggestion.suggested} (₹{priceSuggestion.range.min}–₹{priceSuggestion.range.max})
                       </motion.p>
                     )}
                   </div>
@@ -278,7 +278,7 @@ export default function NewPropertyPage() {
                 <div className="bg-zinc-50 rounded-xl p-4 space-y-2 text-sm">
                   <p className="font-medium text-zinc-700 mb-2">Listing Summary</p>
                   <div className="flex justify-between text-zinc-600"><span>Title</span><span className="font-medium text-zinc-900 truncate max-w-[180px]">{watch("title") || "—"}</span></div>
-                  <div className="flex justify-between text-zinc-600"><span>Price</span><span className="font-medium text-zinc-900">${watch("price") || 0}/night</span></div>
+                  <div className="flex justify-between text-zinc-600"><span>Price</span><span className="font-medium text-zinc-900">₹{watch("price") || 0}/month</span></div>
                   <div className="flex justify-between text-zinc-600"><span>Location</span><span className="font-medium text-zinc-900">{watch("location.city") || "—"}</span></div>
                   <div className="flex justify-between text-zinc-600"><span>Photos</span><span className="font-medium text-zinc-900">{images.length} uploaded</span></div>
                   <div className="flex justify-between text-zinc-600"><span>Amenities</span><span className="font-medium text-zinc-900">{selectedAmenities.length} selected</span></div>

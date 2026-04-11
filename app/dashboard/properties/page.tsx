@@ -221,7 +221,7 @@ export default function MyPropertiesPage() {
                     {property.isAvailable ? "Active" : "Inactive"}
                   </div>
                   <div className="absolute bottom-3 right-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-2.5 py-1 rounded-xl text-sm font-bold text-zinc-900 dark:text-white shadow">
-                    ${property.price}/night
+                    ₹{property.price.toLocaleString("en-IN")}/month
                   </div>
                 </div>
 

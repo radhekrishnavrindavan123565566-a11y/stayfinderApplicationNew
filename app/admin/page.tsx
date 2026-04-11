@@ -232,7 +232,7 @@ export default function AdminPage() {
                             by {b.tenantId?.username || "User"} · {format(new Date(b.createdAt), "MMM d, yyyy")}
                           </p>
                         </div>
-                        <span className="font-semibold text-zinc-900 dark:text-white ml-4 flex-shrink-0">${b.totalPrice}</span>
+                        <span className="font-semibold text-zinc-900 dark:text-white ml-4 flex-shrink-0">₹{b.totalPrice?.toLocaleString("en-IN")}</span>
                       </motion.div>
                     ))}
                   </div>

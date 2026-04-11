@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Property from "@/models/Property";
+import Booking from "@/models/Booking";
 import { requireRole } from "@/lib/auth";
 import { propertySchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
@@ -34,6 +35,17 @@ export async function GET(req: NextRequest) {
         { "location.city": { $regex: search, $options: "i" } },
         { "location.country": { $regex: search, $options: "i" } },
       ];
+    }
+
+    // Exclude properties already booked (approved/pending) by this tenant
+    const excludeBooked = searchParams.get("excludeBooked");
+    if (excludeBooked) {
+      const activeBookings = await Booking.find({
+        tenantId: excludeBooked,
+        status: { $in: ["pending", "approved"] },
+      }).select("propertyId").lean();
+      const bookedIds = activeBookings.map((b: { propertyId: unknown }) => b.propertyId);
+      if (bookedIds.length > 0) query._id = { $nin: bookedIds };
     }
 
     const total = await Property.countDocuments(query);

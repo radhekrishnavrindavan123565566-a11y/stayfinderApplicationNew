@@ -92,7 +92,7 @@ export default function ComparePage() {
   }
 
   const rows = [
-    { label: "Price/night", render: (p: Property) => <span className="font-bold text-rose-500">${p.price}</span> },
+    { label: "Price/month", render: (p: Property) => <span className="font-bold text-rose-500">₹{p.price.toLocaleString("en-IN")}</span> },
     { label: "Type", render: (p: Property) => <span className="capitalize">{p.propertyType}</span> },
     { label: "Bedrooms", render: (p: Property) => <span className="flex items-center gap-1 justify-center"><Bed className="w-3.5 h-3.5" />{p.bedrooms}</span> },
     { label: "Bathrooms", render: (p: Property) => <span className="flex items-center gap-1 justify-center"><Bath className="w-3.5 h-3.5" />{p.bathrooms}</span> },

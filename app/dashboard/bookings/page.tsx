@@ -190,7 +190,7 @@ export default function BookingsPage() {
                         )}
                         <span className="flex items-center gap-1.5">
                           <DollarSign className="w-3.5 h-3.5" />
-                          ${b.totalPrice} · {b.nights} nights
+                          ₹{b.totalPrice?.toLocaleString("en-IN")} · {b.nights} months
                         </span>
                       </div>
 

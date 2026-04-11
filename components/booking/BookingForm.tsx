@@ -75,8 +75,8 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold text-zinc-900">${price}</span>
-          <span className="text-zinc-500 text-sm">/ night</span>
+          <span className="text-2xl font-bold text-zinc-900">₹{price.toLocaleString("en-IN")}</span>
+          <span className="text-zinc-500 text-sm">/ month</span>
         </div>
         {instantBooking && (
           <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
@@ -151,19 +151,19 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
             className="space-y-2 pt-3 border-t border-zinc-100"
           >
             <div className="flex justify-between text-sm text-zinc-600">
-              <span>${price} × {nights} nights</span>
-              <span>${subtotal}</span>
+              <span>₹{price.toLocaleString("en-IN")} × {nights} months</span>
+              <span>₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between text-sm text-zinc-500">
               <span className="flex items-center gap-1">
                 Service fee (10%)
                 <Info className="w-3 h-3 text-zinc-400" />
               </span>
-              <span>${platformFee}</span>
+              <span>₹{platformFee.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between font-bold text-zinc-900 pt-2 border-t border-zinc-100">
               <span>Total</span>
-              <span>${total}</span>
+              <span>₹{total.toLocaleString("en-IN")}</span>
             </div>
           </motion.div>
         )}

@@ -368,7 +368,7 @@ export default function PreferencesPage() {
                 >
                   <div className="flex flex-wrap gap-1.5 min-w-0">
                     {s.filters.city && <span className="text-xs bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">{s.filters.city}</span>}
-                    {s.filters.maxPrice && <span className="text-xs bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded-full">≤${s.filters.maxPrice}</span>}
+                    {s.filters.maxPrice && <span className="text-xs bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded-full">≤₹{s.filters.maxPrice}</span>}
                     {s.filters.bedrooms && <span className="text-xs bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">{s.filters.bedrooms}+ beds</span>}
                     {s.filters.propertyType && <span className="text-xs bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full capitalize">{s.filters.propertyType}</span>}
                   </div>

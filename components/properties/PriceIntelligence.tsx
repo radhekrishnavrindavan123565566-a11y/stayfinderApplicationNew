@@ -118,7 +118,7 @@ export default function PriceIntelligence({ property }: Props) {
         <p className="text-sm text-zinc-500">
           Area avg:{" "}
           <span className="font-medium text-zinc-700">
-            ₹{Math.round(cityAvgPrice).toLocaleString("en-IN")}/night
+            ₹{Math.round(cityAvgPrice).toLocaleString("en-IN")}/month
           </span>
         </p>
       )}

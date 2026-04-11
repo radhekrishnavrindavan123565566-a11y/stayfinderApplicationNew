@@ -259,6 +259,12 @@ export default function LoginPage() {
                 <FieldError message={errors.password?.message} />
               </div>
 
+              <div className="flex justify-end">
+                <Link href="/auth/forgot-password" className="text-xs text-rose-500 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+
               <Button type="submit" isLoading={isSubmitting} className="w-full" size="lg">
                 Sign In <ArrowRight className="w-4 h-4" />
               </Button>

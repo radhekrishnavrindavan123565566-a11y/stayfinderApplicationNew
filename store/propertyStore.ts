@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import { useAuthStore } from "@/store/authStore";
 
 export interface Property {
   _id: string;
@@ -62,6 +63,11 @@ export const usePropertyStore = create<PropertyState>((set, get) => ({
       const { filters } = get();
       const params = new URLSearchParams({ page: String(page) });
       Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+      // Exclude properties already booked by this tenant
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser?.role === "tenant") {
+        params.set("excludeBooked", currentUser._id);
+      }
       const { data } = await axios.get(`/api/properties?${params}`);
       set({ properties: data.data.properties, total: data.data.total, page: data.data.page, pages: data.data.pages });
     } finally {

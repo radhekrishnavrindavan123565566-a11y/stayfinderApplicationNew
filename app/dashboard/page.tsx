@@ -199,7 +199,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-zinc-900 dark:text-white text-sm">${b.totalPrice}</p>
+                    <p className="font-semibold text-zinc-900 dark:text-white text-sm">₹{b.totalPrice?.toLocaleString("en-IN")}</p>
                     <Badge variant={statusVariant[b.status] || "default"} className="mt-1 capitalize text-xs">
                       {b.status}
                     </Badge>

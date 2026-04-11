@@ -279,7 +279,7 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               className="text-center py-20"
             >
-              <div className="text-6xl mb-4">??</div>
+              <div className="text-6xl mb-4">🏠</div>
               <p className="text-zinc-400 text-lg mb-4">No properties found. Be the first to list one!</p>
               <Link href="/auth/register"><Button>Get Started</Button></Link>
             </motion.div>

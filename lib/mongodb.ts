@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import "@/lib/registerModels";
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
@@ -23,11 +24,20 @@ export async function connectDB() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI, { bufferCommands: false })
+      .catch((err) => {
+        // Clear cache so next request retries instead of reusing the failed promise
+        cached.promise = null;
+        throw err;
+      });
   }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    cached.promise = null;
+    throw err;
+  }
   return cached.conn;
 }
