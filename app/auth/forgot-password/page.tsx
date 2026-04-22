@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
                     <div key={s} className="flex items-center gap-2">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                         step === s ? "bg-rose-500 text-white" :
-                        (step === "otp" && s === "email") || step === "password" || step === "done" ? "bg-green-500 text-white" :
+                        (step === "otp" && s === "email") || (step as string) === "password" || (step as string) === "done" ? "bg-green-500 text-white" :
                         "bg-zinc-200 dark:bg-zinc-700 text-zinc-500"
                       }`}>{i + 1}</div>
                       {i < 1 && <div className={`flex-1 h-0.5 w-8 ${step !== "email" ? "bg-green-500" : "bg-zinc-200 dark:bg-zinc-700"}`} />}

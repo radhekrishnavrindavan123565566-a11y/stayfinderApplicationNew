@@ -47,7 +47,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.png" alt="MatchNest" width={36} height={36} className="rounded-xl" />
+            <Image src="/logo.png" alt="MatchNest" width={36} height={36} style={{ width: 36, height: "auto" }} className="rounded-xl" />
             <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900" : "text-white"}`}>
               Match<span className="text-amber-500">Nest</span>
             </span>

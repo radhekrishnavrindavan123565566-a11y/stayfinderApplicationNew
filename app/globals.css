@@ -27,7 +27,7 @@ body {
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html[data-scroll-behavior="smooth"] { scroll-behavior: smooth; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }

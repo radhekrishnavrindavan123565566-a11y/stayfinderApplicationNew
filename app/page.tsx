@@ -50,7 +50,7 @@ const CITY_CARDS = [
   { city: "Prayagraj", img: "https://images.unsplash.com/photo-1609766418204-94aae0ecfdfc?w=600&q=80", count: "1.2K+" },
   { city: "Lucknow",   img: "https://images.unsplash.com/photo-1548013146-72479768bada?w=600&q=80",    count: "2.4K+" },
   { city: "Kanpur",    img: "https://images.unsplash.com/photo-1596436889106-be35e843f974?w=600&q=80", count: "980+"  },
-  { city: "Varanasi",  img: "https://images.unsplash.com/photo-1561361058-c24e01238a46?w=600&q=80",    count: "760+"  },
+  { city: "Varanasi",  img: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=600&q=80",    count: "760+"  },
 ];
 
 const HERO_SLIDES = [

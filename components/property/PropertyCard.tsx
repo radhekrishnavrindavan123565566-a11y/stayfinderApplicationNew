@@ -63,6 +63,7 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
             src={image}
             alt={property.title}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover group-hover:scale-110 transition-transform duration-700"
           />
           {/* Gradient overlay */}
