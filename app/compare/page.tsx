@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
 
+
 interface Property {
   _id: string;
   title: string;
