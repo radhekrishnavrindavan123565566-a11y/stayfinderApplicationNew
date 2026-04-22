@@ -5,10 +5,11 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import {
   MapPin, Bed, Bath, Users, Star, Wifi, Car, Utensils,
-  Waves, Dumbbell, Wind, Tv, Coffee, MessageCircle, Zap, Shield,
+  Waves, Dumbbell, Wind, Tv, Coffee, MessageCircle, Zap, Shield, Reply,
 } from "lucide-react";
 import ImageGallery from "@/components/property/ImageGallery";
 import BookingForm from "@/components/booking/BookingForm";
+import MobileBookingBar from "@/components/booking/MobileBookingBar";
 import AvailabilityCalendar from "@/components/booking/AvailabilityCalendar";
 import StarRating from "@/components/ui/StarRating";
 import Badge from "@/components/ui/Badge";
@@ -18,6 +19,8 @@ import { format } from "date-fns";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import { useRouter } from "next/navigation";
+import { useApi } from "@/hooks/useApi";
+import toast from "react-hot-toast";
 import MatchScoreBadge from "@/components/properties/MatchScoreBadge";
 import SmartTags from "@/components/properties/SmartTags";
 import TrustProfile from "@/components/trust/TrustProfile";
@@ -39,6 +42,8 @@ interface Review {
   userId: { username: string; avatar?: string };
   rating: number;
   comment: string;
+  ownerReply?: string;
+  ownerRepliedAt?: string;
   createdAt: string;
 }
 
@@ -47,6 +52,92 @@ const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };
+
+function ReviewCard({ review, index, isOwner, onReplySubmit }: {
+  review: Review; index: number; isOwner: boolean;
+  onReplySubmit: (reply: string) => void;
+}) {
+  const { authHeaders } = useApi();
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const submitReply = async () => {
+    if (!replyText.trim()) return;
+    setSubmitting(true);
+    try {
+      await axios.post(`/api/reviews/${review._id}/reply`, { reply: replyText }, authHeaders());
+      onReplySubmit(replyText);
+      setShowReplyBox(false);
+      toast.success("Reply posted");
+    } catch {
+      toast.error("Failed to post reply");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.05 }}
+      className="bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-800"
+    >
+      <div className="flex items-center gap-3 mb-2 flex-wrap">
+        <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-950/30 flex items-center justify-center flex-shrink-0">
+          <span className="text-sm font-bold text-rose-500">{review.userId.username[0].toUpperCase()}</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-zinc-900 dark:text-white text-sm">{review.userId.username}</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">{format(new Date(review.createdAt), "MMM yyyy")}</p>
+        </div>
+        <StarRating value={review.rating} readonly size="sm" />
+      </div>
+      <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{review.comment}</p>
+
+      {/* Owner reply */}
+      {review.ownerReply && (
+        <div className="mt-3 ml-4 pl-3 border-l-2 border-rose-200 dark:border-rose-800">
+          <p className="text-xs font-semibold text-rose-500 mb-1 flex items-center gap-1">
+            <Reply className="w-3 h-3" /> Owner replied
+          </p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{review.ownerReply}</p>
+        </div>
+      )}
+
+      {/* Reply button for owner */}
+      {isOwner && !review.ownerReply && (
+        <div className="mt-3">
+          {!showReplyBox ? (
+            <button onClick={() => setShowReplyBox(true)}
+              className="flex items-center gap-1 text-xs text-rose-500 hover:text-rose-600 font-medium transition-colors">
+              <Reply className="w-3.5 h-3.5" /> Reply to this review
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
+                placeholder="Write your reply..."
+                rows={2}
+                className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-600 text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none" />
+              <div className="flex gap-2">
+                <button onClick={submitReply} disabled={submitting || !replyText.trim()}
+                  className="px-4 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50">
+                  {submitting ? "Posting..." : "Post Reply"}
+                </button>
+                <button onClick={() => setShowReplyBox(false)}
+                  className="px-4 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-medium hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+}
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -86,23 +177,60 @@ export default function PropertyDetailPage() {
 
   if (loading) return (
     <div className="min-h-screen pt-20 flex items-center justify-center bg-white dark:bg-zinc-950">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full"
-      />
+      <div className="text-center space-y-4">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full mx-auto"
+        />
+        <p className="text-sm text-zinc-400 dark:text-zinc-500">Loading property...</p>
+      </div>
     </div>
   );
 
   if (!property) return (
-    <div className="min-h-screen pt-20 flex items-center justify-center bg-white dark:bg-zinc-950">
+    <div className="min-h-screen pt-20 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 px-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center max-w-md"
       >
-        <div className="text-5xl mb-4">🏠</div>
-        <p className="text-zinc-500 dark:text-zinc-400">Property not found</p>
+        {/* Animated house icon */}
+        <motion.div
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          className="text-8xl mb-6 select-none"
+        >
+          🏚️
+        </motion.div>
+
+        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
+          Property Not Found
+        </h2>
+        <p className="text-zinc-500 dark:text-zinc-400 mb-8 leading-relaxed">
+          This property may have been removed, or the link might be incorrect.
+          Browse our available listings to find your perfect stay.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.push("/properties")}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-rose-500/25"
+          >
+            Browse Properties
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.back()}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          >
+            Go Back
+          </motion.button>
+        </div>
       </motion.div>
     </div>
   );
@@ -285,28 +413,17 @@ export default function PropertyDetailPage() {
               ) : (
                 <div className="space-y-4">
                   {reviews.map((review, i) => (
-                    <motion.div
+                    <ReviewCard
                       key={review._id}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.05 }}
-                      className="bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-800"
-                    >
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-950/30 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-bold text-rose-500">{review.userId.username[0].toUpperCase()}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-zinc-900 dark:text-white text-sm">{review.userId.username}</p>
-                          <p className="text-xs text-zinc-400 dark:text-zinc-500">{format(new Date(review.createdAt), "MMM yyyy")}</p>
-                        </div>
-                        <div className="flex-shrink-0">
-                          <StarRating value={review.rating} readonly size="sm" />
-                        </div>
-                      </div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{review.comment}</p>
-                    </motion.div>
+                      review={review}
+                      index={i}
+                      isOwner={user?._id === property.ownerId?._id}
+                      onReplySubmit={(reply) => {
+                        setReviews(prev => prev.map(r =>
+                          r._id === review._id ? { ...r, ownerReply: reply } : r
+                        ));
+                      }}
+                    />
                   ))}
                 </div>
               )}
@@ -354,6 +471,20 @@ export default function PropertyDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Mobile sticky booking bar */}
+      <MobileBookingBar
+        propertyId={property._id}
+        price={property.price}
+        maxGuests={property.maxGuests}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        instantBooking={(property as any).instantBooking}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        cancellationPolicy={(property as any).cancellationPolicy}
+      />
+
+      {/* Bottom padding on mobile to account for sticky bar */}
+      <div className="lg:hidden h-20" />
     </div>
   );
 }

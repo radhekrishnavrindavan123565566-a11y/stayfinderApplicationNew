@@ -10,21 +10,13 @@ import SocketProvider from "@/components/providers/SocketProvider";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
-  title: "StayFinder – Find Your Perfect Stay",
-  description: "Browse thousands of unique rental properties. Book your dream stay today.",
+  title: "MatchNest – Connecting Dwellings, Linking Hearts",
+  description: "Find your perfect room or tenant across Uttar Pradesh. MatchNest is your trusted mediator for PG, rooms, and rentals.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning>
-      <head>
-        {/* Apply dark class before first paint to avoid flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=JSON.parse(localStorage.getItem('theme')||'{}');if(t.state&&t.state.isDark)document.documentElement.classList.add('dark')}catch(e){}})()`,
-          }}
-        />
-      </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
         <Navbar />
         <main className="flex-1">{children}</main>

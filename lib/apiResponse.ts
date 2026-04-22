@@ -14,17 +14,27 @@ export function handleApiError(error: unknown) {
     if (error.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     if (error.message === "Forbidden") return errorResponse("Forbidden", 403);
     if (error.message === "Not Found") return errorResponse("Not Found", 404);
-    // DB / network errors should be 500, not 400
+    // JWT errors — treat as 401 not 500
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError" ||
+      error.name === "NotBeforeError"
+    ) {
+      return errorResponse("Invalid or expired token", 401);
+    }
     if (
       error.message.includes("MONGODB_URI") ||
       error.message.includes("ECONNREFUSED") ||
       error.message.includes("MongoNetworkError") ||
       error.message.includes("MongoServerSelectionError") ||
-      error.message.includes("buffering timed out")
+      error.message.includes("buffering timed out") ||
+      error.message.includes("querySrv")
     ) {
       return errorResponse("Database connection error", 500);
     }
     return errorResponse(error.message, 500);
   }
+  // Log non-Error objects too
+  console.error("Non-Error thrown:", JSON.stringify(error));
   return errorResponse("Internal server error", 500);
 }

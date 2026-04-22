@@ -7,10 +7,11 @@ import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
 import {
   Home, Calendar, Heart, Star, PlusCircle, ArrowRight,
-  TrendingUp, BarChart2, MessageCircle, GitCompare,
+  TrendingUp, BarChart2, MessageCircle, GitCompare, Wrench,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import ProfileCompleteness from "@/components/ui/ProfileCompleteness";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 
@@ -61,10 +62,10 @@ export default function DashboardPage() {
   if (!user) return null;
 
   const stats = [
-    { icon: <Calendar className="w-5 h-5" />, label: "Total Bookings", value: bookings.length, color: "bg-blue-50 text-blue-500", border: "border-blue-100" },
-    { icon: <Home className="w-5 h-5" />, label: user.role === "owner" ? "My Properties" : "Wishlist", value: user.role === "owner" ? properties.length : user.wishlist?.length || 0, color: "bg-rose-50 text-rose-500", border: "border-rose-100" },
-    { icon: <Star className="w-5 h-5" />, label: "Approved", value: bookings.filter((b) => b.status === "approved").length, color: "bg-green-50 text-green-500", border: "border-green-100" },
-    { icon: <TrendingUp className="w-5 h-5" />, label: "Pending", value: bookings.filter((b) => b.status === "pending").length, color: "bg-amber-50 text-amber-500", border: "border-amber-100" },
+    { icon: <Calendar className="w-5 h-5" />, label: "Total Bookings", value: bookings.length, color: "bg-gradient-to-br from-blue-500 to-blue-600 text-white", border: "border-blue-100 dark:border-blue-900/30", shadow: "shadow-blue-500/20" },
+    { icon: <Home className="w-5 h-5" />, label: user.role === "owner" ? "My Properties" : "Wishlist", value: user.role === "owner" ? properties.length : user.wishlist?.length || 0, color: "bg-gradient-to-br from-rose-500 to-rose-600 text-white", border: "border-rose-100 dark:border-rose-900/30", shadow: "shadow-rose-500/20" },
+    { icon: <Star className="w-5 h-5" />, label: "Approved", value: bookings.filter((b) => b.status === "approved").length, color: "bg-gradient-to-br from-green-500 to-emerald-600 text-white", border: "border-green-100 dark:border-green-900/30", shadow: "shadow-green-500/20" },
+    { icon: <TrendingUp className="w-5 h-5" />, label: "Pending", value: bookings.filter((b) => b.status === "pending").length, color: "bg-gradient-to-br from-amber-500 to-orange-500 text-white", border: "border-amber-100 dark:border-amber-900/30", shadow: "shadow-amber-500/20" },
   ];
 
   const quickActions = [
@@ -73,6 +74,7 @@ export default function DashboardPage() {
       { href: "/dashboard/properties", icon: <Home className="w-6 h-6 mb-3 text-rose-500" />, title: "My Properties", sub: "Manage your listings", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     ] : []),
     { href: "/dashboard/bookings", icon: <Calendar className="w-6 h-6 mb-3 text-blue-500" />, title: "Manage Bookings", sub: "View all your bookings", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    { href: "/dashboard/maintenance", icon: <Wrench className="w-6 h-6 mb-3 text-amber-500" />, title: "Maintenance", sub: "Report & track issues", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     { href: "/wishlist", icon: <Heart className="w-6 h-6 mb-3 text-rose-400" />, title: "Wishlist", sub: "Your saved properties", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     { href: "/chat", icon: <MessageCircle className="w-6 h-6 mb-3 text-blue-500" />, title: "Messages", sub: "Chat with owners & tenants", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     { href: "/compare", icon: <GitCompare className="w-6 h-6 mb-3 text-purple-500" />, title: "Compare", sub: "Compare properties side-by-side", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
@@ -82,7 +84,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16 mesh-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -97,6 +99,11 @@ export default function DashboardPage() {
           <p className="text-zinc-500 dark:text-zinc-400 mt-1 capitalize">{user.role} Dashboard</p>
         </motion.div>
 
+        {/* Profile Completeness */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-8">
+          <ProfileCompleteness user={user as Parameters<typeof ProfileCompleteness>[0]["user"]} />
+        </motion.div>
+
         {/* Stats */}
         <motion.div
           variants={stagger}
@@ -108,14 +115,12 @@ export default function DashboardPage() {
             <motion.div
               key={s.label}
               variants={fadeUp}
-              whileHover={{ y: -3, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
-              className={`bg-white dark:bg-zinc-900 rounded-2xl p-4 sm:p-5 shadow-sm border ${s.border} dark:border-zinc-800 transition-shadow`}
+              whileHover={{ y: -4, boxShadow: `0 16px 32px rgba(0,0,0,0.10)` }}
+              className={`bg-white dark:bg-zinc-900 rounded-2xl p-4 sm:p-5 shadow-sm border ${s.border} dark:border-zinc-800 transition-all`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.color}`}>{s.icon}</div>
-              <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {loading ? (
-                  <div className="h-7 w-8 skeleton-shimmer rounded" />
-                ) : s.value}
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 shadow-lg ${s.color} ${s.shadow}`}>{s.icon}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">
+                {loading ? <div className="h-7 w-8 skeleton-shimmer rounded" /> : s.value}
               </div>
               <div className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{s.label}</div>
             </motion.div>

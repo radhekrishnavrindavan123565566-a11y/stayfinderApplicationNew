@@ -19,3 +19,4 @@ import "@/models/RentAgreement";
 import "@/models/ServiceBooking";
 import "@/models/TypingEvent";
 import "@/models/UserPreferences";
+import "@/models/MaintenanceRequest";

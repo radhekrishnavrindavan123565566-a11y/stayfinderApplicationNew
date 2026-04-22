@@ -3,7 +3,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, Mail, Lock, KeyRound, ArrowRight, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, KeyRound, ArrowRight, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -71,10 +72,8 @@ export default function ForgotPasswordPage() {
         </div>
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-14 text-white">
           <Link href="/" className="flex items-center gap-3 mb-12 w-fit">
-            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
-              <Home className="w-5 h-5" />
-            </div>
-            <span className="text-2xl font-bold">StayFinder</span>
+            <Image src="/logo.png" alt="MatchNest" width={40} height={40} className="rounded-2xl" />
+            <span className="text-2xl font-bold">Match<span className="text-amber-300">Nest</span></span>
           </Link>
           <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Reset your password</h2>
           <p className="text-white/80 text-lg leading-relaxed max-w-sm">
@@ -87,10 +86,8 @@ export default function ForgotPasswordPage() {
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-8 bg-zinc-50 dark:bg-zinc-950 min-h-screen lg:min-h-0">
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-rose-500 rounded-xl flex items-center justify-center">
-              <Home className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-zinc-900 dark:text-white">StayFinder</span>
+            <Image src="/logo.png" alt="MatchNest" width={32} height={32} className="rounded-xl" />
+            <span className="font-bold text-zinc-900 dark:text-white">Match<span className="text-amber-500">Nest</span></span>
           </Link>
         </div>
 

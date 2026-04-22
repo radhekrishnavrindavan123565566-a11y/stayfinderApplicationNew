@@ -13,23 +13,71 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import ImageUploader from "@/components/properties/ImageUploader";
 import AIDescriptionGenerator from "@/components/properties/AIDescriptionGenerator";
-import { Sparkles, Zap, Calendar, ChevronRight, ChevronLeft, Check, Wifi, Car, UtensilsCrossed, Waves, Dumbbell, Wind, Tv, Coffee, WashingMachine, Shirt } from "lucide-react";
+import { Sparkles, Zap, Calendar, ChevronRight, ChevronLeft, Check, Wifi, Car, UtensilsCrossed, Waves, Dumbbell, Wind, Tv, Coffee, WashingMachine, Shirt, Shield, Flame, Snowflake, Dog, Baby, Bike, Bus, Utensils, Bath, BedDouble, Sofa, Sun, Leaf, Lock, Camera, Bell, Zap as Lightning, Droplets, Trash2, Package } from "lucide-react";
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
-  WiFi: <Wifi className="w-3.5 h-3.5" />,
-  Parking: <Car className="w-3.5 h-3.5" />,
-  Kitchen: <UtensilsCrossed className="w-3.5 h-3.5" />,
-  Pool: <Waves className="w-3.5 h-3.5" />,
-  Gym: <Dumbbell className="w-3.5 h-3.5" />,
-  AC: <Wind className="w-3.5 h-3.5" />,
-  TV: <Tv className="w-3.5 h-3.5" />,
-  Breakfast: <Coffee className="w-3.5 h-3.5" />,
-  Washer: <WashingMachine className="w-3.5 h-3.5" />,
-  Dryer: <Shirt className="w-3.5 h-3.5" />,
+  // Essentials
+  "WiFi":           <Wifi className="w-3.5 h-3.5" />,
+  "AC":             <Wind className="w-3.5 h-3.5" />,
+  "Heating":        <Flame className="w-3.5 h-3.5" />,
+  "TV":             <Tv className="w-3.5 h-3.5" />,
+  "Washer":         <WashingMachine className="w-3.5 h-3.5" />,
+  "Dryer":          <Shirt className="w-3.5 h-3.5" />,
+  // Kitchen
+  "Kitchen":        <UtensilsCrossed className="w-3.5 h-3.5" />,
+  "Breakfast":      <Coffee className="w-3.5 h-3.5" />,
+  "Dining Area":    <Utensils className="w-3.5 h-3.5" />,
+  "Refrigerator":   <Snowflake className="w-3.5 h-3.5" />,
+  // Bathroom
+  "Hot Water":      <Droplets className="w-3.5 h-3.5" />,
+  "Bathtub":        <Bath className="w-3.5 h-3.5" />,
+  // Outdoor & Parking
+  "Parking":        <Car className="w-3.5 h-3.5" />,
+  "Pool":           <Waves className="w-3.5 h-3.5" />,
+  "Garden":         <Leaf className="w-3.5 h-3.5" />,
+  "Balcony":        <Sun className="w-3.5 h-3.5" />,
+  "Terrace":        <Sun className="w-3.5 h-3.5" />,
+  // Fitness & Recreation
+  "Gym":            <Dumbbell className="w-3.5 h-3.5" />,
+  "Cycling":        <Bike className="w-3.5 h-3.5" />,
+  // Family
+  "Pet Friendly":   <Dog className="w-3.5 h-3.5" />,
+  "Baby Cot":       <Baby className="w-3.5 h-3.5" />,
+  // Furniture
+  "Furnished":      <Sofa className="w-3.5 h-3.5" />,
+  "Bed Linen":      <BedDouble className="w-3.5 h-3.5" />,
+  // Security
+  "CCTV":           <Camera className="w-3.5 h-3.5" />,
+  "Security Guard": <Shield className="w-3.5 h-3.5" />,
+  "Gated Society":  <Lock className="w-3.5 h-3.5" />,
+  "Intercom":       <Bell className="w-3.5 h-3.5" />,
+  // Utilities
+  "Power Backup":   <Lightning className="w-3.5 h-3.5" />,
+  "Water Supply":   <Droplets className="w-3.5 h-3.5" />,
+  "Gas Pipeline":   <Flame className="w-3.5 h-3.5" />,
+  "Waste Disposal": <Trash2 className="w-3.5 h-3.5" />,
+  // Transport
+  "Near Metro":     <Bus className="w-3.5 h-3.5" />,
+  "Bus Stop":       <Bus className="w-3.5 h-3.5" />,
+  // Storage
+  "Storage Room":   <Package className="w-3.5 h-3.5" />,
 };
 const AMENITIES = Object.keys(AMENITY_ICONS);
 const PROPERTY_TYPES = ["apartment", "house", "villa", "studio", "condo", "cabin"];
 const STEPS = ["Basics", "Location", "Photos", "Amenities", "Settings"];
+
+const COUNTRIES = [
+  "India", "United States", "United Kingdom", "Canada", "Australia",
+  "Germany", "France", "Italy", "Spain", "Netherlands",
+  "Singapore", "United Arab Emirates", "Saudi Arabia", "Qatar", "Kuwait",
+  "Japan", "South Korea", "China", "Thailand", "Malaysia",
+  "Indonesia", "Philippines", "Vietnam", "Bangladesh", "Pakistan",
+  "Sri Lanka", "Nepal", "New Zealand", "South Africa", "Nigeria",
+  "Kenya", "Egypt", "Brazil", "Mexico", "Argentina",
+  "Portugal", "Sweden", "Norway", "Denmark", "Finland",
+  "Switzerland", "Austria", "Belgium", "Poland", "Turkey",
+  "Russia", "Ukraine", "Israel", "Jordan", "Bahrain",
+];
 
 export default function NewPropertyPage() {
   const { user } = useAuthStore();
@@ -176,11 +224,21 @@ export default function NewPropertyPage() {
                 <h2 className="font-semibold text-zinc-900 text-lg">Location</h2>
                 <Input label="Street Address" placeholder="123 Main Street" error={errors.location?.address?.message} {...register("location.address")} />
                 <div className="grid grid-cols-2 gap-4">
-                  <Input label="City" placeholder="New York" error={errors.location?.city?.message}
+                  <Input label="City" placeholder="Mumbai" error={errors.location?.city?.message}
                     {...register("location.city", { onBlur: (e) => fetchPriceSuggestion(e.target.value) })} />
-                  <Input label="State / Province" placeholder="NY" error={errors.location?.state?.message} {...register("location.state")} />
+                  <Input label="State / Province" placeholder="Maharashtra" error={errors.location?.state?.message} {...register("location.state")} />
                 </div>
-                <Input label="Country" placeholder="United States" error={errors.location?.country?.message} {...register("location.country")} />
+                <div>
+                  <label className="text-sm font-medium text-zinc-700 block mb-1.5">Country</label>
+                  <select
+                    {...register("location.country")}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-zinc-800 dark:text-white ${errors.location?.country ? "border-red-400" : "border-zinc-200 dark:border-zinc-600"}`}
+                  >
+                    <option value="">Select country...</option>
+                    {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  {errors.location?.country && <p className="text-xs text-red-500 mt-1">{errors.location.country.message}</p>}
+                </div>
               </motion.div>
             )}
 
@@ -201,23 +259,41 @@ export default function NewPropertyPage() {
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-                <h2 className="font-semibold text-zinc-900 text-lg mb-4">Amenities</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {AMENITIES.map((a) => {
-                    const selected = selectedAmenities.includes(a);
-                    return (
-                      <motion.button key={a} type="button" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                        onClick={() => toggleAmenity(a)}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border transition-all ${
-                          selected ? "bg-rose-500 text-white border-rose-500 shadow-sm" : "bg-white text-zinc-600 border-zinc-200 hover:border-rose-300"
-                        }`}>
-                        {AMENITY_ICONS[a]}
-                        {a}
-                        {selected && <Check className="w-3.5 h-3.5 ml-auto" />}
-                      </motion.button>
-                    );
-                  })}
-                </div>
+                <h2 className="font-semibold text-zinc-900 text-lg mb-1">Amenities</h2>
+                <p className="text-xs text-zinc-400 mb-4">{selectedAmenities.length} selected</p>
+
+                {[
+                  { label: "Essentials", items: ["WiFi", "AC", "Heating", "TV", "Washer", "Dryer"] },
+                  { label: "Kitchen", items: ["Kitchen", "Breakfast", "Dining Area", "Refrigerator"] },
+                  { label: "Bathroom", items: ["Hot Water", "Bathtub"] },
+                  { label: "Outdoor & Parking", items: ["Parking", "Pool", "Garden", "Balcony", "Terrace"] },
+                  { label: "Fitness & Recreation", items: ["Gym", "Cycling"] },
+                  { label: "Family", items: ["Pet Friendly", "Baby Cot"] },
+                  { label: "Furniture", items: ["Furnished", "Bed Linen"] },
+                  { label: "Security", items: ["CCTV", "Security Guard", "Gated Society", "Intercom"] },
+                  { label: "Utilities", items: ["Power Backup", "Water Supply", "Gas Pipeline", "Waste Disposal"] },
+                  { label: "Transport & Storage", items: ["Near Metro", "Bus Stop", "Storage Room"] },
+                ].map((group) => (
+                  <div key={group.label} className="mb-5">
+                    <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{group.label}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {group.items.map((a) => {
+                        const selected = selectedAmenities.includes(a);
+                        return (
+                          <motion.button key={a} type="button" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => toggleAmenity(a)}
+                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                              selected ? "bg-rose-500 text-white border-rose-500 shadow-sm" : "bg-white text-zinc-600 border-zinc-200 hover:border-rose-300"
+                            }`}>
+                            {AMENITY_ICONS[a]}
+                            <span className="truncate">{a}</span>
+                            {selected && <Check className="w-3.5 h-3.5 ml-auto flex-shrink-0" />}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </motion.div>
             )}
 

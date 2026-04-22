@@ -8,9 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
 import {
-  Home, Mail, Lock, User, Eye, EyeOff,
+  Mail, Lock, User, Eye, EyeOff,
   AlertCircle, CheckCircle2, ArrowRight, KeyRound, ShieldCheck,
 } from "lucide-react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -144,7 +145,7 @@ export default function RegisterPage() {
     try {
       await axios.put("/api/auth/send-otp", { email: pendingData.email, otp: otpValue });
       await registerUser(pendingData);
-      toast.success("Account created! Welcome to StayFinder.");
+      toast.success("Account created! Welcome to MatchNest.");
       router.push("/");
     } catch (err) {
       const msg = axios.isAxiosError(err)
@@ -196,10 +197,8 @@ export default function RegisterPage() {
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-14 text-white">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <motion.div whileHover={{ rotate: 10 }} className="w-10 h-10 bg-rose-500 rounded-2xl flex items-center justify-center">
-                <Home className="w-5 h-5" />
-              </motion.div>
-              <span className="text-2xl font-bold group-hover:text-rose-400 transition-colors">StayFinder</span>
+              <Image src="/logo.png" alt="MatchNest" width={40} height={40} className="rounded-2xl" />
+              <span className="text-2xl font-bold group-hover:text-rose-400 transition-colors">Match<span className="text-amber-400">Nest</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Join us today</h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-10 max-w-sm">
@@ -226,10 +225,8 @@ export default function RegisterPage() {
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-8 bg-zinc-50 dark:bg-zinc-950 overflow-y-auto min-h-screen lg:min-h-0">
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-rose-500 rounded-xl flex items-center justify-center">
-              <Home className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-zinc-900 dark:text-white">StayFinder</span>
+            <Image src="/logo.png" alt="MatchNest" width={32} height={32} className="rounded-xl" />
+            <span className="font-bold text-zinc-900 dark:text-white">Match<span className="text-amber-500">Nest</span></span>
           </Link>
         </div>
 
@@ -247,7 +244,7 @@ export default function RegisterPage() {
                 <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="mb-6">
                     <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Create account</h1>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Join thousands of users on StayFinder</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Join thousands of users on MatchNest</p>
                   </div>
 
                   <AnimatePresence>

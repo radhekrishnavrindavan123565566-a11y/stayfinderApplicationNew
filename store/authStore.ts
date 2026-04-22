@@ -59,8 +59,8 @@ axios.interceptors.response.use(
         return axios(original);
       } catch (err) {
         processQueue(err, null);
-        // Only clear session if refresh explicitly returned 401
-        if (axios.isAxiosError(err) && err.response?.status === 401) {
+        // Clear session if refresh failed (401 = invalid token, 500 = server error)
+        if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 500)) {
           useAuthStore.getState().setUser(null);
           useAuthStore.getState().setAccessToken(null);
         }

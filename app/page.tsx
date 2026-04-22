@@ -14,28 +14,28 @@ import axios from "axios";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 
 const CATEGORIES = [
-  { label: "Apartments", icon: "🏢", type: "apartment" },
-  { label: "Houses", icon: "🏠", type: "house" },
-  { label: "Villas", icon: "🏡", type: "villa" },
-  { label: "Studios", icon: "🛋️", type: "studio" },
-  { label: "Cabins", icon: "🌲", type: "cabin" },
-  { label: "Condos", icon: "🏙️", type: "condo" },
+  { label: "Apartments", icon: "🏢", type: "apartment", color: "hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:border-blue-200 dark:hover:border-blue-800" },
+  { label: "Houses",     icon: "🏠", type: "house",     color: "hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-800" },
+  { label: "Villas",     icon: "🏡", type: "villa",     color: "hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:border-amber-200 dark:hover:border-amber-800" },
+  { label: "Studios",    icon: "🛋️", type: "studio",    color: "hover:bg-purple-50 dark:hover:bg-purple-950/30 hover:border-purple-200 dark:hover:border-purple-800" },
+  { label: "Cabins",     icon: "🌲", type: "cabin",     color: "hover:bg-green-50 dark:hover:bg-green-950/30 hover:border-green-200 dark:hover:border-green-800" },
+  { label: "Condos",     icon: "🏙️", type: "condo",     color: "hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:border-indigo-200 dark:hover:border-indigo-800" },
 ];
 
 const STATS = [
   { value: "10K+", label: "Properties" },
   { value: "50K+", label: "Happy Guests" },
   { value: "120+", label: "Cities" },
-  { value: "4.9?", label: "Avg Rating" },
+  { value: "4.9★", label: "Avg Rating" },
 ];
 
 const WHY_US = [
-  { icon: <Shield className="w-6 h-6" />, title: "Verified Properties", desc: "Every listing is verified by our team for quality and accuracy.", color: "bg-blue-50 text-blue-500" },
-  { icon: <Star className="w-6 h-6" />, title: "Top Rated Stays", desc: "Browse properties with thousands of 5-star reviews from real guests.", color: "bg-amber-50 text-amber-500" },
-  { icon: <Clock className="w-6 h-6" />, title: "Instant Booking", desc: "Book your stay in minutes with our seamless booking process.", color: "bg-green-50 text-green-500" },
-  { icon: <TrendingUp className="w-6 h-6" />, title: "Best Prices", desc: "AI-powered pricing ensures you always get the best deal available.", color: "bg-purple-50 text-purple-500" },
-  { icon: <MapPin className="w-6 h-6" />, title: "Prime Locations", desc: "Properties in the most sought-after neighborhoods worldwide.", color: "bg-rose-50 text-rose-500" },
-  { icon: <Sparkles className="w-6 h-6" />, title: "AI Recommendations", desc: "Smart suggestions tailored to your preferences and history.", color: "bg-indigo-50 text-indigo-500" },
+  { icon: <Shield className="w-6 h-6" />, title: "Verified Properties", desc: "Every listing is verified by our team for quality and accuracy.", color: "bg-blue-50 text-blue-500", gradient: "from-blue-500/10 to-blue-600/5", border: "border-blue-100 dark:border-blue-900/30" },
+  { icon: <Star className="w-6 h-6" />, title: "Top Rated Stays", desc: "Browse properties with thousands of 5-star reviews from real guests.", color: "bg-amber-50 text-amber-500", gradient: "from-amber-500/10 to-amber-600/5", border: "border-amber-100 dark:border-amber-900/30" },
+  { icon: <Clock className="w-6 h-6" />, title: "Instant Booking", desc: "Book your stay in minutes with our seamless booking process.", color: "bg-green-50 text-green-500", gradient: "from-green-500/10 to-green-600/5", border: "border-green-100 dark:border-green-900/30" },
+  { icon: <TrendingUp className="w-6 h-6" />, title: "Best Prices", desc: "AI-powered pricing ensures you always get the best deal available.", color: "bg-purple-50 text-purple-500", gradient: "from-purple-500/10 to-purple-600/5", border: "border-purple-100 dark:border-purple-900/30" },
+  { icon: <MapPin className="w-6 h-6" />, title: "Prime Locations", desc: "Properties in the most sought-after neighborhoods worldwide.", color: "bg-rose-50 text-rose-500", gradient: "from-rose-500/10 to-rose-600/5", border: "border-rose-100 dark:border-rose-900/30" },
+  { icon: <Sparkles className="w-6 h-6" />, title: "AI Recommendations", desc: "Smart suggestions tailored to your preferences and history.", color: "bg-indigo-50 text-indigo-500", gradient: "from-indigo-500/10 to-indigo-600/5", border: "border-indigo-100 dark:border-indigo-900/30" },
 ];
 
 const stagger: Variants = {
@@ -155,9 +155,10 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-block bg-rose-500/20 backdrop-blur-sm border border-rose-500/30 text-rose-300 text-sm font-medium px-4 py-1.5 rounded-full mb-6"
+              className="inline-flex items-center gap-2 bg-rose-500/20 backdrop-blur-sm border border-rose-500/30 text-rose-300 text-sm font-medium px-4 py-1.5 rounded-full mb-6"
             >
-              ?? Find your perfect stay
+              <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>✨</motion.span>
+              Find your perfect stay
             </motion.span>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight mb-6">
               Discover Your
@@ -235,13 +236,19 @@ export default function HomePage() {
             <motion.button
               key={cat.type}
               variants={fadeUp}
-              whileHover={{ y: -6, scale: 1.04 }}
+              whileHover={{ y: -6, scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleCategory(cat.type)}
-              className="flex flex-col items-center gap-2 p-3 sm:p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 hover:border-rose-200 dark:hover:border-rose-800 hover:shadow-lg hover:shadow-rose-500/10 transition-all cursor-pointer"
+              className={`flex flex-col items-center gap-2 p-3 sm:p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 ${cat.color} hover:shadow-lg transition-all cursor-pointer`}
             >
-              <span className="text-2xl sm:text-3xl">{cat.icon}</span>
-              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{cat.label}</span>
+              <motion.span
+                whileHover={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.4 }}
+                className="text-2xl sm:text-4xl"
+              >
+                {cat.icon}
+              </motion.span>
+              <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{cat.label}</span>
             </motion.button>
           ))}
         </motion.div>
@@ -317,7 +324,7 @@ export default function HomePage() {
             transition={{ duration: 0.5 }}
             className="text-center mb-14"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-2">Why Choose StayFinder?</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-2">Why Choose MatchNest?</h2>
             <p className="text-zinc-500 dark:text-zinc-400">Everything you need for a perfect stay</p>
           </motion.div>
           <motion.div
@@ -331,11 +338,17 @@ export default function HomePage() {
               <motion.div
                 key={i}
                 variants={fadeUp}
-                whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(0,0,0,0.08)" }}
-                className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 text-center transition-shadow"
+                whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.10)" }}
+                className={`bg-gradient-to-br ${item.gradient} bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border ${item.border} dark:border-zinc-800 text-center transition-all group cursor-default`}
               >
-                <div className={`w-12 h-12 ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}>{item.icon}</div>
-                <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">{item.title}</h3>
+                <motion.div
+                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.4 }}
+                  className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm`}
+                >
+                  {item.icon}
+                </motion.div>
+                <h3 className="font-bold text-zinc-900 dark:text-white mb-2 text-base">{item.title}</h3>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}

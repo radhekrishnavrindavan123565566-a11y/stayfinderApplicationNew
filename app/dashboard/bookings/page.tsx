@@ -14,6 +14,7 @@ import Image from "next/image";
 import EcosystemServices from "@/components/booking/EcosystemServices";
 import MoveInConfirmation from "@/components/booking/MoveInConfirmation";
 import DisputeForm from "@/components/booking/DisputeForm";
+import MaintenanceForm from "@/components/maintenance/MaintenanceForm";
 
 const statusVariant: Record<string, "success" | "warning" | "danger" | "info" | "default"> = {
   approved: "success", pending: "warning", rejected: "danger", cancelled: "danger", completed: "info",
@@ -255,10 +256,11 @@ export default function BookingsPage() {
                     </div>
                   )}
 
-                  {/* Ecosystem services */}
+                  {/* Tenant actions */}
                   {tab === "tenant" && b.status === "approved" && (
                     <div className="px-4 sm:px-5 pb-5 space-y-3">
                       <MoveInConfirmation bookingId={b._id} onConfirmed={fetchBookings} />
+                      <MaintenanceForm bookingId={b._id} />
                       <EcosystemServices bookingId={b._id} city={b.propertyId?.location?.city} />
                       <DisputeForm bookingId={b._id} />
                     </div>

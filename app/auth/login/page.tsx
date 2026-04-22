@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
-import { Home, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -121,13 +122,8 @@ export default function LoginPage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <motion.div
-                whileHover={{ rotate: 10 }}
-                className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center"
-              >
-                <Home className="w-5 h-5" />
-              </motion.div>
-              <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">StayFinder</span>
+              <Image src="/logo.png" alt="MatchNest" width={40} height={40} className="rounded-2xl" />
+              <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">Match<span className="text-amber-300">Nest</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Welcome back!</h2>
             <p className="text-white/80 text-lg leading-relaxed mb-10 max-w-sm">
@@ -156,10 +152,8 @@ export default function LoginPage() {
         {/* Mobile logo */}
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-rose-500 rounded-xl flex items-center justify-center">
-              <Home className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-zinc-900 dark:text-white">StayFinder</span>
+            <Image src="/logo.png" alt="MatchNest" width={32} height={32} className="rounded-xl" />
+            <span className="font-bold text-zinc-900 dark:text-white">Match<span className="text-amber-500">Nest</span></span>
           </Link>
         </div>
 

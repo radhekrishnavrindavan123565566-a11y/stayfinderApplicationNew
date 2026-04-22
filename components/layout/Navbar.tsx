@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2 } from "lucide-react";
+import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -47,11 +47,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <motion.div whileHover={{ rotate: 10 }} className="w-8 h-8 bg-rose-500 rounded-xl flex items-center justify-center">
-              <Home className="w-4 h-4 text-white" />
-            </motion.div>
+            <Image src="/logo.png" alt="MatchNest" width={36} height={36} className="rounded-xl" />
             <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900" : "text-white"}`}>
-              StayFinder
+              Match<span className="text-amber-500">Nest</span>
             </span>
           </Link>
 
@@ -112,6 +110,7 @@ export default function Navbar() {
                       <div className="py-1">
                         <DropItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/bookings" icon={<Calendar className="w-4 h-4" />} label="My Bookings" onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label="Maintenance" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/wishlist" icon={<Heart className="w-4 h-4" />} label="Wishlist" onClick={() => setDropdownOpen(false)} />
                         {user.role === "owner" && (
                           <>
@@ -168,6 +167,7 @@ export default function Navbar() {
               <>
                 <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Dashboard</Link>
                 <Link href="/dashboard/bookings" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Bookings</Link>
+                <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Maintenance</Link>
                 <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Wishlist</Link>
                 <Link href="/chat" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Messages</Link>
                 {user.role === "owner" && (

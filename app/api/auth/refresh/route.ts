@@ -10,7 +10,12 @@ export async function POST(req: NextRequest) {
     const token = req.cookies.get("refreshToken")?.value;
     if (!token) return errorResponse("No refresh token", 401);
 
-    const payload = verifyRefreshToken(token);
+    let payload;
+    try {
+      payload = verifyRefreshToken(token);
+    } catch {
+      return errorResponse("Invalid or expired refresh token", 401);
+    }
     const user = await User.findById(payload.userId);
     if (!user || user.refreshToken !== token) return errorResponse("Invalid refresh token", 401);
 

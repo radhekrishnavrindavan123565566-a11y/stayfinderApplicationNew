@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { Home, Twitter, Instagram, Facebook, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { Twitter, Instagram, Facebook, ArrowRight } from "lucide-react";
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const fadeUp: Variants = {
@@ -41,18 +42,13 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={fadeUp} className="col-span-2 sm:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4 group w-fit">
-              <motion.div
-                whileHover={{ rotate: 10, scale: 1.1 }}
-                className="w-8 h-8 bg-rose-500 rounded-xl flex items-center justify-center"
-              >
-                <Home className="w-4 h-4 text-white" />
-              </motion.div>
-              <span className="font-bold text-lg text-white group-hover:text-rose-400 transition-colors">
-                StayFinder
+              <Image src="/logo.png" alt="MatchNest" width={36} height={36} className="rounded-xl" />
+              <span className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors">
+                Match<span className="text-amber-400">Nest</span>
               </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs mb-5">
-              Find your perfect stay. Browse thousands of unique properties around the world.
+              Connecting Dwellings, Linking Hearts. Find your perfect room across Uttar Pradesh.
             </p>
             <div className="flex gap-3">
               {SOCIALS.map(({ Icon, label }) => (
@@ -114,7 +110,7 @@ export default function Footer() {
           transition={{ delay: 0.3 }}
           className="border-t border-zinc-800 mt-10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs"
         >
-          <p>© {new Date().getFullYear()} StayFinder. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MatchNest. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>

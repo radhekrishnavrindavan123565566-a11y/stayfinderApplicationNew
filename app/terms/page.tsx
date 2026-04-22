@@ -21,137 +21,108 @@ const SECTIONS = [
     icon: <FileText className="w-5 h-5" />,
     title: "1. Acceptance of Terms",
     color: "bg-rose-50 dark:bg-rose-950/30 text-rose-500",
-    content: `By accessing or using StayFinder ("the Platform"), you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.
-
-These terms apply to all visitors, users, and others who access or use the Platform, including guests, property owners, and administrators.
-
-We reserve the right to update these terms at any time. Continued use of the Platform after changes constitutes acceptance of the new terms. We will notify users of significant changes via email or prominent notice on the Platform.`,
+    content: `By downloading, installing, or using the MatchNest application, you ("User," "Owner," or "Tenant") agree to be bound by these Terms and Conditions. If you do not agree, please discontinue use immediately.`,
   },
   {
-    id: "accounts",
-    icon: <Users className="w-5 h-5" />,
-    title: "2. User Accounts",
+    id: "scope",
+    icon: <Shield className="w-5 h-5" />,
+    title: "2. Scope of Service (The Mediator Role)",
     color: "bg-blue-50 dark:bg-blue-950/30 text-blue-500",
-    content: `To access certain features, you must create an account. You are responsible for:
+    content: `MatchNest is a digital platform acting as an Intermediary under the Information Technology Act.
 
-• Maintaining the confidentiality of your account credentials
-• All activities that occur under your account
-• Providing accurate, current, and complete information
-• Notifying us immediately of any unauthorized use
+• Nature of Business: We provide a portal where individual property owners, PG managers, and Hotel operators can list available rooms.
+• No Ownership: MatchNest does not own, inspect, or manage any of the listed properties. We are a bridge, not a landlord.`,
+  },
+  {
+    id: "users",
+    icon: <Users className="w-5 h-5" />,
+    title: "3. User Categories & Obligations",
+    color: "bg-green-50 dark:bg-green-950/30 text-green-500",
+    content: `A. For Property Owners (Individual / PG / Hotel):
 
-You must be at least 18 years old to create an account. We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity.
+• Legal Ownership: You represent that you have the legal right to rent the premises.
+• Accuracy: You must provide genuine photos and descriptions. Under IT Rules 2026, the use of AI-generated or "Deepfake" images to misrepresent a property is strictly prohibited.
+• UP Tenancy Compliance: Owners must comply with the UP Regulation of Urban Premises Tenancy Act, 2021, which mandates a written rent agreement for all tenancies.
 
-Account types include Guest (tenant), Property Owner, and Administrator. Each role has specific permissions and responsibilities outlined in this agreement.`,
+B. For Tenants:
+
+• Verification: You are solely responsible for inspecting the property and verifying the Owner's identity before making any payment.
+• Conduct: You agree to use the platform only for lawful housing searches.`,
   },
   {
     id: "listings",
-    icon: <Shield className="w-5 h-5" />,
-    title: "3. Property Listings",
-    color: "bg-green-50 dark:bg-green-950/30 text-green-500",
-    content: `Property owners who list on StayFinder agree to:
-
-• Provide accurate and truthful descriptions of their properties
-• Upload genuine, unedited photographs of the actual property
-• Maintain availability calendars in real-time
-• Honor all confirmed bookings unless extraordinary circumstances apply
-• Comply with all local laws, regulations, and zoning requirements
-• Obtain all necessary permits and licenses for short-term rentals
-
-StayFinder reserves the right to remove any listing that violates these terms, contains misleading information, or receives consistent negative reviews. Owners are solely responsible for the accuracy of their listings.`,
-  },
-  {
-    id: "payments",
-    icon: <CreditCard className="w-5 h-5" />,
-    title: "4. Payments & Fees",
+    icon: <BookOpen className="w-5 h-5" />,
+    title: "4. Listing & Advertising Policy",
     color: "bg-amber-50 dark:bg-amber-950/30 text-amber-500",
-    content: `StayFinder uses a secure escrow payment system:
-
-• Payments are held in escrow until the guest confirms check-in
-• A platform fee of 5–12% applies to each transaction
-• Property owners receive their earnings within 3–5 business days after check-in confirmation
-• All prices are displayed in USD unless otherwise specified
-
-Refunds are subject to the property's cancellation policy. StayFinder's platform fee is non-refundable except in cases of platform error. We use Stripe for payment processing and do not store credit card information on our servers.
-
-Boosted listings are charged a one-time fee of $29.99 for 7 days of featured placement.`,
+    content: `• Verification Icons: MatchNest may provide a "Verified" badge to some listings. This badge only indicates that basic document checks (like Aadhaar) were performed and does not guarantee the safety of the neighborhood or the quality of the stay.
+• Service Fees: MatchNest may charge a convenience fee for premium listings or successful matches. All fees are subject to GST (18% as of current norms).`,
   },
   {
-    id: "cancellations",
-    icon: <RefreshCw className="w-5 h-5" />,
-    title: "5. Cancellations & Refunds",
+    id: "deposits",
+    icon: <CreditCard className="w-5 h-5" />,
+    title: "5. Security Deposits & Rent (UP Laws)",
     color: "bg-purple-50 dark:bg-purple-950/30 text-purple-500",
-    content: `Cancellation policies are set by property owners and fall into three categories:
+    content: `In accordance with the Model Tenancy Act followed in Uttar Pradesh:
 
-Flexible: Full refund if cancelled 24+ hours before check-in.
-Moderate: Full refund if cancelled 5+ days before check-in; 50% refund within 5 days.
-Strict: 50% refund if cancelled 7+ days before check-in; no refund within 7 days.
-
-In cases of property misrepresentation, safety concerns, or platform errors, StayFinder may issue full refunds at its discretion. Disputes must be filed within 48 hours of check-in. Our dispute resolution team will review all claims within 5 business days.`,
-  },
-  {
-    id: "conduct",
-    icon: <AlertTriangle className="w-5 h-5" />,
-    title: "6. Prohibited Conduct",
-    color: "bg-red-50 dark:bg-red-950/30 text-red-500",
-    content: `Users are strictly prohibited from:
-
-• Posting false, misleading, or fraudulent listings or reviews
-• Harassing, threatening, or discriminating against other users
-• Attempting to circumvent the platform to avoid fees
-• Using the platform for illegal activities of any kind
-• Scraping, crawling, or data-mining the platform without permission
-• Creating multiple accounts to manipulate ratings or reviews
-• Sharing account credentials with unauthorized parties
-• Violating any applicable local, state, or federal laws
-
-Violations may result in immediate account suspension, legal action, and reporting to relevant authorities.`,
+• Deposit Cap: For residential properties, security deposits are generally capped at 2 months' rent.
+• Transactions: MatchNest is not responsible for the collection, handling, or refund of security deposits. These must be transacted directly between Owner and Tenant.`,
   },
   {
     id: "privacy",
     icon: <Lock className="w-5 h-5" />,
-    title: "7. Privacy & Data",
+    title: "6. Data Privacy (DPDP Act 2023 Compliance)",
     color: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500",
-    content: `Your privacy matters to us. We collect and process personal data in accordance with our Privacy Policy, which is incorporated into these Terms by reference.
-
-We collect information you provide directly (name, email, payment info), information generated by your use of the platform (bookings, reviews, messages), and technical data (IP address, device info, cookies).
-
-We use this data to provide and improve our services, process payments, prevent fraud, and communicate with you. We do not sell your personal data to third parties. We may share data with service providers who assist in operating the platform under strict confidentiality agreements.
-
-You have the right to access, correct, or delete your personal data at any time by contacting us at privacy@stayfinder.com.`,
+    content: `• Consent: By using MatchNest, you consent to the processing of your digital personal data (Name, Phone Number, Location) for the purpose of matching you with a room/tenant.
+• Data Erasure: Users have the right to request the deletion of their account and associated data at any time through the app settings.`,
+  },
+  {
+    id: "safety",
+    icon: <Shield className="w-5 h-5" />,
+    title: "7. Safety & Police Verification",
+    color: "bg-teal-50 dark:bg-teal-950/30 text-teal-500",
+    content: `• Mandatory Requirement: In major UP cities (Lucknow, Kanpur, Noida, etc.), Police Verification of tenants is a legal requirement for the Owner.
+• Disclaimer: MatchNest does not perform police verification. Owners must complete this process through the UP Police "Citizen Service" Portal/App independently.`,
   },
   {
     id: "liability",
     icon: <Scale className="w-5 h-5" />,
     title: "8. Limitation of Liability",
     color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-500",
-    content: `StayFinder acts as a marketplace connecting guests and property owners. We are not a party to the rental agreement between guests and owners.
+    content: `MatchNest shall not be liable for:
 
-To the maximum extent permitted by law, StayFinder shall not be liable for:
+1. Financial loss due to scams or off-platform transactions.
+2. Property damage caused by tenants.
+3. Eviction disputes or legal conflicts between Owner and Tenant.
+4. Variations in room quality compared to online photos.`,
+  },
+  {
+    id: "conduct",
+    icon: <AlertTriangle className="w-5 h-5" />,
+    title: "9. Prohibited Conduct",
+    color: "bg-red-50 dark:bg-red-950/30 text-red-500",
+    content: `• Posting fraudulent listings or "Bait and Switch" pricing.
+• Using the app to bypass the mediation process once a contact is initiated.
+• Discriminating against users based on religion, caste, gender, or food preferences in a way that violates Indian Constitutional laws.`,
+  },
+  {
+    id: "grievance",
+    icon: <Mail className="w-5 h-5" />,
+    title: "10. Grievance Redressal",
+    color: "bg-orange-50 dark:bg-orange-950/30 text-orange-500",
+    content: `In compliance with IT Rules 2026, MatchNest has appointed a Grievance Officer to address complaints regarding content or service.
 
-• Any indirect, incidental, special, or consequential damages
-• Loss of profits, data, or goodwill
-• Property damage or personal injury occurring during a stay
-• Actions or omissions of property owners or guests
-• Third-party services or content linked from our platform
-
-Our total liability for any claim shall not exceed the amount paid by you to StayFinder in the 12 months preceding the claim. Some jurisdictions do not allow limitation of liability, so these limitations may not apply to you.`,
+• Contact: grievance@matchnest.com
+• Timeline: Takedown requests for illegal content or fake profiles will be addressed within 24–72 hours.`,
   },
   {
     id: "contact",
-    icon: <Mail className="w-5 h-5" />,
-    title: "9. Contact & Governing Law",
-    color: "bg-teal-50 dark:bg-teal-950/30 text-teal-500",
-    content: `These Terms are governed by the laws of the State of New York, United States, without regard to conflict of law principles.
+    icon: <Scale className="w-5 h-5" />,
+    title: "11. Governing Law & Jurisdiction",
+    color: "bg-rose-50 dark:bg-rose-950/30 text-rose-500",
+    content: `These terms are governed by the laws of India and the State of Uttar Pradesh. Any legal proceedings shall be subject to the exclusive jurisdiction of the Courts at Prayagraj, UP.
 
-Any disputes arising from these Terms shall be resolved through binding arbitration in New York, NY, except that either party may seek injunctive relief in court for intellectual property violations.
-
-For questions about these Terms, contact us at:
-
-Email: legal@stayfinder.com
-Address: 123 Stay Street, New York, NY 10001
-Phone: +1 (800) 123-4567
-
-Last updated: March 28, 2026`,
+Last Updated: April 18, 2026
+Jurisdiction: Prayagraj, Uttar Pradesh, India`,
   },
 ];
 
@@ -211,7 +182,7 @@ export default function TermsPage() {
             transition={{ delay: 0.25, duration: 0.6 }}
             className="text-white/70 text-lg max-w-xl mx-auto"
           >
-            Please read these terms carefully before using StayFinder. They govern your use of our platform and services.
+            Please read these terms carefully before using MatchNest. They govern your use of our platform and services.
           </motion.p>
 
           <motion.div
@@ -221,7 +192,7 @@ export default function TermsPage() {
             className="mt-6 inline-flex items-center gap-2 text-white/50 text-sm"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            Last updated: March 28, 2026
+            Last updated: April 18, 2026
           </motion.div>
         </div>
       </section>
@@ -272,8 +243,8 @@ export default function TermsPage() {
           <div>
             <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">Important Notice</p>
             <p className="text-amber-700 dark:text-amber-400 text-sm mt-0.5 leading-relaxed">
-              By using StayFinder, you agree to these terms. If you have questions, contact us at{" "}
-              <a href="mailto:legal@stayfinder.com" className="underline font-medium">legal@stayfinder.com</a> before proceeding.
+              By using MatchNest, you agree to these terms. If you have questions, contact us at{" "}
+              <a href="mailto:grievance@matchnest.com" className="underline font-medium">grievance@matchnest.com</a> before proceeding.
             </p>
           </div>
         </motion.div>
@@ -356,6 +327,30 @@ export default function TermsPage() {
         </motion.div>
       </section>
 
+      {/* ── I Agree Summary ── */}
+      <section className="py-10 px-4 max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900 rounded-2xl p-6"
+        >
+          <p className="font-bold text-rose-700 dark:text-rose-300 text-base mb-3">
+            "I Agree" Summary
+          </p>
+          <p className="text-rose-600 dark:text-rose-400 text-sm mb-4 leading-relaxed">
+            By clicking "I Agree," I understand that:
+          </p>
+          <ol className="space-y-2 text-sm text-rose-700 dark:text-rose-300 list-decimal list-inside leading-relaxed">
+            <li>MatchNest is a <span className="font-semibold">Mediator</span>, not a Landlord.</li>
+            <li>I must <span className="font-semibold">verify</span> the property and person before paying any money.</li>
+            <li>I will comply with <span className="font-semibold">UP Tenancy Laws</span> including written agreements.</li>
+            <li>My data will be used securely to help find me a match.</li>
+          </ol>
+        </motion.div>
+      </section>
+
       {/* ── Footer CTA ── */}
       <section className="py-16 px-4 bg-zinc-50 dark:bg-zinc-900/50">
         <motion.div
@@ -376,14 +371,14 @@ export default function TermsPage() {
             Questions about our terms?
           </h2>
           <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-            Our legal team is happy to clarify anything. Reach out and we&apos;ll respond within 24 hours.
+            Our team is happy to clarify anything. Reach out and we&apos;ll respond within 24–72 hours.
           </p>
           <a
-            href="mailto:legal@stayfinder.com"
+            href="mailto:grievance@matchnest.com"
             className="inline-flex items-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-rose-500/25"
           >
             <Mail className="w-4 h-4" />
-            Contact Legal Team
+            Contact Grievance Officer
           </a>
         </motion.div>
       </section>

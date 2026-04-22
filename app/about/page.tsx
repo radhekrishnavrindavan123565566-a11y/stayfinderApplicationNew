@@ -42,11 +42,11 @@ const TEAM = [
 ];
 
 const MILESTONES = [
-  { year: "2021", title: "Founded", desc: "StayFinder was born in a small NYC apartment with a big idea." },
-  { year: "2022", title: "1,000 Properties", desc: "Reached our first major milestone with listings across 10 cities." },
-  { year: "2023", title: "AI Launch", desc: "Launched AI-powered search and smart pricing recommendations." },
-  { year: "2024", title: "50K Users", desc: "Crossed 50,000 happy guests and expanded to 120+ cities globally." },
-  { year: "2025", title: "Series A", desc: "Raised $12M to accelerate growth and build new features." },
+  { year: "2024", title: "Founded", desc: "MatchNest was born in Prayagraj with a mission to simplify room rentals across UP." },
+  { year: "2025", title: "1,000 Properties", desc: "Reached our first major milestone with listings across 10 cities in Uttar Pradesh." },
+  { year: "2025", title: "AI Launch", desc: "Launched AI-powered search and smart pricing recommendations." },
+  { year: "2026", title: "50K Users", desc: "Crossed 50,000 users and expanded to all major UP cities." },
+  { year: "2026", title: "Series A", desc: "Raised funding to accelerate growth and build new features." },
 ];
 
 export default function AboutPage() {
@@ -63,7 +63,7 @@ export default function AboutPage() {
         <motion.div style={{ y: heroY }} className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1920&q=80"
-            alt="About StayFinder"
+            alt="About MatchNest"
             fill
             className="object-cover"
             priority
@@ -114,7 +114,7 @@ export default function AboutPage() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-lg text-white/80 max-w-2xl mx-auto"
           >
-            StayFinder connects people with extraordinary places to stay — and helps property owners build thriving rental businesses.
+            MatchNest connects people with the right rooms and PGs — and helps property owners build thriving rental businesses across Uttar Pradesh.
           </motion.p>
         </motion.div>
       </section>
@@ -167,7 +167,7 @@ export default function AboutPage() {
                 Making great stays accessible to everyone
               </h2>
               <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed mb-6">
-                We started StayFinder because we believed finding a great rental shouldn&apos;t be stressful, expensive, or full of surprises. We built a platform where trust is built in — verified listings, transparent pricing, and real reviews from real guests.
+                We started MatchNest because we believed finding a great room or PG in UP shouldn&apos;t be stressful or full of surprises. We built a platform where trust is built in — verified listings, transparent pricing, and real reviews from real tenants.
               </p>
               <div className="space-y-3">
                 {[
@@ -332,7 +332,7 @@ export default function AboutPage() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-3">Meet the team</h2>
-          <p className="text-zinc-500 dark:text-zinc-400">The people behind StayFinder.</p>
+          <p className="text-zinc-500 dark:text-zinc-400">The people behind MatchNest.</p>
         </motion.div>
 
         <motion.div
@@ -388,7 +388,7 @@ export default function AboutPage() {
               <Sparkles className="w-10 h-10 text-white/80 mx-auto mb-5" />
             </motion.div>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to find your perfect stay?</h2>
-            <p className="text-white/80 text-lg mb-8">Join 50,000+ guests who trust StayFinder for their travels.</p>
+            <p className="text-white/80 text-lg mb-8">Join 50,000+ users who trust MatchNest for their housing needs.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/properties">
                 <Button size="lg" className="w-full sm:w-auto bg-white text-rose-500 hover:bg-zinc-50 shadow-xl">

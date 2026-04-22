@@ -6,6 +6,8 @@ export interface IReview extends Document {
   bookingId: mongoose.Types.ObjectId;
   rating: number;
   comment: string;
+  ownerReply?: string;
+  ownerRepliedAt?: Date;
   createdAt: Date;
 }
 
@@ -16,6 +18,8 @@ const ReviewSchema = new Schema<IReview>(
     bookingId: { type: Schema.Types.ObjectId, ref: "Booking", required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, required: true, trim: true },
+    ownerReply: { type: String, trim: true },
+    ownerRepliedAt: { type: Date },
   },
   { timestamps: true }
 );
