@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
@@ -95,10 +95,12 @@ export default function AdminPage() {
 
   const statCards = [
     { icon: <Users className="w-5 h-5" />, label: "Total Users", value: stats?.totalUsers, color: "bg-blue-50 text-blue-500 dark:bg-blue-950/30 dark:text-blue-400" },
+    { icon: <Shield className="w-5 h-5" />, label: "Owners", value: stats?.ownerCount, color: "bg-indigo-50 text-indigo-500 dark:bg-indigo-950/30 dark:text-indigo-400" },
+    { icon: <Users className="w-5 h-5" />, label: "Tenants", value: stats?.tenantCount, color: "bg-cyan-50 text-cyan-500 dark:bg-cyan-950/30 dark:text-cyan-400" },
     { icon: <Home className="w-5 h-5" />, label: "Properties", value: stats?.totalProperties, color: "bg-rose-50 text-rose-500 dark:bg-rose-950/30 dark:text-rose-400" },
     { icon: <Calendar className="w-5 h-5" />, label: "Bookings", value: stats?.totalBookings, color: "bg-green-50 text-green-500 dark:bg-green-950/30 dark:text-green-400" },
-    { icon: <DollarSign className="w-5 h-5" />, label: "Total Revenue", value: stats ? `$${stats.revenue?.toLocaleString()}` : "—", color: "bg-amber-50 text-amber-500 dark:bg-amber-950/30 dark:text-amber-400" },
-    { icon: <TrendingUp className="w-5 h-5" />, label: "Platform Fees", value: stats ? `$${stats.platformRevenue?.toLocaleString()}` : "—", color: "bg-purple-50 text-purple-500 dark:bg-purple-950/30 dark:text-purple-400" },
+    { icon: <DollarSign className="w-5 h-5" />, label: "Total Revenue", value: stats ? `\u20B9${stats.revenue?.toLocaleString()}` : "-", color: "bg-amber-50 text-amber-500 dark:bg-amber-950/30 dark:text-amber-400" },
+    { icon: <TrendingUp className="w-5 h-5" />, label: "Platform Fees", value: stats ? `\u20B9${stats.platformRevenue?.toLocaleString()}` : "-", color: "bg-purple-50 text-purple-500 dark:bg-purple-950/30 dark:text-purple-400" },
     { icon: <Zap className="w-5 h-5" />, label: "Boosted Listings", value: stats?.boostedProperties, color: "bg-orange-50 text-orange-500 dark:bg-orange-950/30 dark:text-orange-400" },
   ];
 

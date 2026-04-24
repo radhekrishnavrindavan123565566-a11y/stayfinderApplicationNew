@@ -6,6 +6,7 @@ export interface IProperty extends Document {
   price: number;
   location: { address: string; city: string; state: string; country: string; lat?: number; lng?: number };
   images: string[];
+  videos?: { interior?: string; exterior?: string };
   amenities: string[];
   propertyType: string;
   bedrooms: number;
@@ -59,6 +60,10 @@ const PropertySchema = new Schema<IProperty>(
       lng: Number,
     },
     images: [{ type: String }],
+    videos: {
+      interior: { type: String },
+      exterior: { type: String },
+    },
     amenities: [{ type: String }],
     propertyType: {
       type: String,
@@ -120,4 +125,6 @@ const PropertySchema = new Schema<IProperty>(
 PropertySchema.index({ "location.city": "text", title: "text", description: "text" });
 PropertySchema.index({ isBoosted: -1, isFeatured: -1, createdAt: -1 });
 
-export default mongoose.models.Property || mongoose.model<IProperty>("Property", PropertySchema);
+// Delete cached model so schema changes (videos field) are always picked up fresh
+delete (mongoose.models as Record<string, unknown>).Property;
+export default mongoose.model<IProperty>("Property", PropertySchema);

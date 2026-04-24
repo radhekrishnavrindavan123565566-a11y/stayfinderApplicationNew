@@ -110,7 +110,7 @@ export default function Footer() {
           transition={{ delay: 0.3 }}
           className="border-t border-zinc-800 mt-10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs"
         >
-          <p>© {new Date().getFullYear()} MatchNest. All rights reserved.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} MatchNest. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>

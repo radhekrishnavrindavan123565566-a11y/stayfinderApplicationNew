@@ -27,7 +27,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return errorResponse("Forbidden", 403);
     }
     const body = await req.json();
-    const updated = await Property.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+    // Build flat $set with dot-notation for nested fields to avoid wiping subdocuments
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const flatSet: Record<string, any> = {};
+    for (const [key, value] of Object.entries(body)) {
+      if ((key === "videos" || key === "location") && value && typeof value === "object") {
+        for (const [sk, sv] of Object.entries(value as Record<string, string>)) {
+          if (sv !== undefined && sv !== null && sv !== "") flatSet[`${key}.${sk}`] = sv;
+        }
+      } else {
+        flatSet[key] = value;
+      }
+    }
+    // strict:false ensures videos subdocument saves even if model cache is stale
+    const updated = await Property.findByIdAndUpdate(
+      id,
+      { $set: flatSet },
+      { new: true, strict: false }
+    );
     return successResponse({ property: updated });
   } catch (error) {
     return handleApiError(error);

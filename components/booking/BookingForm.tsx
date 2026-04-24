@@ -10,7 +10,7 @@ import { useApi } from "@/hooks/useApi";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
-import { differenceInDays, format } from "date-fns";
+import { differenceInCalendarMonths, format } from "date-fns";
 import { useRouter } from "next/navigation";
 
 const PLATFORM_FEE_PCT = 0.1; // 10%
@@ -33,7 +33,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();
-  const [nights, setNights] = useState(0);
+  const [months, setMonths] = useState(0);
 
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<BookingInput>({
     resolver: zodResolver(bookingSchema),
@@ -45,12 +45,12 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
 
   const calcNights = () => {
     if (startDate && endDate) {
-      const n = differenceInDays(new Date(endDate), new Date(startDate));
-      setNights(n > 0 ? n : 0);
+      const m = differenceInCalendarMonths(new Date(endDate), new Date(startDate));
+      setMonths(m > 0 ? m : 0);
     }
   };
 
-  const subtotal = price * nights;
+  const subtotal = price * months;
   const platformFee = Math.round(subtotal * PLATFORM_FEE_PCT * 100) / 100;
   const total = subtotal + platformFee;
 
@@ -65,7 +65,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
     }
   };
 
-  const today = format(new Date(), "yyyy-MM-dd");
+  const [today] = useState(() => format(new Date(), "yyyy-MM-dd"));
 
   return (
     <motion.div
@@ -144,14 +144,14 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         </div>
 
         {/* Price breakdown */}
-        {nights > 0 && (
+        {months > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             className="space-y-2 pt-3 border-t border-zinc-100"
           >
             <div className="flex justify-between text-sm text-zinc-600">
-              <span>₹{price.toLocaleString("en-IN")} × {nights} months</span>
+              <span>₹{price.toLocaleString("en-IN")} × {months} month{months > 1 ? "s" : ""}</span>
               <span>₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between text-sm text-zinc-500">

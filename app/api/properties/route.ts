@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
       ...parsed.data,
       ownerId: user.userId,
       images: body.images || [],
+      videos: body.videos || {},
       amenities: body.amenities || [],
       instantBooking: body.instantBooking ?? false,
       cancellationPolicy: body.cancellationPolicy || "moderate",

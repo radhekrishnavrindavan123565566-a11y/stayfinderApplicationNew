@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import ImageUploader from "@/components/properties/ImageUploader";
+import VideoUploader, { PropertyVideos } from "@/components/properties/VideoUploader";
 import AIDescriptionGenerator from "@/components/properties/AIDescriptionGenerator";
 import { Sparkles, Zap, Calendar, ChevronRight, ChevronLeft, Check, Wifi, Car, UtensilsCrossed, Waves, Dumbbell, Wind, Tv, Coffee, WashingMachine, Shirt, Shield, Flame, Snowflake, Dog, Baby, Bike, Bus, Utensils, Bath, BedDouble, Sofa, Sun, Leaf, Lock, Camera, Bell, Zap as Lightning, Droplets, Trash2, Package } from "lucide-react";
 
@@ -86,6 +87,7 @@ export default function NewPropertyPage() {
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(0);
   const [images, setImages] = useState<string[]>([]);
+  const [videos, setVideos] = useState<PropertyVideos>({});
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [priceSuggestion, setPriceSuggestion] = useState<{ suggested: number; range: { min: number; max: number } } | null>(null);
   const [instantBooking, setInstantBooking] = useState(false);
@@ -115,10 +117,13 @@ export default function NewPropertyPage() {
 
   const onSubmit = async (data: PropertyInput) => {
     if (images.length === 0) { toast.error("Please upload at least one image"); return; }
+    if (!videos.interior) { toast.error("Please upload the interior video"); return; }
+    if (!videos.exterior) { toast.error("Please upload the exterior video"); return; }
     try {
       await axios.post("/api/properties", {
         ...data,
         images,
+        videos,
         amenities: selectedAmenities,
         instantBooking,
         isAvailable,
@@ -242,16 +247,22 @@ export default function NewPropertyPage() {
               </motion.div>
             )}
 
-            {/* STEP 2: Photos */}
+            {/* STEP 2: Photos & Videos */}
             {step === 2 && (
               <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-                <h2 className="font-semibold text-zinc-900 text-lg mb-4">Photos</h2>
-                <p className="text-sm text-zinc-500 mb-4">Upload up to 10 photos. The first image will be the main cover photo.</p>
-                <ImageUploader images={images} onChange={setImages} maxImages={10} />
-                {images.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-3 flex items-center gap-1">⚠ At least 1 photo required to publish</p>
-                )}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 space-y-6">
+                <div>
+                  <h2 className="font-semibold text-zinc-900 text-lg mb-1">Photos</h2>
+                  <p className="text-sm text-zinc-500 mb-4">Upload up to 10 photos. The first image will be the main cover photo.</p>
+                  <ImageUploader images={images} onChange={setImages} maxImages={10} />
+                  {images.length === 0 && (
+                    <p className="text-xs text-amber-600 mt-3 flex items-center gap-1">⚠ At least 1 photo required to publish</p>
+                  )}
+                </div>
+
+                <div className="border-t border-zinc-100 pt-6">
+                  <VideoUploader videos={videos} onChange={setVideos} />
+                </div>
               </motion.div>
             )}
 
@@ -357,6 +368,8 @@ export default function NewPropertyPage() {
                   <div className="flex justify-between text-zinc-600"><span>Price</span><span className="font-medium text-zinc-900">₹{watch("price") || 0}/month</span></div>
                   <div className="flex justify-between text-zinc-600"><span>Location</span><span className="font-medium text-zinc-900">{watch("location.city") || "—"}</span></div>
                   <div className="flex justify-between text-zinc-600"><span>Photos</span><span className="font-medium text-zinc-900">{images.length} uploaded</span></div>
+                  <div className="flex justify-between text-zinc-600"><span>Interior Video</span><span className={`font-medium ${videos.interior ? "text-green-600" : "text-red-500"}`}>{videos.interior ? "✓ Uploaded" : "✗ Missing"}</span></div>
+                  <div className="flex justify-between text-zinc-600"><span>Exterior Video</span><span className={`font-medium ${videos.exterior ? "text-green-600" : "text-red-500"}`}>{videos.exterior ? "✓ Uploaded" : "✗ Missing"}</span></div>
                   <div className="flex justify-between text-zinc-600"><span>Amenities</span><span className="font-medium text-zinc-900">{selectedAmenities.length} selected</span></div>
                 </div>
               </motion.div>

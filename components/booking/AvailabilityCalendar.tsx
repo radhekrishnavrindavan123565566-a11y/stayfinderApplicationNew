@@ -16,7 +16,7 @@ interface BookedRange { startDate: string; endDate: string; status: string }
 type DemandLevel = "low" | "medium" | "high";
 
 export default function AvailabilityCalendar({ propertyId, onRangeSelect, isOwner }: Props) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [bookedRanges, setBookedRanges] = useState<BookedRange[]>([]);
   const [demandHeatmap, setDemandHeatmap] = useState<Record<string, DemandLevel>>({});

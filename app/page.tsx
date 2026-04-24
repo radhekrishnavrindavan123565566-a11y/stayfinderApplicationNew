@@ -303,7 +303,7 @@ export default function HomePage() {
             {STATS.map((s) => (
               <motion.div key={s.label} variants={fadeUp} className="group">
                 <div className="text-4xl sm:text-5xl font-black text-white mb-1">
-                  <CountUp target={s.value} suffix={s.display.replace(String(s.value), "")} />
+                  <CountUp target={s.value} suffix={s.display.replace(/^[\d.]+/, "")} />
                 </div>
                 <div className="text-white/75 text-sm font-semibold uppercase tracking-widest">{s.label}</div>
               </motion.div>

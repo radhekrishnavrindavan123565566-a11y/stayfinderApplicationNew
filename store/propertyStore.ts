@@ -9,6 +9,7 @@ export interface Property {
   price: number;
   location: { address: string; city: string; state: string; country: string };
   images: string[];
+  videos?: { interior?: string; exterior?: string };
   amenities: string[];
   propertyType: string;
   bedrooms: number;

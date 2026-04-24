@@ -295,6 +295,51 @@ export default function PropertyDetailPage() {
           <ImageGallery images={property.images} title={property.title} />
         </motion.div>
 
+        {/* Videos */}
+        {(property.videos?.interior || property.videos?.exterior) ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="mb-8"
+          >
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white text-sm">▶</span>
+              Property Videos
+            </h2>
+            <div className={`grid gap-4 ${property.videos!.interior && property.videos!.exterior ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+              {property.videos!.interior && (
+                <div className="rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 bg-black">
+                  <div className="px-4 py-2.5 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Interior Tour</span>
+                  </div>
+                  <video src={property.videos!.interior} controls preload="metadata" className="w-full max-h-64 object-cover" playsInline />
+                </div>
+              )}
+              {property.videos!.exterior && (
+                <div className="rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 bg-black">
+                  <div className="px-4 py-2.5 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" />
+                    <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Exterior / Road-side View</span>
+                  </div>
+                  <video src={property.videos!.exterior} controls preload="metadata" className="w-full max-h-64 object-cover" playsInline />
+                </div>
+              )}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="mb-8 flex items-center gap-3 px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-zinc-400 text-sm"
+          >
+            <span className="text-xl">🎥</span>
+            No videos uploaded for this property yet.
+          </motion.div>
+        )}
+
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
 

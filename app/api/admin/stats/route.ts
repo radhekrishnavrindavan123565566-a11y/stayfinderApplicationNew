@@ -12,8 +12,10 @@ export async function GET(req: NextRequest) {
     await connectDB();
     requireRole(req, ["admin"]);
 
-    const [totalUsers, totalProperties, totalBookings, revenueAgg, platformFeeAgg, userGrowth] = await Promise.all([
+    const [totalUsers, ownerCount, tenantCount, totalProperties, totalBookings, revenueAgg, platformFeeAgg, userGrowth] = await Promise.all([
       User.countDocuments(),
+      User.countDocuments({ role: "owner" }),
+      User.countDocuments({ role: "tenant" }),
       Property.countDocuments(),
       Booking.countDocuments(),
       Transaction.aggregate([
@@ -60,6 +62,8 @@ export async function GET(req: NextRequest) {
 
     return successResponse({
       totalUsers,
+      ownerCount,
+      tenantCount,
       totalProperties,
       totalBookings,
       revenue,
