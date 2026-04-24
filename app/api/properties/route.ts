@@ -6,6 +6,9 @@ import { requireRole } from "@/lib/auth";
 import { propertySchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
+// Increase body size limit for property creation (images as base64)
+export const maxDuration = 30;
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();

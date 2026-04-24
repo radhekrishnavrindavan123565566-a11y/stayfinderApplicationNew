@@ -2,31 +2,61 @@ import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { randomUUID } from "crypto";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const ALLOWED_IMAGES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_SIZE = 100 * 1024 * 1024;
 
 function getExt(mimeType: string): string {
   const map: Record<string, string> = {
     "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif",
     "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
-    "video/x-msvideo": "avi", "video/avi": "avi", "video/mpeg": "mpeg",
-    "video/3gpp": "3gp", "video/x-matroska": "mkv",
+    "video/x-msvideo": "avi", "video/mpeg": "mpeg", "video/3gpp": "3gp",
   };
   return map[mimeType] || mimeType.split("/")[1] || "bin";
 }
 
-// ── Local disk upload (dev only) ──
+async function uploadToCloudinary(buffer: Buffer, mimeType: string, folder: string): Promise<string> {
+  const isVideo = mimeType.startsWith("video/");
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        folder: `matchnest/${folder}`,
+        resource_type: isVideo ? "video" : "image",
+        public_id: randomUUID(),
+      },
+      (err, result) => {
+        if (err || !result) return reject(err || new Error("Cloudinary upload failed"));
+        resolve(result.secure_url);
+      }
+    ).end(buffer);
+  });
+}
+
 async function uploadToLocal(buffer: Buffer, mimeType: string, folder: string): Promise<string> {
   const { writeFile, mkdir } = await import("fs/promises");
   const { join } = await import("path");
-  const ext = getExt(mimeType);
-  const filename = `${randomUUID()}.${ext}`;
-  const uploadDir = join(process.cwd(), "public", "uploads", folder);
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(join(uploadDir, filename), buffer);
+  const filename = `${randomUUID()}.${getExt(mimeType)}`;
+  const dir = join(process.cwd(), "public", "uploads", folder);
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, filename), buffer);
   return `/uploads/${folder}/${filename}`;
 }
+
+const hasCloudinary = !!(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_CLOUD_NAME !== "your_cloud_name" &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,51 +66,42 @@ export async function POST(req: NextRequest) {
     let buffer: Buffer;
     let mimeType: string;
     let folder = "general";
-    let originalBase64: string | null = null;
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       const file = formData.get("file") as File | null;
       folder = (formData.get("folder") as string) || "general";
       if (!file) return errorResponse("No file provided");
-
       const isImage = ALLOWED_IMAGES.includes(file.type);
       const isVideo = file.type.startsWith("video/");
       if (!isImage && !isVideo) return errorResponse(`Unsupported file type: ${file.type}`);
       if (file.size > MAX_SIZE) return errorResponse("File too large. Max 100MB");
-
       mimeType = file.type;
       buffer = Buffer.from(await file.arrayBuffer());
-      // For videos, convert to base64 data URL for storage in DB (no disk needed)
-      if (isVideo) {
-        originalBase64 = `data:${mimeType};base64,${buffer.toString("base64")}`;
-      }
     } else {
-      // Base64 JSON (images only)
       const body = await req.json();
-      if (!body.image) return errorResponse("image (base64) or file (multipart) is required");
+      if (!body.image) return errorResponse("image or file is required");
       folder = body.folder || "general";
-
       const matches = (body.image as string).match(/^data:(.+);base64,(.+)$/);
-      if (!matches) return errorResponse("Invalid base64 image format");
+      if (!matches) return errorResponse("Invalid base64 format");
       mimeType = matches[1];
-      if (!ALLOWED_IMAGES.includes(mimeType)) return errorResponse(`Unsupported file type: ${mimeType}`);
+      if (!ALLOWED_IMAGES.includes(mimeType)) return errorResponse(`Unsupported type: ${mimeType}`);
       buffer = Buffer.from(matches[2], "base64");
-      originalBase64 = body.image; // Keep original data URL
     }
 
-    // For videos, return base64 data URL directly (works everywhere, no disk needed)
-    if (mimeType.startsWith("video/") && originalBase64) {
-      return successResponse({ url: originalBase64 });
+    if (hasCloudinary) {
+      const url = await uploadToCloudinary(buffer, mimeType, folder);
+      return successResponse({ url });
     }
 
-    // For images, try local disk (dev) or fall back to base64 (production)
+    // Local fallback (dev without Cloudinary)
     try {
       const url = await uploadToLocal(buffer, mimeType, folder);
       return successResponse({ url });
-    } catch (diskErr) {
-      // Disk write failed (Vercel production) — return base64 data URL
-      const base64Url = originalBase64 || `data:${mimeType};base64,${buffer.toString("base64")}`;
+    } catch {
+      // Vercel read-only fs — return base64 as last resort for images only
+      if (mimeType.startsWith("video/")) return errorResponse("Video upload requires Cloudinary. Please configure CLOUDINARY_* env vars.");
+      const base64Url = `data:${mimeType};base64,${buffer.toString("base64")}`;
       return successResponse({ url: base64Url });
     }
   } catch (error) {

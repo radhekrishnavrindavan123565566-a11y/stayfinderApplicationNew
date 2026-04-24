@@ -42,17 +42,30 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
 
   const uploadFile = useCallback(async (file: File) => {
     return new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const base64 = ev.target?.result as string;
+      const img = new window.Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = async () => {
+        URL.revokeObjectURL(objectUrl);
+        // Compress via canvas — max 800px wide, quality 0.7
+        const MAX_W = 800;
+        const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(objectUrl); return; }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const compressed = canvas.toDataURL("image/jpeg", 0.72);
         try {
-          const { data } = await axios.post("/api/upload", { image: base64 }, authHeaders());
+          const { data } = await axios.post("/api/upload", { image: compressed }, authHeaders());
           resolve(data.data.url);
         } catch {
-          resolve(base64);
+          // fallback: use compressed base64 directly
+          resolve(compressed);
         }
       };
-      reader.readAsDataURL(file);
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(objectUrl); };
+      img.src = objectUrl;
     });
   }, [authHeaders]);
 

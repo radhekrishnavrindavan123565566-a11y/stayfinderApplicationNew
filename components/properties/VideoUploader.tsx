@@ -41,10 +41,6 @@ const SLOTS = [
 
 const MAX_MB = 100;
 
-// Vercel serverless has 4.5MB body limit — video upload only works on localhost
-const isLocalhost = typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-
 export default function VideoUploader({ videos, onChange }: VideoUploaderProps) {
   const { authHeaders } = useApi();
   const [uploading, setUploading] = useState<{ interior: boolean; exterior: boolean }>({ interior: false, exterior: false });
@@ -85,21 +81,6 @@ export default function VideoUploader({ videos, onChange }: VideoUploaderProps) 
   }, [authHeaders, onChange]);
 
   const remove = (key: "interior" | "exterior") => onChange({ ...videos, [key]: undefined });
-
-  // On production (Vercel), video upload is not supported due to 4.5MB serverless limit
-  if (!isLocalhost) {
-    return (
-      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 p-4 flex items-start gap-3">
-        <Video className="w-5 h-5 text-zinc-400 flex-shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Property Videos</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            Video upload is available when running locally. You can add videos after deployment by editing the property from your local machine.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
