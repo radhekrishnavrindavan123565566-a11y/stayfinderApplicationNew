@@ -117,8 +117,6 @@ export default function NewPropertyPage() {
 
   const onSubmit = async (data: PropertyInput) => {
     if (images.length === 0) { toast.error("Please upload at least one image"); return; }
-    if (!videos.interior) { toast.error("Please upload the interior video"); return; }
-    if (!videos.exterior) { toast.error("Please upload the exterior video"); return; }
     try {
       await axios.post("/api/properties", {
         ...data,
