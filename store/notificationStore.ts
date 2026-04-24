@@ -22,6 +22,7 @@ interface NotificationState {
   markRead: (id: string) => Promise<void>;
   markAllRead: () => Promise<void>;
   addNotification: (n: AppNotification) => void;
+  removeByConversation: (conversationId: string) => void;
   togglePanel: () => void;
 }
 
@@ -72,5 +73,17 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       notifications: [n, ...s.notifications],
       unreadCount: s.unreadCount + 1,
     }));
+  },
+
+  removeByConversation: (conversationId) => {
+    const link = `/chat?conversation=${conversationId}`;
+    set((s) => {
+      const removed = s.notifications.filter((n) => n.link === link && !n.read);
+      const remaining = s.notifications.filter((n) => n.link !== link);
+      return {
+        notifications: remaining,
+        unreadCount: Math.max(0, s.unreadCount - removed.length),
+      };
+    });
   },
 }));

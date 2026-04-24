@@ -100,6 +100,14 @@ export default function ChatPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, mounted]);
 
+  // Auto-open conversation from URL param (?conversation=xxx_yyy)
+  useEffect(() => {
+    if (!mounted) return;
+    const params = new URLSearchParams(window.location.search);
+    const convId = params.get("conversation");
+    if (convId) setActiveConversation(convId);
+  }, [mounted]);
+
   const activeConvo = conversations.find((c) => c.conversationId === activeConversationId);
 
   if (!mounted) return (

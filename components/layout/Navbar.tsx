@@ -5,10 +5,25 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import DarkModeToggle from "@/components/ui/DarkModeToggle";
+
+function ChatBadge() {
+  const unread = useChatStore((s) => s.unreadTotal);
+  if (unread === 0) return null;
+  return (
+    <motion.span
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-rose-500 rounded-full text-[9px] text-white flex items-center justify-center font-bold"
+    >
+      {unread > 9 ? "9+" : unread}
+    </motion.span>
+  );
+}
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -71,8 +86,9 @@ export default function Navbar() {
             {mounted && user ? (
               <div className="flex items-center gap-2">
                 <NotificationBell />
-                <Link href="/chat" className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${scrolled || !isHome ? "text-zinc-600 dark:text-zinc-300" : "text-white"}`}>
+                <Link href="/chat" className={`relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${scrolled || !isHome ? "text-zinc-600 dark:text-zinc-300" : "text-white"}`}>
                   <MessageCircle className="w-5 h-5" />
+                  <ChatBadge />
                 </Link>
               <div className="relative">
                 <motion.button

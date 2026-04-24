@@ -2,11 +2,13 @@
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
+import { useNotificationStore } from "@/store/notificationStore";
 import axios from "axios";
 
 export function useChatSSE() {
   const { user, accessToken } = useAuthStore();
   const { addIncomingMessage, updateMessageStatus, updateMessageReactions, setTyping } = useChatStore();
+  const { addNotification } = useNotificationStore();
   const esRef = useRef<EventSource | null>(null);
   const hbRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -30,7 +32,6 @@ export function useChatSSE() {
       es.addEventListener("message:new", (e) => {
         const { message } = JSON.parse(e.data);
         addIncomingMessage(message);
-        // Auto-mark seen if this conversation is currently open
         const state = useChatStore.getState();
         if (state.activeConversationId === message.conversationId) {
           axios.post("/api/chat/seen", { conversationId: message.conversationId }, {
@@ -42,10 +43,8 @@ export function useChatSSE() {
       es.addEventListener("message:status", (e) => {
         const { messageId, status, conversationId } = JSON.parse(e.data);
         if (conversationId) {
-          // Fast path — we know the conversation
           updateMessageStatus(messageId, conversationId, status);
         } else {
-          // Fallback — scan all conversations
           const allMessages = useChatStore.getState().messages;
           for (const [convId, msgs] of Object.entries(allMessages)) {
             if (msgs.some((m) => m._id === messageId)) {
@@ -72,23 +71,30 @@ export function useChatSSE() {
       es.addEventListener("typing", (e) => {
         const { conversationId, isTyping } = JSON.parse(e.data);
         setTyping(conversationId, isTyping);
-        // Auto-clear after 4s in case stop event is missed
         if (isTyping) setTimeout(() => setTyping(conversationId, false), 4000);
+      });
+
+      // New message notification — add to bell
+      es.addEventListener("notification:new", (e) => {
+        const { notification } = JSON.parse(e.data);
+        addNotification(notification);
+      });
+
+      // Messages seen — remove notifications for that conversation
+      es.addEventListener("notification:clear_conversation", (e) => {
+        const { conversationId } = JSON.parse(e.data);
+        useNotificationStore.getState().removeByConversation(conversationId);
       });
 
       es.onerror = () => {
         es.close();
         esRef.current = null;
-        // Reconnect after 3s
-        if (active) {
-          reconnectRef.current = setTimeout(connect, 3000);
-        }
+        if (active) reconnectRef.current = setTimeout(connect, 3000);
       };
     }
 
     connect();
 
-    // Heartbeat to keep online status alive
     const sendHeartbeat = () => {
       axios.post("/api/chat/presence", {}, {
         headers: { Authorization: `Bearer ${accessToken}` },

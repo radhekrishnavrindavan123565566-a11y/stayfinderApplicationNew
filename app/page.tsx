@@ -189,7 +189,7 @@ export default function HomePage() {
           <AnimatePresence mode="sync">
             <motion.div key={slide} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 1.5 }} className="absolute inset-0">
-              <Image src={HERO_SLIDES[slide]} alt="hero" fill sizes="100vw" className="object-cover" priority />
+              <Image src={HERO_SLIDES[slide]} alt="hero" fill sizes="100vw" className="object-cover" priority={slide === 0} loading={slide === 0 ? "eager" : "lazy"} fetchPriority={slide === 0 ? "high" : "auto"} />
             </motion.div>
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/85" />
@@ -206,7 +206,7 @@ export default function HomePage() {
 
         {/* Floating particles */}
         <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 28 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <motion.div key={i}
               animate={{ y: [0, -55, 0], opacity: [0, 0.7, 0], scale: [0.7, 1.3, 0.7] }}
               transition={{ duration: 4 + i * 0.3, repeat: Infinity, delay: i * 0.35, ease: "easeInOut" }}
@@ -227,7 +227,7 @@ export default function HomePage() {
             transition={{ duration: 5 + i * 0.8, repeat: Infinity, delay: c.delay, ease: "easeInOut" }}
             className={`absolute hidden xl:block w-40 h-28 rounded-2xl overflow-hidden shadow-2xl border border-white/15 backdrop-blur-sm ${c.side === "left" ? "left-6" : "right-6"}`}
             style={{ top: c.top, position: "absolute" }}>
-            <Image src={c.img} alt="" fill sizes="160px" className="object-cover" />
+            <Image src={c.img} alt="" fill sizes="160px" className="object-cover" loading="lazy" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute bottom-2 left-3 text-white text-xs font-bold">Verified ✓</div>
           </motion.div>
@@ -397,7 +397,7 @@ export default function HomePage() {
                       className="relative h-56 sm:h-72 rounded-3xl overflow-hidden group cursor-pointer shadow-xl hover:shadow-2xl transition-all"
                       style={{ position: "relative" }}>
                       <Image src={c.img} alt={c.city} fill sizes="(max-width:640px) 50vw, 25vw"
-                        className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                        className="object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                       {/* Shimmer sweep */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -585,7 +585,7 @@ export default function HomePage() {
             transition={{ duration: 5 + i * 0.8, repeat: Infinity, delay: card.delay, ease: "easeInOut" }}
             className="absolute hidden lg:block w-40 h-28 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
             style={{ left: card.x, top: card.y, position: "absolute" }}>
-            <Image src={card.img} alt="" fill sizes="160px" className="object-cover" />
+            <Image src={card.img} alt="" fill sizes="160px" className="object-cover" loading="lazy" />
             <div className="absolute inset-0 bg-black/25" />
             <div className="absolute bottom-2 left-3 text-white text-xs font-bold bg-green-500/80 px-2 py-0.5 rounded-full">Verified ✓</div>
           </motion.div>

@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Message from "@/models/Message";
+import Notification from "@/models/Notification";
+import User from "@/models/User";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { emit } from "@/lib/chatEvents";
@@ -31,10 +33,27 @@ export async function POST(req: NextRequest) {
     const populated = await message.populate("senderId", "username avatar");
     const msgObj = populated.toObject();
 
-    // Emit to receiver in real-time
+    // Emit message to receiver in real-time
     emit(receiverId, "message:new", { message: msgObj });
     // Emit delivered status back to sender
     emit(user.userId, "message:status", { messageId: message._id.toString(), status: "delivered" });
+
+    // Create a notification for the receiver
+    const sender = await User.findById(user.userId).select("username").lean();
+    const senderName = (sender as { username?: string })?.username || "Someone";
+    const notifBody = type === "image" ? "📷 Sent an image" : (content?.slice(0, 60) || "New message");
+
+    const notif = await Notification.create({
+      userId: receiverId,
+      type: "message",
+      title: `New message from ${senderName}`,
+      body: notifBody,
+      link: `/chat?conversation=${conversationId}`,
+      data: { conversationId, senderId: user.userId },
+    });
+
+    // Emit notification to receiver in real-time via SSE
+    emit(receiverId, "notification:new", { notification: notif.toObject() });
 
     return successResponse({ message: msgObj }, 201);
   } catch (error) {
