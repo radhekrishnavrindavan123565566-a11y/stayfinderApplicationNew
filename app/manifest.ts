@@ -23,13 +23,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/icon-192.png",
         sizes: "192x192",
         type: "image/png",
-        purpose: "any maskable",
+        purpose: "maskable",
       },
       {
         src: "/icon-512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "any maskable",
+        purpose: "maskable",
       },
     ],
     screenshots: [
@@ -37,7 +37,6 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/logo.png",
         sizes: "1385x752",
         type: "image/png",
-        // @ts-expect-error — form_factor is valid per spec
         form_factor: "wide",
       },
     ],

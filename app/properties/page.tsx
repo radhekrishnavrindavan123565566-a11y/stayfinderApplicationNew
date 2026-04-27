@@ -4,6 +4,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { usePropertyStore } from "@/store/propertyStore";
 import PropertyCard from "@/components/property/PropertyCard";
 import SearchBar from "@/components/property/SearchBar";
+import AISearchBar from "@/components/search/AISearchBar";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import Button from "@/components/ui/Button";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, LayoutGrid, Map } from "lucide-react";

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, AlertCircle, Clock, PenLine, Home, ChevronDown, ChevronUp } from "lucide-react";
 import axios from "axios";
@@ -128,6 +128,19 @@ function CategoryGroup({ category, items, isTenant, isOwner, onChange }: {
 }
 
 export default function ChecklistPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full" />
+      </div>
+    }>
+      <ChecklistPageContent />
+    </Suspense>
+  );
+}
+
+function ChecklistPageContent() {
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();

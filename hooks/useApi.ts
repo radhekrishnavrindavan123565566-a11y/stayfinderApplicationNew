@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 export function useApi() {
   const accessToken = useAuthStore((s) => s.accessToken);
 
-  const authHeaders = useCallback(() => ({
+  const authHeaders = useCallback((): { headers: Record<string, string> } => ({
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
   }), [accessToken]);
 
