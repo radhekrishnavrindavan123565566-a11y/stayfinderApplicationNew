@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp } from "lucide-react";
+import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp, Home } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
@@ -63,8 +63,17 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.png" alt="Nestora" width={44} height={44} style={{ width: 44, height: "auto" }} className="rounded-xl" />
-            <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900" : "text-white"}`}>
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-amber-500 shadow-lg ${
+                scrolled || !isHome ? "shadow-rose-500/20" : "shadow-rose-500/40"
+              }`}
+            >
+              <Home className="w-6 h-6 text-white" />
+            </motion.div>
+            <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white"}`}>
               Nest<span className="text-amber-500">ora</span>
             </span>
           </Link>

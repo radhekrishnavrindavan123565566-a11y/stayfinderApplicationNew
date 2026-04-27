@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
-import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Shield, Zap, Clock, CreditCard } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Shield, Zap, Clock, CreditCard, Home } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -122,7 +122,13 @@ export default function LoginPage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <Image src="/logo.png" alt="Nestora" width={40} height={40} className="rounded-2xl" />
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 360 }}
+                transition={{ duration: 0.5 }}
+                className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30"
+              >
+                <Home className="w-5 h-5 text-white" />
+              </motion.div>
               <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">Nest<span className="text-amber-300">ora</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Welcome back!</h2>
@@ -180,7 +186,13 @@ export default function LoginPage() {
         {/* Mobile logo */}
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Nestora" width={32} height={32} className="rounded-xl" />
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 360 }}
+              transition={{ duration: 0.5 }}
+              className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg"
+            >
+              <Home className="w-4 h-4 text-white" />
+            </motion.div>
             <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
           </Link>
         </div>
