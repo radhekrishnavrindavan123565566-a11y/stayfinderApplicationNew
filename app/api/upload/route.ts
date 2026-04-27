@@ -27,7 +27,7 @@ async function uploadToCloudinary(buffer: Buffer, mimeType: string, folder: stri
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       {
-        folder: `matchnest/${folder}`,
+        folder: `nestora/${folder}`,
         resource_type: isVideo ? "video" : "image",
         public_id: randomUUID(),
       },

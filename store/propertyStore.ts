@@ -10,6 +10,7 @@ export interface Property {
   location: { address: string; city: string; state: string; country: string };
   images: string[];
   videos?: { interior?: string; exterior?: string };
+  tour360?: string[];
   amenities: string[];
   propertyType: string;
   bedrooms: number;
@@ -35,6 +36,7 @@ interface Filters {
   maxPrice: string;
   propertyType: string;
   bedrooms: string;
+  nearLocation: string;
 }
 
 interface PropertyState {
@@ -54,7 +56,7 @@ export const usePropertyStore = create<PropertyState>((set, get) => ({
   page: 1,
   pages: 1,
   isLoading: false,
-  filters: { search: "", city: "", minPrice: "", maxPrice: "", propertyType: "", bedrooms: "" },
+  filters: { search: "", city: "", minPrice: "", maxPrice: "", propertyType: "", bedrooms: "", nearLocation: "" },
 
   setFilters: (filters) => set((s) => ({ filters: { ...s.filters, ...filters } })),
 

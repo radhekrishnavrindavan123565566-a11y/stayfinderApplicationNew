@@ -7,8 +7,8 @@ import SearchBar from "@/components/property/SearchBar";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import Button from "@/components/ui/Button";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, LayoutGrid, Map } from "lucide-react";
+import SaveSearchButton from "@/components/properties/SaveSearchButton";
 import CompareBar from "@/components/property/CompareBar";
-import AISearchBar from "@/components/search/AISearchBar";
 import dynamic from "next/dynamic";
 
 const PropertyMap = dynamic(() => import("@/components/property/PropertyMap"), { ssr: false });

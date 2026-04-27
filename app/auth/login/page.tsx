@@ -122,8 +122,8 @@ export default function LoginPage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <Image src="/logo.png" alt="MatchNest" width={40} height={40} className="rounded-2xl" />
-              <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">Match<span className="text-amber-300">Nest</span></span>
+              <Image src="/logo.png" alt="Nestora" width={40} height={40} className="rounded-2xl" />
+              <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">Nest<span className="text-amber-300">ora</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Welcome back!</h2>
             <p className="text-white/80 text-lg leading-relaxed mb-10 max-w-sm">
@@ -152,8 +152,8 @@ export default function LoginPage() {
         {/* Mobile logo */}
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="MatchNest" width={32} height={32} className="rounded-xl" />
-            <span className="font-bold text-zinc-900 dark:text-white">Match<span className="text-amber-500">Nest</span></span>
+            <Image src="/logo.png" alt="Nestora" width={32} height={32} className="rounded-xl" />
+            <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
           </Link>
         </div>
 

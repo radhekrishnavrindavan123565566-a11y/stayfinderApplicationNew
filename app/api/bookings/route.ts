@@ -42,6 +42,11 @@ export async function POST(req: NextRequest) {
     if (!property) return errorResponse("Property not found", 404);
     if (!property.isAvailable) return errorResponse("Property is not available");
 
+    // Block owner from booking their own property
+    if (property.ownerId.toString() === user.userId) {
+      return errorResponse("You cannot book your own property", 403);
+    }
+
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) return errorResponse("endDate must be after startDate");

@@ -56,9 +56,9 @@ export default function PWAProvider() {
         >
           <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 p-4 flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="MatchNest" className="w-12 h-12 rounded-xl flex-shrink-0" />
+            <img src="/logo.png" alt="Nestora" className="w-12 h-12 rounded-xl flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-zinc-900 dark:text-white">Install MatchNest</p>
+              <p className="text-sm font-bold text-zinc-900 dark:text-white">Install Nestora</p>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">Add to home screen for quick access</p>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0">

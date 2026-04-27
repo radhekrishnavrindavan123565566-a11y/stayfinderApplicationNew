@@ -11,10 +11,10 @@ import PWAProvider from "@/components/providers/PWAProvider";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
-  title: "MatchNest – Connecting Dwellings, Linking Hearts",
-  description: "Find your perfect room or tenant across Uttar Pradesh. MatchNest is your trusted mediator for PG, rooms, and rentals.",
+  title: "Nestora – Find Your Place. Feel At Home.",
+  description: "Find your perfect room or tenant across Uttar Pradesh. Nestora is your trusted mediator for PG, rooms, and rentals.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "MatchNest" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Nestora" },
   formatDetection: { telephone: false },
   themeColor: "#f43f5e",
 };
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="MatchNest" />
+        <meta name="apple-mobile-web-app-title" content="Nestora" />
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">

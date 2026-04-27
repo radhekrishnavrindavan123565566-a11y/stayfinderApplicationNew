@@ -7,6 +7,7 @@ export interface IProperty extends Document {
   location: { address: string; city: string; state: string; country: string; lat?: number; lng?: number };
   images: string[];
   videos?: { interior?: string; exterior?: string };
+  tour360?: string[]; // array of 360° image URLs
   amenities: string[];
   propertyType: string;
   bedrooms: number;
@@ -64,6 +65,7 @@ const PropertySchema = new Schema<IProperty>(
       interior: { type: String },
       exterior: { type: String },
     },
+    tour360: [{ type: String }],
     amenities: [{ type: String }],
     propertyType: {
       type: String,

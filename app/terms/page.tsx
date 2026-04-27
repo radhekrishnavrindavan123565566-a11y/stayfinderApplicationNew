@@ -21,17 +21,17 @@ const SECTIONS = [
     icon: <FileText className="w-5 h-5" />,
     title: "1. Acceptance of Terms",
     color: "bg-rose-50 dark:bg-rose-950/30 text-rose-500",
-    content: `By downloading, installing, or using the MatchNest application, you ("User," "Owner," or "Tenant") agree to be bound by these Terms and Conditions. If you do not agree, please discontinue use immediately.`,
+    content: `By downloading, installing, or using the Nestora application, you ("User," "Owner," or "Tenant") agree to be bound by these Terms and Conditions. If you do not agree, please discontinue use immediately.`,
   },
   {
     id: "scope",
     icon: <Shield className="w-5 h-5" />,
     title: "2. Scope of Service (The Mediator Role)",
     color: "bg-blue-50 dark:bg-blue-950/30 text-blue-500",
-    content: `MatchNest is a digital platform acting as an Intermediary under the Information Technology Act.
+    content: `Nestora is a digital platform acting as an Intermediary under the Information Technology Act.
 
 • Nature of Business: We provide a portal where individual property owners, PG managers, and Hotel operators can list available rooms.
-• No Ownership: MatchNest does not own, inspect, or manage any of the listed properties. We are a bridge, not a landlord.`,
+• No Ownership: Nestora does not own, inspect, or manage any of the listed properties. We are a bridge, not a landlord.`,
   },
   {
     id: "users",
@@ -54,8 +54,8 @@ B. For Tenants:
     icon: <BookOpen className="w-5 h-5" />,
     title: "4. Listing & Advertising Policy",
     color: "bg-amber-50 dark:bg-amber-950/30 text-amber-500",
-    content: `• Verification Icons: MatchNest may provide a "Verified" badge to some listings. This badge only indicates that basic document checks (like Aadhaar) were performed and does not guarantee the safety of the neighborhood or the quality of the stay.
-• Service Fees: MatchNest may charge a convenience fee for premium listings or successful matches. All fees are subject to GST (18% as of current norms).`,
+    content: `• Verification Icons: Nestora may provide a "Verified" badge to some listings. This badge only indicates that basic document checks (like Aadhaar) were performed and does not guarantee the safety of the neighborhood or the quality of the stay.
+• Service Fees: Nestora may charge a convenience fee for premium listings or successful matches. All fees are subject to GST (18% as of current norms).`,
   },
   {
     id: "deposits",
@@ -65,14 +65,14 @@ B. For Tenants:
     content: `In accordance with the Model Tenancy Act followed in Uttar Pradesh:
 
 • Deposit Cap: For residential properties, security deposits are generally capped at 2 months' rent.
-• Transactions: MatchNest is not responsible for the collection, handling, or refund of security deposits. These must be transacted directly between Owner and Tenant.`,
+• Transactions: Nestora is not responsible for the collection, handling, or refund of security deposits. These must be transacted directly between Owner and Tenant.`,
   },
   {
     id: "privacy",
     icon: <Lock className="w-5 h-5" />,
     title: "6. Data Privacy (DPDP Act 2023 Compliance)",
     color: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500",
-    content: `• Consent: By using MatchNest, you consent to the processing of your digital personal data (Name, Phone Number, Location) for the purpose of matching you with a room/tenant.
+    content: `• Consent: By using Nestora, you consent to the processing of your digital personal data (Name, Phone Number, Location) for the purpose of matching you with a room/tenant.
 • Data Erasure: Users have the right to request the deletion of their account and associated data at any time through the app settings.`,
   },
   {
@@ -81,14 +81,14 @@ B. For Tenants:
     title: "7. Safety & Police Verification",
     color: "bg-teal-50 dark:bg-teal-950/30 text-teal-500",
     content: `• Mandatory Requirement: In major UP cities (Lucknow, Kanpur, Noida, etc.), Police Verification of tenants is a legal requirement for the Owner.
-• Disclaimer: MatchNest does not perform police verification. Owners must complete this process through the UP Police "Citizen Service" Portal/App independently.`,
+• Disclaimer: Nestora does not perform police verification. Owners must complete this process through the UP Police "Citizen Service" Portal/App independently.`,
   },
   {
     id: "liability",
     icon: <Scale className="w-5 h-5" />,
     title: "8. Limitation of Liability",
     color: "bg-zinc-100 dark:bg-zinc-800 text-zinc-500",
-    content: `MatchNest shall not be liable for:
+    content: `Nestora shall not be liable for:
 
 1. Financial loss due to scams or off-platform transactions.
 2. Property damage caused by tenants.
@@ -109,9 +109,9 @@ B. For Tenants:
     icon: <Mail className="w-5 h-5" />,
     title: "10. Grievance Redressal",
     color: "bg-orange-50 dark:bg-orange-950/30 text-orange-500",
-    content: `In compliance with IT Rules 2026, MatchNest has appointed a Grievance Officer to address complaints regarding content or service.
+    content: `In compliance with IT Rules 2026, Nestora has appointed a Grievance Officer to address complaints regarding content or service.
 
-• Contact: grievance@matchnest.com
+• Contact: grievance@Nestora.com
 • Timeline: Takedown requests for illegal content or fake profiles will be addressed within 24–72 hours.`,
   },
   {
@@ -182,7 +182,7 @@ export default function TermsPage() {
             transition={{ delay: 0.25, duration: 0.6 }}
             className="text-white/70 text-lg max-w-xl mx-auto"
           >
-            Please read these terms carefully before using MatchNest. They govern your use of our platform and services.
+            Please read these terms carefully before using Nestora. They govern your use of our platform and services.
           </motion.p>
 
           <motion.div
@@ -243,8 +243,8 @@ export default function TermsPage() {
           <div>
             <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">Important Notice</p>
             <p className="text-amber-700 dark:text-amber-400 text-sm mt-0.5 leading-relaxed">
-              By using MatchNest, you agree to these terms. If you have questions, contact us at{" "}
-              <a href="mailto:grievance@matchnest.com" className="underline font-medium">grievance@matchnest.com</a> before proceeding.
+              By using Nestora, you agree to these terms. If you have questions, contact us at{" "}
+              <a href="mailto:grievance@Nestora.com" className="underline font-medium">grievance@Nestora.com</a> before proceeding.
             </p>
           </div>
         </motion.div>
@@ -343,7 +343,7 @@ export default function TermsPage() {
             By clicking "I Agree," I understand that:
           </p>
           <ol className="space-y-2 text-sm text-rose-700 dark:text-rose-300 list-decimal list-inside leading-relaxed">
-            <li>MatchNest is a <span className="font-semibold">Mediator</span>, not a Landlord.</li>
+            <li>Nestora is a <span className="font-semibold">Mediator</span>, not a Landlord.</li>
             <li>I must <span className="font-semibold">verify</span> the property and person before paying any money.</li>
             <li>I will comply with <span className="font-semibold">UP Tenancy Laws</span> including written agreements.</li>
             <li>My data will be used securely to help find me a match.</li>
@@ -374,7 +374,7 @@ export default function TermsPage() {
             Our team is happy to clarify anything. Reach out and we&apos;ll respond within 24–72 hours.
           </p>
           <a
-            href="mailto:grievance@matchnest.com"
+            href="mailto:grievance@Nestora.com"
             className="inline-flex items-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-rose-500/25"
           >
             <Mail className="w-4 h-4" />

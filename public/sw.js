@@ -1,4 +1,4 @@
-const CACHE_NAME = "matchnest-v1";
+const CACHE_NAME = "nestora-v1";
 const STATIC_ASSETS = [
   "/",
   "/properties",
@@ -29,24 +29,29 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET, API routes, and cross-origin requests
+  // Skip non-GET, API routes, cross-origin, and chrome-extension requests
   if (
     request.method !== "GET" ||
     url.pathname.startsWith("/api/") ||
-    url.origin !== self.location.origin
+    url.origin !== self.location.origin ||
+    url.protocol === "chrome-extension:"
   ) return;
 
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Cache successful responses for static assets
-        if (response.ok && (url.pathname.startsWith("/_next/static/") || STATIC_ASSETS.includes(url.pathname))) {
+        if (response.ok && (
+          url.pathname.startsWith("/_next/static/") ||
+          STATIC_ASSETS.includes(url.pathname)
+        )) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
       })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
+      .catch(() =>
+        caches.match(request).then((cached) => cached || caches.match("/"))
+      )
   );
 });
 
@@ -55,7 +60,7 @@ self.addEventListener("push", (event) => {
   if (!event.data) return;
   const data = event.data.json();
   event.waitUntil(
-    self.registration.showNotification(data.title || "MatchNest", {
+    self.registration.showNotification(data.title || "Nestora", {
       body: data.body || "",
       icon: "/logo.png",
       badge: "/logo.png",

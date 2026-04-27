@@ -61,7 +61,7 @@ const HERO_SLIDES = [
 
 const TESTIMONIALS = [
   { name: "Priya Sharma",   role: "Student, Lucknow",    avatar: "PS", text: "Found my PG in 10 minutes! The verified badge gave me confidence. Best platform for students.", rating: 5, color: "from-rose-400 to-pink-500"    },
-  { name: "Rahul Verma",    role: "IT Professional, Noida", avatar: "RV", text: "Moved to a new city and MatchNest made finding a flat so easy. Transparent pricing, no broker fees.", rating: 5, color: "from-blue-400 to-indigo-500"  },
+  { name: "Rahul Verma",    role: "IT Professional, Noida", avatar: "RV", text: "Moved to a new city and Nestora made finding a flat so easy. Transparent pricing, no broker fees.", rating: 5, color: "from-blue-400 to-indigo-500"  },
   { name: "Anjali Singh",   role: "Owner, Prayagraj",    avatar: "AS", text: "Listed my property and got 3 tenants in a week. The AI matching is genuinely impressive.", rating: 5, color: "from-amber-400 to-orange-500"  },
   { name: "Vikram Mishra",  role: "Teacher, Varanasi",   avatar: "VM", text: "The police verification reminder saved me from a lot of legal hassle. Very thoughtful platform.", rating: 5, color: "from-green-400 to-emerald-500" },
 ];
@@ -257,6 +257,19 @@ export default function HomePage() {
 
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
             <SearchBar />
+          </motion.div>
+
+          {/* Add Property CTA */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
+            className="mt-6 flex justify-center">
+            <Link href="/dashboard/properties/new">
+              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.97 }}
+                className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all shadow-lg">
+                <span className="w-5 h-5 rounded-full bg-green-400 flex items-center justify-center text-xs font-black text-white">+</span>
+                Add Property — Free
+                <ArrowRight className="w-4 h-4" />
+              </motion.div>
+            </Link>
           </motion.div>
 
           {/* Stats */}
@@ -465,7 +478,7 @@ export default function HomePage() {
         <Orb size={400} x="-5%" y="50%"  color="bg-indigo-500/10" delay={2} />
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-semibold mb-3">Why MatchNest</span>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-semibold mb-3">Why Nestora</span>
             <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">Built for Tenants &amp; Owners</h2>
             <p className="text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl mx-auto">Everything you need to find or list a room — safely, quickly, and fairly.</p>
           </motion.div>

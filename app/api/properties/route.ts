@@ -2,9 +2,12 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Property from "@/models/Property";
 import Booking from "@/models/Booking";
+import SavedSearch from "@/models/SavedSearch";
+import Notification from "@/models/Notification";
 import { requireRole } from "@/lib/auth";
 import { propertySchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { emit } from "@/lib/chatEvents";
 
 // Increase body size limit for property creation (images as base64)
 export const maxDuration = 30;
@@ -21,6 +24,7 @@ export async function GET(req: NextRequest) {
     const propertyType = searchParams.get("propertyType");
     const search = searchParams.get("search");
     const bedrooms = searchParams.get("bedrooms");
+    const nearLocation = searchParams.get("nearLocation"); // "college name, city" or lat,lng
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = { isAvailable: true };
@@ -38,6 +42,17 @@ export async function GET(req: NextRequest) {
         { "location.city": { $regex: search, $options: "i" } },
         { "location.country": { $regex: search, $options: "i" } },
       ];
+    }
+    // Near college/office: search by address/city containing the location name
+    if (nearLocation) {
+      const nearQuery = { $regex: nearLocation, $options: "i" };
+      const nearOr = [
+        { "location.address": nearQuery },
+        { "location.city": nearQuery },
+        { title: nearQuery },
+        { description: nearQuery },
+      ];
+      query.$or = query.$or ? [...query.$or, ...nearOr] : nearOr;
     }
 
     // Exclude properties already booked (approved/pending) by this tenant
@@ -77,10 +92,36 @@ export async function POST(req: NextRequest) {
       ownerId: user.userId,
       images: body.images || [],
       videos: body.videos || {},
+      tour360: body.tour360 || [],
       amenities: body.amenities || [],
       instantBooking: body.instantBooking ?? false,
       cancellationPolicy: body.cancellationPolicy || "moderate",
     });
+
+    // Notify users with matching saved searches
+    const p = parsed.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const matchQuery: any = { isActive: true };
+    const savedSearches = await SavedSearch.find(matchQuery).lean();
+    for (const s of savedSearches) {
+      const f = s.filters;
+      const cityMatch = !f.city || p.location.city.toLowerCase().includes(f.city.toLowerCase());
+      const priceMatch = (!f.minPrice || p.price >= f.minPrice) && (!f.maxPrice || p.price <= f.maxPrice);
+      const typeMatch = !f.propertyType || p.propertyType === f.propertyType;
+      const bedsMatch = !f.bedrooms || p.bedrooms >= f.bedrooms;
+      if (cityMatch && priceMatch && typeMatch && bedsMatch) {
+        const notif = await Notification.create({
+          userId: s.userId,
+          type: "system",
+          title: `🔔 New match for "${s.name}"`,
+          body: `${p.title} in ${p.location.city} — ₹${p.price.toLocaleString("en-IN")}/month`,
+          link: `/properties/${property._id}`,
+        });
+        emit(s.userId.toString(), "notification:new", { notification: notif.toObject() });
+        await SavedSearch.findByIdAndUpdate(s._id, { lastNotifiedAt: new Date() });
+      }
+    }
+
     return successResponse({ property }, 201);
   } catch (error) {
     return handleApiError(error);

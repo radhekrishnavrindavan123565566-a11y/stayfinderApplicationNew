@@ -18,6 +18,13 @@ export interface IUser extends Document {
   fraudRiskLevel: "low" | "medium" | "high";
   profileCompleteness: number;
   trustBadges: string[];
+  creditScore?: number;
+  creditScoreUpdatedAt?: Date;
+  responseRate?: number;       // 0-100 %
+  avgResponseTimeHours?: number; // average hours to first reply
+  plan?: "free" | "basic" | "pro" | "enterprise";
+  planExpiresAt?: Date;
+  walletBalance?: number;
   createdAt: Date;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -40,6 +47,13 @@ const UserSchema = new Schema<IUser>(
     fraudRiskLevel: { type: String, enum: ["low", "medium", "high"], default: "low" },
     profileCompleteness: { type: Number, default: 0 },
     trustBadges: [{ type: String }],
+    creditScore: { type: Number, default: null },
+    creditScoreUpdatedAt: { type: Date },
+    responseRate: { type: Number, default: null },
+    avgResponseTimeHours: { type: Number, default: null },
+    plan: { type: String, enum: ["free", "basic", "pro", "enterprise"], default: "free" },
+    planExpiresAt: { type: Date },
+    walletBalance: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

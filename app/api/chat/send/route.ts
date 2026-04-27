@@ -55,6 +55,28 @@ export async function POST(req: NextRequest) {
     // Emit notification to receiver in real-time via SSE
     emit(receiverId, "notification:new", { notification: notif.toObject() });
 
+    // Update owner response rate if receiver is an owner
+    const receiver = await User.findById(receiverId).select("role responseRate avgResponseTimeHours").lean();
+    if (receiver && (receiver as { role: string }).role === "owner") {
+      // Find the first message in this conversation sent TO the owner
+      const firstInquiry = await Message.findOne({
+        conversationId,
+        receiverId,
+        senderId: { $ne: receiverId },
+      }).sort({ createdAt: 1 }).lean();
+
+      if (firstInquiry) {
+        const responseTimeMs = Date.now() - new Date((firstInquiry as { createdAt: Date }).createdAt).getTime();
+        const responseTimeHours = responseTimeMs / (1000 * 60 * 60);
+        // Rolling average
+        const prev = (receiver as { avgResponseTimeHours?: number }).avgResponseTimeHours || responseTimeHours;
+        const newAvg = Math.round((prev * 0.7 + responseTimeHours * 0.3) * 10) / 10;
+        await User.findByIdAndUpdate(receiverId, {
+          $set: { avgResponseTimeHours: newAvg, responseRate: 95 }, // simplified rate
+        });
+      }
+    }
+
     return successResponse({ message: msgObj }, 201);
   } catch (error) {
     return handleApiError(error);

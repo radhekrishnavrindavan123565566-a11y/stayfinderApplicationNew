@@ -6,8 +6,8 @@ import { loginSchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import bcrypt from "bcryptjs";
 
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || "inadmin@matchnest.";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@MatchNest2025";
+const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || "admin@nestora.in";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@Nestora2025";
 
 export async function POST(req: NextRequest) {
   try {

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench } from "lucide-react";
+import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
@@ -62,9 +62,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.png" alt="MatchNest" width={44} height={44} style={{ width: 44, height: "auto" }} className="rounded-xl" />
+            <Image src="/logo.png" alt="Nestora" width={44} height={44} style={{ width: 44, height: "auto" }} className="rounded-xl" />
             <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900" : "text-white"}`}>
-              Match<span className="text-amber-500">Nest</span>
+              Nest<span className="text-amber-500">ora</span>
             </span>
           </Link>
 
@@ -72,6 +72,9 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6">
             <Link href="/properties" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
               Explore
+            </Link>
+            <Link href="/roommates" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
+              Roommates
             </Link>
             {user?.role === "owner" && (
               <Link href="/dashboard/properties/new" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
@@ -126,6 +129,7 @@ export default function Navbar() {
                       <div className="py-1">
                         <DropItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/bookings" icon={<Calendar className="w-4 h-4" />} label="My Bookings" onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label="Rent Tracker" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label="Maintenance" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/wishlist" icon={<Heart className="w-4 h-4" />} label="Wishlist" onClick={() => setDropdownOpen(false)} />
                         {user.role === "owner" && (
@@ -133,6 +137,7 @@ export default function Navbar() {
                             <DropItem href="/dashboard/properties" icon={<LayoutDashboard className="w-4 h-4" />} label="My Properties" onClick={() => setDropdownOpen(false)} />
                             <DropItem href="/dashboard/properties/new" icon={<PlusCircle className="w-4 h-4" />} label="Add Property" onClick={() => setDropdownOpen(false)} />
                             <DropItem href="/dashboard/analytics" icon={<BarChart2 className="w-4 h-4" />} label="Analytics" onClick={() => setDropdownOpen(false)} />
+                            <DropItem href="/dashboard/income" icon={<TrendingUp className="w-4 h-4" />} label="Rental Income" onClick={() => setDropdownOpen(false)} />
                           </>
                         )}
                         {user.role === "admin" && (

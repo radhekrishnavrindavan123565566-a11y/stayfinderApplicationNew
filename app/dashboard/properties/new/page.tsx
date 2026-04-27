@@ -13,6 +13,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import ImageUploader from "@/components/properties/ImageUploader";
 import VideoUploader, { PropertyVideos } from "@/components/properties/VideoUploader";
+import Tour360Uploader from "@/components/properties/Tour360Uploader";
 import AIDescriptionGenerator from "@/components/properties/AIDescriptionGenerator";
 import { Sparkles, Zap, Calendar, ChevronRight, ChevronLeft, Check, Wifi, Car, UtensilsCrossed, Waves, Dumbbell, Wind, Tv, Coffee, WashingMachine, Shirt, Shield, Flame, Snowflake, Dog, Baby, Bike, Bus, Utensils, Bath, BedDouble, Sofa, Sun, Leaf, Lock, Camera, Bell, Zap as Lightning, Droplets, Trash2, Package } from "lucide-react";
 
@@ -88,6 +89,7 @@ export default function NewPropertyPage() {
   const [step, setStep] = useState(0);
   const [images, setImages] = useState<string[]>([]);
   const [videos, setVideos] = useState<PropertyVideos>({});
+  const [tour360, setTour360] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [priceSuggestion, setPriceSuggestion] = useState<{ suggested: number; range: { min: number; max: number } } | null>(null);
   const [instantBooking, setInstantBooking] = useState(false);
@@ -122,6 +124,7 @@ export default function NewPropertyPage() {
         ...data,
         images,
         videos,
+        tour360,
         amenities: selectedAmenities,
         instantBooking,
         isAvailable,
@@ -260,6 +263,9 @@ export default function NewPropertyPage() {
 
                 <div className="border-t border-zinc-100 pt-6">
                   <VideoUploader videos={videos} onChange={setVideos} />
+                </div>
+                <div className="border-t border-zinc-100 pt-6">
+                  <Tour360Uploader images={tour360} onChange={setTour360} />
                 </div>
               </motion.div>
             )}

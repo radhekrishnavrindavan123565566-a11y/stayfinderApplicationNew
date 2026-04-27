@@ -29,6 +29,9 @@ import LocationIntelligence from "@/components/properties/LocationIntelligence";
 import UrgencySignals from "@/components/properties/UrgencySignals";
 import LocalityReviews from "@/components/community/LocalityReviews";
 import LocalityQA from "@/components/community/LocalityQA";
+import SimilarProperties from "@/components/properties/SimilarProperties";
+import ResponseRateBadge from "@/components/properties/ResponseRateBadge";
+import Tour360Viewer from "@/components/property/Tour360Viewer";
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
   wifi: <Wifi className="w-4 h-4" />, parking: <Car className="w-4 h-4" />,
@@ -273,6 +276,11 @@ export default function PropertyDetailPage() {
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <MatchScoreBadge propertyId={id} />
             <SmartTags tags={[]} />
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {(property as any).tour360?.length > 0 && (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              <Tour360Viewer images={(property as any).tour360} title={property.title} />
+            )}
           </div>
           <div className="mt-3">
             <UrgencySignals
@@ -376,6 +384,8 @@ export default function PropertyDetailPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-zinc-900 dark:text-white">Hosted by {property.ownerId?.username}</p>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{property.ownerId?.email}</p>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <div className="mt-1.5"><ResponseRateBadge avgResponseTimeHours={(property.ownerId as any)?.avgResponseTimeHours} responseRate={(property.ownerId as any)?.responseRate} /></div>
               </div>
               {user && user._id !== property.ownerId?._id && (
                 <motion.button
@@ -508,6 +518,8 @@ export default function PropertyDetailPage() {
                 instantBooking={(property as any).instantBooking}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 cancellationPolicy={(property as any).cancellationPolicy}
+                propertyType={property.propertyType}
+                ownerId={property.ownerId?._id}
               />
               <div className="mt-4">
                 <AvailabilityCalendar propertyId={property._id} />
@@ -515,6 +527,11 @@ export default function PropertyDetailPage() {
             </div>
           </motion.div>
         </div>
+      </div>
+
+      {/* Similar Properties */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SimilarProperties propertyId={property._id} />
       </div>
 
       {/* Mobile sticky booking bar */}

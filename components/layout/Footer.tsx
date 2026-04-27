@@ -42,13 +42,13 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={fadeUp} className="col-span-2 sm:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4 group w-fit">
-              <Image src="/logo.png" alt="MatchNest" width={36} height={36} className="rounded-xl" />
+              <Image src="/logo.png" alt="Nestora" width={36} height={36} className="rounded-xl" />
               <span className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors">
-                Match<span className="text-amber-400">Nest</span>
+                Nest<span className="text-amber-400">ora</span>
               </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs mb-5">
-              Connecting Dwellings, Linking Hearts. Find your perfect room across Uttar Pradesh.
+              Find Your Place. Feel At Home. Find your perfect room across Uttar Pradesh.
             </p>
             <div className="flex gap-3">
               {SOCIALS.map(({ Icon, label }) => (
@@ -110,7 +110,7 @@ export default function Footer() {
           transition={{ delay: 0.3 }}
           className="border-t border-zinc-800 mt-10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs"
         >
-          <p suppressHydrationWarning>© {new Date().getFullYear()} MatchNest. All rights reserved.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} Nestora. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>

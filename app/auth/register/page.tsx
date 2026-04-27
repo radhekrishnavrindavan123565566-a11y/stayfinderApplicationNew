@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -62,7 +62,7 @@ function PasswordStrength({ password }: { password: string }) {
         <div className="flex gap-2 flex-wrap">
           {checks.map((c) => (
             <span key={c.label} className={`text-[10px] flex items-center gap-0.5 ${c.ok ? "text-green-600" : "text-zinc-400"}`}>
-              {c.ok ? "✓" : "○"} {c.label}
+              {c.ok ? "?" : "?"} {c.label}
             </span>
           ))}
         </div>
@@ -75,7 +75,7 @@ const STATS = [
   { v: "10K+", l: "Properties" },
   { v: "50K+", l: "Users" },
   { v: "120+", l: "Cities" },
-  { v: "4.9★", l: "Rating" },
+  { v: "4.9?", l: "Rating" },
 ];
 
 type RegStep = "form" | "otp";
@@ -145,7 +145,7 @@ export default function RegisterPage() {
     try {
       await axios.put("/api/auth/send-otp", { email: pendingData.email, otp: otpValue });
       await registerUser(pendingData);
-      toast.success("Account created! Welcome to MatchNest.");
+      toast.success("Account created! Welcome to Nestora.");
       router.push("/");
     } catch (err) {
       const msg = axios.isAxiosError(err)
@@ -197,8 +197,8 @@ export default function RegisterPage() {
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-14 text-white">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <Image src="/logo.png" alt="MatchNest" width={40} height={40} className="rounded-2xl" />
-              <span className="text-2xl font-bold group-hover:text-rose-400 transition-colors">Match<span className="text-amber-400">Nest</span></span>
+              <Image src="/logo.png" alt="Nestora" width={40} height={40} className="rounded-2xl" />
+              <span className="text-2xl font-bold group-hover:text-rose-400 transition-colors">Nest<span className="text-amber-400">ora</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Join us today</h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-10 max-w-sm">
@@ -225,8 +225,8 @@ export default function RegisterPage() {
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-8 bg-zinc-50 dark:bg-zinc-950 overflow-y-auto min-h-screen lg:min-h-0">
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="MatchNest" width={32} height={32} className="rounded-xl" />
-            <span className="font-bold text-zinc-900 dark:text-white">Match<span className="text-amber-500">Nest</span></span>
+            <Image src="/logo.png" alt="Nestora" width={32} height={32} className="rounded-xl" />
+            <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
           </Link>
         </div>
 
@@ -239,12 +239,12 @@ export default function RegisterPage() {
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-7 sm:p-8">
             <AnimatePresence mode="wait">
 
-              {/* ── STEP 1: Registration Form ── */}
+              {/* -- STEP 1: Registration Form -- */}
               {regStep === "form" && (
                 <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="mb-6">
                     <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Create account</h1>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Join thousands of users on MatchNest</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Join thousands of users on Nestora</p>
                   </div>
 
                   <AnimatePresence>
@@ -271,7 +271,7 @@ export default function RegisterPage() {
                           transition={{ duration: 0.2 }}
                           className={`text-center py-2.5 rounded-lg text-sm font-medium ${role === r ? "shadow dark:bg-zinc-700 dark:text-white" : ""}`}
                         >
-                          {r === "tenant" ? "🏠 I'm a Tenant" : "🏡 I'm an Owner"}
+                          {r === "tenant" ? "🏠 I'm a Tenant" : "🔑 I'm an Owner"}
                         </motion.div>
                       </label>
                     ))}
@@ -341,7 +341,7 @@ export default function RegisterPage() {
                       <PasswordStrength password={passwordValue} />
                     </div>
 
-                    {/* Terms & Conditions — MANDATORY */}
+                    {/* Terms & Conditions � MANDATORY */}
                     <div>
                       <label className={`flex items-start gap-3 cursor-pointer p-3 rounded-xl border transition-colors ${
                         termsError
@@ -405,7 +405,7 @@ export default function RegisterPage() {
                 </motion.div>
               )}
 
-              {/* ── STEP 2: OTP Verification ── */}
+              {/* -- STEP 2: OTP Verification -- */}
               {regStep === "otp" && (
                 <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                   <div className="text-center mb-6">

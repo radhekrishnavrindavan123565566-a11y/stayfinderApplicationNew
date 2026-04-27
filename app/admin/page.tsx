@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
@@ -8,13 +8,14 @@ import { useRouter } from "next/navigation";
 import {
   Users, Home, Calendar, DollarSign, Trash2, Shield, TrendingUp, Zap,
   CheckCircle, XCircle, FileText, ExternalLink, AlertOctagon,
+  Bell, Megaphone, Upload, Send,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
-type Tab = "overview" | "users" | "verifications" | "disputes";
+type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing";
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const fadeUp: Variants = {
@@ -99,8 +100,8 @@ export default function AdminPage() {
     { icon: <Users className="w-5 h-5" />, label: "Tenants", value: stats?.tenantCount, color: "bg-cyan-50 text-cyan-500 dark:bg-cyan-950/30 dark:text-cyan-400" },
     { icon: <Home className="w-5 h-5" />, label: "Properties", value: stats?.totalProperties, color: "bg-rose-50 text-rose-500 dark:bg-rose-950/30 dark:text-rose-400" },
     { icon: <Calendar className="w-5 h-5" />, label: "Bookings", value: stats?.totalBookings, color: "bg-green-50 text-green-500 dark:bg-green-950/30 dark:text-green-400" },
-    { icon: <DollarSign className="w-5 h-5" />, label: "Total Revenue", value: stats ? `₹${stats.revenue?.toLocaleString()}` : "-", color: "bg-amber-50 text-amber-500 dark:bg-amber-950/30 dark:text-amber-400" },
-    { icon: <TrendingUp className="w-5 h-5" />, label: "Platform Fees", value: stats ? `₹${stats.platformRevenue?.toLocaleString()}` : "-", color: "bg-purple-50 text-purple-500 dark:bg-purple-950/30 dark:text-purple-400" },
+    { icon: <DollarSign className="w-5 h-5" />, label: "Total Revenue", value: stats ? `?${stats.revenue?.toLocaleString()}` : "-", color: "bg-amber-50 text-amber-500 dark:bg-amber-950/30 dark:text-amber-400" },
+    { icon: <TrendingUp className="w-5 h-5" />, label: "Platform Fees", value: stats ? `?${stats.platformRevenue?.toLocaleString()}` : "-", color: "bg-purple-50 text-purple-500 dark:bg-purple-950/30 dark:text-purple-400" },
     { icon: <Zap className="w-5 h-5" />, label: "Boosted Listings", value: stats?.boostedProperties, color: "bg-orange-50 text-orange-500 dark:bg-orange-950/30 dark:text-orange-400" },
   ];
 
@@ -109,6 +110,8 @@ export default function AdminPage() {
     { key: "users", label: "Users" },
     { key: "verifications", label: "Verifications", badge: pendingVerifications.length },
     { key: "disputes", label: "Disputes", badge: disputes.filter((d) => d.status === "open").length },
+    { key: "reminders", label: "Reminders" },
+    { key: "marketing", label: "Bulk Marketing" },
   ];
 
   return (
@@ -231,10 +234,10 @@ export default function AdminPage() {
                         <div className="min-w-0">
                           <p className="font-medium text-zinc-900 dark:text-white text-sm truncate">{b.propertyId?.title || "Property"}</p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            by {b.tenantId?.username || "User"} · {format(new Date(b.createdAt), "MMM d, yyyy")}
+                            by {b.tenantId?.username || "User"} • {format(new Date(b.createdAt), "MMM d, yyyy")}
                           </p>
                         </div>
-                        <span className="font-semibold text-zinc-900 dark:text-white ml-4 flex-shrink-0">₹{b.totalPrice?.toLocaleString("en-IN")}</span>
+                        <span className="font-semibold text-zinc-900 dark:text-white ml-4 flex-shrink-0">?{b.totalPrice?.toLocaleString("en-IN")}</span>
                       </motion.div>
                     ))}
                   </div>
@@ -395,7 +398,7 @@ export default function AdminPage() {
                             </p>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">{d.description}</p>
                             <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
-                              by {d.raisedBy?.username || "User"} · {d.createdAt && format(new Date(d.createdAt), "MMM d, yyyy")}
+                              by {d.raisedBy?.username || "User"} • {d.createdAt && format(new Date(d.createdAt), "MMM d, yyyy")}
                             </p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${
@@ -428,9 +431,167 @@ export default function AdminPage() {
               </motion.div>
             )}
 
+            {/* Reminders */}
+            {tab === "reminders" && (
+              <motion.div key="reminders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <RemindersPanel authHeaders={authHeaders} />
+              </motion.div>
+            )}
+
+            {/* Bulk Marketing */}
+            {tab === "marketing" && (
+              <motion.div key="marketing" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <BulkMarketingPanel authHeaders={authHeaders} />
+              </motion.div>
+            )}
+
           </AnimatePresence>
         )}
       </div>
+    </div>
+  );
+}
+
+// -- Reminders Panel -----------------------------------------------------------
+function RemindersPanel({ authHeaders }: { authHeaders: () => { headers: { Authorization: string } | { Authorization?: undefined } } }) {
+  const [sending, setSending] = useState<string | null>(null);
+  const [results, setResults] = useState<Record<string, number> | null>(null);
+
+  const send = async (type: string) => {
+    setSending(type);
+    try {
+      const { data } = await axios.post("/api/admin/reminders", { type }, authHeaders());
+      setResults(data.data.results);
+      toast.success("Reminders sent!");
+    } catch { toast.error("Failed to send reminders"); }
+    finally { setSending(null); }
+  };
+
+  const REMINDER_TYPES = [
+    { key: "tenant_rent", icon: "💰", title: "Tenant Rent Reminder", desc: "Bhai, 5 tarikh hai — Rent Pay Karo!", color: "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400" },
+    { key: "owner_agreement", icon: "📄", title: "Owner Agreement Expiry", desc: "Agreement expire ho raha hai, renew kar lo.", color: "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400" },
+    { key: "admin_verification", icon: "✅", title: "Admin Verification Alert", desc: "Nayi property verification pending hai.", color: "bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-400" },
+    { key: "all", icon: "🔔", title: "Send All Reminders", desc: "Sabhi reminders ek saath bhejo.", color: "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Bell className="w-5 h-5 text-rose-500" />
+          <h2 className="font-semibold text-zinc-900 dark:text-white">Smart Reminder System</h2>
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">Ek click mein sabhi relevant users ko reminder bhejo. Reminders in-app notification ke through jaate hain.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {REMINDER_TYPES.map((r) => (
+            <div key={r.key} className={`rounded-2xl border p-4 ${r.color}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-sm flex items-center gap-2">{r.icon} {r.title}</p>
+                  <p className="text-xs opacity-75 mt-1">{r.desc}</p>
+                  {results && results[r.key] !== undefined && (
+                    <p className="text-xs font-bold mt-2">? {results[r.key]} users ko bheja</p>
+                  )}
+                </div>
+                <Button size="sm" onClick={() => send(r.key)} isLoading={sending === r.key}
+                  className="flex-shrink-0 bg-white/80 dark:bg-zinc-800 text-zinc-800 dark:text-white border border-current/20 hover:bg-white dark:hover:bg-zinc-700 text-xs">
+                  <Send className="w-3.5 h-3.5" /> Send
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// -- Bulk Marketing Panel ------------------------------------------------------
+function BulkMarketingPanel({ authHeaders }: { authHeaders: () => { headers: { Authorization: string } | { Authorization?: undefined } } }) {
+  const [title, setTitle] = useState("Nestora — Special Offer for Lucknow!");
+  const [message, setMessage] = useState("Namaskar! Nestora par aaj hi apna ghar dhundein ya list karein. Lucknow ke sabse verified listings sirf hamare paas. Visit: nestora.in");
+  const [role, setRole] = useState("all");
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<{ sentToUsers: number; csvContacts: number; matchedFromCsv: number } | null>(null);
+
+  const send = async () => {
+    if (!message.trim()) { toast.error("Message likhna zaroori hai"); return; }
+    setSending(true);
+    try {
+      const form = new FormData();
+      form.append("title", title);
+      form.append("message", message);
+      form.append("role", role);
+      if (csvFile) form.append("csv", csvFile);
+      const { data } = await axios.post("/api/admin/bulk-marketing", form, authHeaders());
+      setResult(data.data);
+      toast.success(`${data.data.total} users ko message bheja gaya!`);
+    } catch { toast.error("Send failed"); }
+    finally { setSending(false); }
+  };
+
+  return (
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-5 space-y-5">
+      <div className="flex items-center gap-2">
+        <Megaphone className="w-5 h-5 text-rose-500" />
+        <h2 className="font-semibold text-zinc-900 dark:text-white">Bulk Marketing Panel</h2>
+        <span className="text-xs bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400 px-2 py-0.5 rounded-full">Lucknow Focus</span>
+      </div>
+
+      {/* Title */}
+      <div>
+        <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">Notification Title</label>
+        <input value={title} onChange={(e) => setTitle(e.target.value)}
+          className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm bg-white dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400" />
+      </div>
+
+      {/* Message */}
+      <div>
+        <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">Message</label>
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
+          className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm bg-white dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none" />
+        <p className="text-xs text-zinc-400 mt-1">{message.length} characters</p>
+      </div>
+
+      {/* Target */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">Target Users</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}
+            className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm bg-white dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400">
+            <option value="all">All Users</option>
+            <option value="tenant">Tenants Only</option>
+            <option value="owner">Owners Only</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">CSV Upload (optional)</label>
+          <label className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-600 cursor-pointer hover:border-rose-400 transition-colors">
+            <Upload className="w-4 h-4 text-zinc-400" />
+            <span className="text-xs text-zinc-500 truncate">{csvFile ? csvFile.name : "Name, Phone, Email"}</span>
+            <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={(e) => setCsvFile(e.target.files?.[0] || null)} />
+          </label>
+        </div>
+      </div>
+
+      {/* CSV format hint */}
+      <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="font-medium mb-1">CSV Format:</p>
+        <code className="text-zinc-600 dark:text-zinc-300">Name, Phone, Email</code><br />
+        <code className="text-zinc-600 dark:text-zinc-300">Rahul Verma, 9876543210, rahul@email.com</code>
+      </div>
+
+      {/* Result */}
+      {result && (
+        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl p-3 text-sm text-green-700 dark:text-green-400">
+          ✓ Registered users: <strong>{result.sentToUsers}</strong> • CSV contacts: <strong>{result.csvContacts}</strong> • Matched: <strong>{result.matchedFromCsv}</strong>
+        </div>
+      )}
+
+      <Button onClick={send} isLoading={sending} className="w-full gap-2" size="lg">
+        <Send className="w-4 h-4" /> Send to All
+      </Button>
     </div>
   );
 }

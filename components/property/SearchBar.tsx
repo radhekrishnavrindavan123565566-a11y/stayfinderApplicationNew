@@ -176,7 +176,7 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
   }, [localSearch, localCity, setFilters, fetchProperties]);
 
   const clearFilters = () => {
-    setFilters({ search: "", city: "", minPrice: "", maxPrice: "", propertyType: "", bedrooms: "" });
+    setFilters({ search: "", city: "", minPrice: "", maxPrice: "", propertyType: "", bedrooms: "", nearLocation: "" });
     setLocalSearch("");
     setLocalCity("");
     setQuickResults([]);
@@ -300,6 +300,18 @@ function FilterPanel({ filters, setFilters, onApply, onClear }: {
 }) {
   return (
     <div className="space-y-4">
+      {/* Near college/office */}
+      <div>
+        <label className="text-xs font-medium text-zinc-600 mb-1 block flex items-center gap-1">
+          🎓 Near College / Office
+        </label>
+        <input
+          value={filters.nearLocation}
+          onChange={(e) => setFilters({ nearLocation: e.target.value })}
+          placeholder="e.g. Allahabad University, TCS Lucknow..."
+          className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+        />
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
           <label className="text-xs font-medium text-zinc-600 mb-1 block">Min Price</label>

@@ -21,7 +21,13 @@ interface BookingFormProps {
   maxGuests: number;
   instantBooking?: boolean;
   cancellationPolicy?: "flexible" | "moderate" | "strict";
+  propertyType?: string;
+  ownerId?: string;
 }
+
+// Hotel/Resort = daily pricing; everything else = monthly
+const DAILY_TYPES = ["villa", "cabin"];
+const DAILY_LABEL: Record<string, string> = { villa: "night", cabin: "night" };
 
 const POLICY_LABELS = {
   flexible: "Full refund up to 1 day before",
@@ -29,11 +35,22 @@ const POLICY_LABELS = {
   strict: "50% refund up to 7 days before",
 };
 
-export default function BookingForm({ propertyId, price, maxGuests, instantBooking, cancellationPolicy = "moderate" }: BookingFormProps) {
+export default function BookingForm({ propertyId, price, maxGuests, instantBooking, cancellationPolicy = "moderate", propertyType = "apartment", ownerId }: BookingFormProps) {
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();
-  const [months, setMonths] = useState(0);
+  const isDaily = DAILY_TYPES.includes(propertyType);
+  const unit = isDaily ? (DAILY_LABEL[propertyType] || "night") : "month";
+  const [duration, setDuration] = useState(0); // months or nights
+
+  // Block owner from seeing booking form
+  if (user && ownerId && user._id === ownerId) {
+    return (
+      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 text-center">
+        <p className="text-amber-700 dark:text-amber-400 text-sm font-medium">This is your property — you cannot book it.</p>
+      </div>
+    );
+  }
 
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<BookingInput>({
     resolver: zodResolver(bookingSchema),
@@ -43,14 +60,19 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
   const startDate = watch("startDate");
   const endDate = watch("endDate");
 
-  const calcNights = () => {
+  const calcDuration = () => {
     if (startDate && endDate) {
-      const m = differenceInCalendarMonths(new Date(endDate), new Date(startDate));
-      setMonths(m > 0 ? m : 0);
+      if (isDaily) {
+        const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+        setDuration(days > 0 ? days : 0);
+      } else {
+        const m = differenceInCalendarMonths(new Date(endDate), new Date(startDate));
+        setDuration(m > 0 ? m : 0);
+      }
     }
   };
 
-  const subtotal = price * months;
+  const subtotal = price * duration;
   const platformFee = Math.round(subtotal * PLATFORM_FEE_PCT * 100) / 100;
   const total = subtotal + platformFee;
 
@@ -76,7 +98,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-bold text-zinc-900">₹{price.toLocaleString("en-IN")}</span>
-          <span className="text-zinc-500 text-sm">/ month</span>
+          <span className="text-zinc-500 text-sm">/ {unit}</span>
         </div>
         {instantBooking && (
           <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
@@ -98,7 +120,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
                 type="date"
                 min={today}
                 {...register("startDate")}
-                onChange={(e) => { register("startDate").onChange(e); calcNights(); }}
+                onChange={(e) => { register("startDate").onChange(e); calcDuration(); }}
                 className="text-sm text-zinc-900 focus:outline-none w-full"
               />
             </div>
@@ -112,7 +134,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
                 type="date"
                 min={startDate || today}
                 {...register("endDate")}
-                onChange={(e) => { register("endDate").onChange(e); calcNights(); }}
+                onChange={(e) => { register("endDate").onChange(e); calcDuration(); }}
                 className="text-sm text-zinc-900 focus:outline-none w-full"
               />
             </div>
@@ -144,14 +166,14 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         </div>
 
         {/* Price breakdown */}
-        {months > 0 && (
+        {duration > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             className="space-y-2 pt-3 border-t border-zinc-100"
           >
             <div className="flex justify-between text-sm text-zinc-600">
-              <span>₹{price.toLocaleString("en-IN")} × {months} month{months > 1 ? "s" : ""}</span>
+              <span>₹{price.toLocaleString("en-IN")} × {duration} {unit}{duration > 1 ? "s" : ""}</span>
               <span>₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between text-sm text-zinc-500">
