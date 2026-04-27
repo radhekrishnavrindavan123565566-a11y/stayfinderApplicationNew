@@ -9,30 +9,45 @@ export interface ISavedSearch extends Document {
     maxPrice?: number;
     propertyType?: string;
     bedrooms?: number;
+    amenities?: string[];
     nearLocation?: string;
   };
-  lastNotifiedAt?: Date;
+  alertEnabled: boolean;
+  alertFrequency: "instant" | "daily" | "weekly";
+  lastAlertSent?: Date;
+  matchCount: number;
   isActive: boolean;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const SavedSearchSchema = new Schema<ISavedSearch>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    name: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    name: { type: String, required: true, trim: true },
     filters: {
-      city: String,
-      minPrice: Number,
-      maxPrice: Number,
-      propertyType: String,
-      bedrooms: Number,
-      nearLocation: String,
+      city: { type: String },
+      minPrice: { type: Number },
+      maxPrice: { type: Number },
+      propertyType: { type: String },
+      bedrooms: { type: Number },
+      amenities: [{ type: String }],
+      nearLocation: { type: String },
     },
-    lastNotifiedAt: Date,
+    alertEnabled: { type: Boolean, default: true },
+    alertFrequency: {
+      type: String,
+      enum: ["instant", "daily", "weekly"],
+      default: "daily",
+    },
+    lastAlertSent: { type: Date },
+    matchCount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
+
+SavedSearchSchema.index({ userId: 1, isActive: 1 });
 
 export default mongoose.models.SavedSearch ||
   mongoose.model<ISavedSearch>("SavedSearch", SavedSearchSchema);
