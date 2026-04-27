@@ -9,6 +9,7 @@ import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 import DarkModeToggle from "@/components/ui/DarkModeToggle";
 
 function ChatBadge() {
@@ -88,7 +89,7 @@ export default function Navbar() {
             <DarkModeToggle />
             {mounted && user ? (
               <div className="flex items-center gap-2">
-                <NotificationBell />
+                <NotificationCenter />
                 <Link href="/chat" className={`relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${scrolled || !isHome ? "text-zinc-600 dark:text-zinc-300" : "text-white"}`}>
                   <MessageCircle className="w-5 h-5" />
                   <ChatBadge />
@@ -128,7 +129,9 @@ export default function Navbar() {
                       </div>
                       <div className="py-1">
                         <DropItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/rewards" icon={<TrendingUp className="w-4 h-4" />} label="Rewards" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/bookings" icon={<Calendar className="w-4 h-4" />} label="My Bookings" onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/rent-split" icon={<IndianRupee className="w-4 h-4" />} label="Rent Split" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label="Rent Tracker" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label="Maintenance" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/wishlist" icon={<Heart className="w-4 h-4" />} label="Wishlist" onClick={() => setDropdownOpen(false)} />

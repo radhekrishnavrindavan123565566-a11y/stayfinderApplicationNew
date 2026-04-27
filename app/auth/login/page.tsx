@@ -136,10 +136,23 @@ export default function LoginPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + i * 0.1 }}
-                  className="flex items-center gap-3"
+                  whileHover={{ x: 8, transition: { duration: 0.2 } }}
+                  className="flex items-center gap-3 group cursor-default"
                 >
-                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs flex-shrink-0">✓</div>
-                  <span className="text-white/90 text-sm">{item}</span>
+                  <motion.div 
+                    className="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs flex-shrink-0 border border-white/30"
+                    whileHover={{ scale: 1.2, rotate: 360, backgroundColor: "rgba(255,255,255,0.3)" }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.5 + i * 0.1, type: "spring", stiffness: 200 }}
+                    >
+                      ✓
+                    </motion.span>
+                  </motion.div>
+                  <span className="text-white/90 text-sm group-hover:text-white transition-colors">{item}</span>
                 </motion.div>
               ))}
             </div>
@@ -189,8 +202,17 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
                   Email address
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                <div className="relative group">
+                  <motion.div
+                    animate={{ 
+                      scale: emailValue ? [1, 1.1, 1] : 1,
+                      color: errors.email ? "#ef4444" : touchedFields.email && emailValue ? "#22c55e" : "#a1a1aa"
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+                  >
+                    <Mail className="w-4 h-4" />
+                  </motion.div>
                   <input
                     suppressHydrationWarning
                     type="email"
@@ -202,9 +224,10 @@ export default function LoginPage() {
                   <AnimatePresence>
                     {touchedFields.email && emailValue && !errors.email && (
                       <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        exit={{ scale: 0, rotate: 180 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
                         className="absolute right-3 top-1/2 -translate-y-1/2"
                       >
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -220,8 +243,18 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
                   Password
                 </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                <div className="relative group">
+                  <motion.div
+                    animate={{ 
+                      scale: passwordValue ? [1, 1.1, 1] : 1,
+                      rotate: passwordValue ? [0, -5, 5, 0] : 0,
+                      color: errors.password ? "#ef4444" : touchedFields.password && passwordValue ? "#22c55e" : "#a1a1aa"
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+                  >
+                    <Lock className="w-4 h-4" />
+                  </motion.div>
                   <input
                     suppressHydrationWarning
                     type={showPass ? "text" : "password"}
@@ -230,34 +263,68 @@ export default function LoginPage() {
                     className={`${inputClass(!!errors.password, !!touchedFields.password, passwordValue)} pr-10`}
                     {...register("password")}
                   />
-                  <button
+                  <motion.button
                     suppressHydrationWarning
                     type="button"
                     onClick={() => setShowPass(!showPass)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
                     tabIndex={-1}
                   >
                     <AnimatePresence mode="wait">
                       {showPass ? (
-                        <motion.div key="off" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                        <motion.div 
+                          key="off" 
+                          initial={{ rotate: -90, opacity: 0, scale: 0.8 }} 
+                          animate={{ rotate: 0, opacity: 1, scale: 1 }} 
+                          exit={{ rotate: 90, opacity: 0, scale: 0.8 }} 
+                          transition={{ duration: 0.2, type: "spring", stiffness: 200 }}
+                        >
                           <EyeOff className="w-4 h-4" />
                         </motion.div>
                       ) : (
-                        <motion.div key="on" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                        <motion.div 
+                          key="on" 
+                          initial={{ rotate: 90, opacity: 0, scale: 0.8 }} 
+                          animate={{ rotate: 0, opacity: 1, scale: 1 }} 
+                          exit={{ rotate: -90, opacity: 0, scale: 0.8 }} 
+                          transition={{ duration: 0.2, type: "spring", stiffness: 200 }}
+                        >
                           <Eye className="w-4 h-4" />
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </button>
+                  </motion.button>
                 </div>
                 <FieldError message={errors.password?.message} />
               </div>
 
-              <div className="flex justify-end">
-                <Link href="/auth/forgot-password" className="text-xs text-rose-500 hover:underline">
-                  Forgot password?
+              <motion.div 
+                className="flex justify-end"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-xs text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 hover:underline transition-colors inline-flex items-center gap-1 group"
+                >
+                  <motion.span
+                    whileHover={{ x: -2 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Forgot password?
+                  </motion.span>
+                  <motion.span
+                    initial={{ opacity: 0, x: -5 }}
+                    whileHover={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    →
+                  </motion.span>
                 </Link>
-              </div>
+              </motion.div>
 
               <Button type="submit" isLoading={isSubmitting} className="w-full" size="lg">
                 Sign In <ArrowRight className="w-4 h-4" />
