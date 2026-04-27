@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
-import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Shield, Zap, Clock, CreditCard } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -32,10 +32,10 @@ function FieldError({ message }: { message?: string }) {
 }
 
 const FEATURES = [
-  "10,000+ verified properties",
-  "Instant booking confirmation",
-  "24/7 customer support",
-  "Secure escrow payments",
+  { text: "10,000+ verified properties", icon: Shield },
+  { text: "Instant booking confirmation", icon: Zap },
+  { text: "24/7 customer support", icon: Clock },
+  { text: "Secure escrow payments", icon: CreditCard },
 ];
 
 export default function LoginPage() {
@@ -130,31 +130,46 @@ export default function LoginPage() {
               Sign in to manage your bookings, wishlist, and discover new properties.
             </p>
             <div className="space-y-3">
-              {FEATURES.map((item, i) => (
-                <motion.div
-                  key={item}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + i * 0.1 }}
-                  whileHover={{ x: 8, transition: { duration: 0.2 } }}
-                  className="flex items-center gap-3 group cursor-default"
-                >
-                  <motion.div 
-                    className="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs flex-shrink-0 border border-white/30"
-                    whileHover={{ scale: 1.2, rotate: 360, backgroundColor: "rgba(255,255,255,0.3)" }}
-                    transition={{ duration: 0.4 }}
+              {FEATURES.map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <motion.div
+                    key={item.text}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + i * 0.1 }}
+                    whileHover={{ x: 8, transition: { duration: 0.2 } }}
+                    className="flex items-center gap-3 group cursor-default"
                   >
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.5 + i * 0.1, type: "spring", stiffness: 200 }}
+                    <motion.div 
+                      className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/30"
+                      whileHover={{ 
+                        scale: 1.15, 
+                        rotate: [0, -10, 10, -10, 0],
+                        backgroundColor: "rgba(255,255,255,0.35)" 
+                      }}
+                      transition={{ duration: 0.5 }}
+                      animate={{
+                        y: [0, -3, 0],
+                      }}
+                      style={{
+                        animationDelay: `${i * 0.2}s`,
+                        animationDuration: "3s",
+                        animationIterationCount: "infinite",
+                      }}
                     >
-                      ✓
-                    </motion.span>
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.5 + i * 0.1, type: "spring", stiffness: 200 }}
+                      >
+                        <Icon className="w-4 h-4 text-white" />
+                      </motion.div>
+                    </motion.div>
+                    <span className="text-white/90 text-sm group-hover:text-white transition-colors">{item.text}</span>
                   </motion.div>
-                  <span className="text-white/90 text-sm group-hover:text-white transition-colors">{item}</span>
-                </motion.div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         </div>

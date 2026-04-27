@@ -30,7 +30,7 @@ function QuickResults({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.98 }}
       transition={{ duration: 0.2 }}
-      className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 overflow-hidden z-50"
+      className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 overflow-hidden z-[100]"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
@@ -218,11 +218,11 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <div ref={wrapperRef} className="relative w-full max-w-4xl mx-auto">
+    <div ref={wrapperRef} className="relative w-full max-w-4xl mx-auto z-50">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-2xl p-2 flex flex-col sm:flex-row gap-2"
+        className="bg-white rounded-2xl shadow-2xl p-2 flex flex-col sm:flex-row gap-2 relative z-50"
       >
         {/* Search input */}
         <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-zinc-50 transition-colors">
