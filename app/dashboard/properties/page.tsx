@@ -6,6 +6,7 @@ import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
 import { Plus, Edit2, Trash2, Eye, Star, MapPin, BedDouble, Users, ToggleLeft, ToggleRight, BarChart2 } from "lucide-react";
@@ -34,22 +35,24 @@ const fadeUp: Variants = {
 };
 
 export default function MyPropertiesPage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth(["owner", "admin"]);
   const { authHeaders } = useApi();
   const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if (!mounted) return;
-    if (!user || user.role === "tenant") { router.push("/"); return; }
+    if (!ready || !user) return;
     fetchProperties();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, user]);
+  }, [ready, user]);
+
+  if (!ready || !user) return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   const fetchProperties = async () => {
     try {
@@ -80,8 +83,6 @@ export default function MyPropertiesPage() {
     } catch { toast.error("Failed to delete"); }
     finally { setDeletingId(null); }
   };
-
-  if (!mounted) return null;
 
   const statItems = [
     { label: "Total Listings", value: properties.length, icon: <BarChart2 className="w-4 h-4 text-rose-500" />, bg: "bg-rose-50 dark:bg-rose-950/20" },

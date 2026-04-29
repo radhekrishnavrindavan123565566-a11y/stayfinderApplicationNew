@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { propertySchema, PropertyInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
@@ -64,7 +65,7 @@ const AMENITY_GROUPS = [
 
 export default function EditPropertyPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth(["owner", "admin"]);
   const { authHeaders } = useApi();
   const router = useRouter();
 
@@ -84,11 +85,10 @@ export default function EditPropertyPage() {
 
   // Load existing property data
   useEffect(() => {
-    if (!user || user.role === "tenant") { router.push("/"); return; }
+    if (!ready || !user) return;
     axios.get(`/api/properties/${id}`, authHeaders())
       .then(({ data }) => {
         const p = data.data.property;
-        // Check ownership
         const ownerId = typeof p.ownerId === "object" ? p.ownerId._id : p.ownerId;
         if (ownerId !== user._id && user.role !== "admin") {
           toast.error("Not authorised"); router.push("/dashboard/properties"); return;
@@ -114,7 +114,7 @@ export default function EditPropertyPage() {
       .catch(() => { toast.error("Failed to load property"); router.push("/dashboard/properties"); })
       .finally(() => setFetching(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, ready, user]);
 
   const nextStep = async () => {
     const fieldsPerStep: (keyof PropertyInput)[][] = [
@@ -146,6 +146,12 @@ export default function EditPropertyPage() {
 
   const toggleAmenity = (a: string) =>
     setSelectedAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+
+  if (!ready || !user) return (
+    <div className="min-h-screen pt-20 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   if (fetching) return (
     <div className="min-h-screen pt-20 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">

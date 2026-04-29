@@ -4,6 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import Link from "next/link";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import {
   Home, Calendar, Heart, Star, PlusCircle, ArrowRight,
@@ -26,7 +27,7 @@ const fadeUp: Variants = {
 };
 
 export default function DashboardPage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth();
   const { authHeaders } = useApi();
   const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,7 +38,7 @@ export default function DashboardPage() {
   const { fetchMe } = useAuthStore();
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready || !user) return;
     const load = async () => {
       try {
         await fetchMe();
@@ -57,7 +58,13 @@ export default function DashboardPage() {
     };
     load();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [ready, user]);
+
+  if (!ready || !user) return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   if (!user) return null;
 

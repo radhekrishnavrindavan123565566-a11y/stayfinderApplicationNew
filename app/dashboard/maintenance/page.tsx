@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Wrench, Clock, CheckCircle, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -23,9 +23,8 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 export default function MaintenancePage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth();
   const { authHeaders } = useApi();
-  const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,10 +32,10 @@ export default function MaintenancePage() {
   const [noteInputs, setNoteInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready || !user) return;
     fetchRequests();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [ready, user]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -58,6 +57,12 @@ export default function MaintenancePage() {
       toast.error("Failed to update");
     }
   };
+
+  if (!ready || !user) return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">

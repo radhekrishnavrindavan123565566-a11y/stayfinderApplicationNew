@@ -4,7 +4,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { TrendingUp, DollarSign, Home, Calendar, Star, Zap } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import toast from "react-hot-toast";
 import DemandInsights from "@/components/analytics/DemandInsights";
 
@@ -86,21 +86,18 @@ function EarningsChart({ data }: { data: AnalyticsData["monthlyEarnings"] }) {
 }
 
 export default function AnalyticsPage() {
-  const { user, accessToken } = useAuthStore();
-  const router = useRouter();
+  const { ready, user } = useRequireAuth(["owner", "admin"], "/dashboard");
+  const { accessToken } = useAuthStore();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [boosting, setBoosting] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user || (user.role !== "owner" && user.role !== "admin")) {
-      router.push("/dashboard");
-      return;
-    }
+    if (!ready || !user) return;
     fetchAnalytics();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [ready, user]);
 
   const fetchAnalytics = async () => {
     try {
@@ -114,6 +111,12 @@ export default function AnalyticsPage() {
       setIsLoading(false);
     }
   };
+
+  if (!ready || !user) return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   const handleBoost = async (propertyId: string) => {
     setBoosting(propertyId);

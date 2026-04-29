@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, AlertCircle, Clock, PenLine, Home, ChevronDown, ChevronUp } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
@@ -141,7 +142,7 @@ export default function ChecklistPage() {
 }
 
 function ChecklistPageContent() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth();
   const { authHeaders } = useApi();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -165,10 +166,11 @@ function ChecklistPageContent() {
   }, [bookingId, authHeaders]);
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready) return;
+    if (!user) return; // useRequireAuth handles redirect
     if (!bookingId) { router.push("/dashboard/bookings"); return; }
     load();
-  }, [user, bookingId, load, router]);
+  }, [ready, user, bookingId, load, router]);
 
   const isTenant = checklist?.tenantId._id === user?._id;
   const isOwner = checklist?.ownerId._id === user?._id;

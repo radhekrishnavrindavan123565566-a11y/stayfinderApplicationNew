@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { IndianRupee, CheckCircle, Clock, AlertCircle, Calendar, Home } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import { format } from "date-fns";
@@ -43,9 +43,8 @@ const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const fadeUp = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
 export default function RentTrackerPage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth();
   const { authHeaders } = useApi();
-  const router = useRouter();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,9 +64,9 @@ export default function RentTrackerPage() {
   }, [user, authHeaders]);
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready || !user) return;
     load();
-  }, [user, load, router]);
+  }, [ready, user, load]);
 
   const confirmPayment = async (paymentId: string, status: "paid" | "late" | "waived") => {
     setConfirming(paymentId);
@@ -85,7 +84,11 @@ export default function RentTrackerPage() {
     return true;
   });
 
-  if (!user) return null;
+  if (!ready || !user) return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">

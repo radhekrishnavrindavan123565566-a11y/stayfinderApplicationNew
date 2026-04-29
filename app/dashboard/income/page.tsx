@@ -7,8 +7,8 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 
@@ -260,9 +260,8 @@ function BroadcastPanel({ authHeaders, properties }: {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function IncomeDashboardPage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth(["owner", "admin"], "/dashboard");
   const { authHeaders } = useApi();
-  const router = useRouter();
   const [analytics, setAnalytics] = useState<{
     totalEarnings: number;
     platformFees: number;
@@ -275,14 +274,19 @@ export default function IncomeDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
-    if (user.role !== "owner" && user.role !== "admin") { router.push("/dashboard"); return; }
+    if (!ready || !user) return;
     axios.get("/api/analytics", authHeaders())
       .then(({ data }) => setAnalytics(data.data))
       .catch(() => toast.error("Failed to load analytics"))
       .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [ready, user]);
+
+  if (!ready || !user) return (
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+    </div>
+  );
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">

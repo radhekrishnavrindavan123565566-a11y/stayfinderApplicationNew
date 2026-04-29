@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { propertySchema, PropertyInput } from "@/lib/validations";
-import { useAuthStore } from "@/store/authStore";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -82,7 +82,7 @@ const COUNTRIES = [
 ];
 
 export default function NewPropertyPage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth(["owner", "admin"]);
   const { authHeaders } = useApi();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -103,20 +103,10 @@ export default function NewPropertyPage() {
 
   useEffect(() => { setMounted(true); }, []);
   
-  // Redirect logic in useEffect to prevent race conditions
-  useEffect(() => {
-    if (!mounted) return;
-    if (!user) {
-      router.push("/auth/login");
-    } else if (user.role === "tenant") {
-      router.push("/");
-    }
-  }, [mounted, user, router]);
-
-  // Show loading while checking auth
-  if (!mounted || !user || user.role === "tenant") {
+  // Show loading while auth rehydrates or redirect is pending
+  if (!ready || !user) {
     return (
-      <div className="min-h-screen bg-zinc-50 pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
       </div>
     );
