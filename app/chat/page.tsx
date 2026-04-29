@@ -110,6 +110,12 @@ export default function ChatPage() {
 
   const activeConvo = conversations.find((c) => c.conversationId === activeConversationId);
 
+  // Debug log
+  useEffect(() => {
+    console.log("Active conversation ID:", activeConversationId);
+    console.log("Active conversation:", activeConvo);
+  }, [activeConversationId, activeConvo]);
+
   if (!mounted) return (
     <div className="h-[calc(100vh-64px)] flex items-center justify-center bg-white dark:bg-zinc-900">
       <motion.div
@@ -130,7 +136,7 @@ export default function ChatPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
@@ -142,11 +148,11 @@ export default function ChatPage() {
         className={cn(
           "flex-shrink-0 border-r border-zinc-200 dark:border-zinc-700 flex flex-col bg-white dark:bg-zinc-900",
           "fixed md:relative inset-y-0 left-0 z-50 md:z-auto",
-          "w-72 sm:w-80",
-          "transition-transform duration-300",
+          "w-full sm:w-80 md:w-72 lg:w-80",
+          "transition-transform duration-300 ease-out",
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
-        style={{ top: 64 }}
+        style={{ top: 64, willChange: "transform" }}
       >
         <div className="px-4 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <div>
@@ -205,6 +211,7 @@ export default function ChatPage() {
                     convo={c}
                     isActive={c.conversationId === activeConversationId}
                     onClick={() => {
+                      console.log("Conversation clicked:", c.conversationId);
                       setActiveConversation(c.conversationId);
                       setSidebarOpen(false);
                     }}
@@ -219,16 +226,17 @@ export default function ChatPage() {
       {/* Chat area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header bar */}
-        <div className="md:hidden flex items-center gap-3 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="md:hidden flex items-center gap-3 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors touch-target"
+            aria-label="Open conversations"
           >
             <Menu className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
           </motion.button>
-          <span className="font-semibold text-zinc-900 dark:text-white text-sm">
+          <span className="font-semibold text-zinc-900 dark:text-white text-sm truncate flex-1">
             {activeConvo ? activeConvo.otherUser.username : "Messages"}
           </span>
         </div>

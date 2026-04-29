@@ -33,10 +33,16 @@ export default function RewardsPage() {
         fetch("/api/rewards/leaderboard?period=month&limit=10"),
       ]);
 
-      const rewardsData = await rewardsRes.json();
-      const leaderboardData = await leaderboardRes.json();
+      if (!rewardsRes.ok) {
+        console.error("Failed to fetch rewards:", rewardsRes.status);
+        setLoading(false);
+        return;
+      }
 
-      setRewards(rewardsData.reward);
+      const rewardsData = await rewardsRes.json();
+      const leaderboardData = leaderboardRes.ok ? await leaderboardRes.json() : { leaderboard: [] };
+
+      setRewards(rewardsData.reward || null);
       setLeaderboard(leaderboardData.leaderboard || []);
     } catch (error) {
       console.error("Failed to fetch rewards:", error);
@@ -55,11 +61,19 @@ export default function RewardsPage() {
 
       if (res.ok) {
         const data = await res.json();
-        alert(`🎉 ${data.message}\n+${data.pointsEarned} points!`);
-        fetchData();
+        if (data.pointsEarned) {
+          alert(`🎉 ${data.message}\n+${data.pointsEarned} points!`);
+          fetchData();
+        } else {
+          alert(data.message || "Achievement already claimed");
+        }
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to claim achievement");
       }
     } catch (error) {
       console.error("Failed to claim achievement:", error);
+      alert("Failed to claim achievement. Please try again.");
     }
   };
 

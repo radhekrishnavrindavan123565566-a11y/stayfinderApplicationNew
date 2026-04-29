@@ -7,7 +7,15 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    const token = req.cookies.get("refreshToken")?.value;
+    // Accept refresh token from cookie OR request body (for cases where cookie isn't sent)
+    const cookieToken = req.cookies.get("refreshToken")?.value;
+    let bodyToken: string | undefined;
+    try {
+      const body = await req.json();
+      bodyToken = body?.refreshToken;
+    } catch { /* no body */ }
+
+    const token = cookieToken || bodyToken;
     if (!token) return errorResponse("No refresh token", 401);
 
     let payload;
@@ -26,7 +34,7 @@ export async function POST(req: NextRequest) {
     user.refreshToken = refreshToken;
     await user.save();
 
-    const response = successResponse({ accessToken });
+    const response = successResponse({ accessToken, refreshToken });
     response.cookies.set("accessToken", accessToken, { httpOnly: true, maxAge: 900 });
     response.cookies.set("refreshToken", refreshToken, { httpOnly: true, maxAge: 604800 });
     return response;

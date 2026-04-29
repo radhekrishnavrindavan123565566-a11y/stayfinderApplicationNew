@@ -103,7 +103,9 @@ export default function NewPropertyPage() {
 
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
-  if (!user || user.role === "tenant") { router.push("/"); return null; }
+  // Wait for auth to hydrate before redirecting — avoids false redirect on page load
+  if (mounted && user && user.role === "tenant") { router.push("/"); return null; }
+  if (mounted && !user) { router.push("/auth/login"); return null; }
 
   const nextStep = async () => {
     const fieldsPerStep: (keyof PropertyInput)[][] = [
@@ -120,8 +122,9 @@ export default function NewPropertyPage() {
   const onSubmit = async (data: PropertyInput) => {
     if (images.length === 0) { toast.error("Please upload at least one image"); return; }
     try {
-      await axios.post("/api/properties", {
+      const payload = {
         ...data,
+        area: data.area && !isNaN(data.area) ? data.area : undefined,
         images,
         videos,
         tour360,
@@ -129,11 +132,18 @@ export default function NewPropertyPage() {
         instantBooking,
         isAvailable,
         cancellationPolicy,
-      }, authHeaders());
+      };
+      await axios.post("/api/properties", payload, authHeaders());
       toast.success("Property listed successfully!");
       router.push("/dashboard/properties");
     } catch (err) {
-      if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || "Failed to create property");
+      if (axios.isAxiosError(err)) {
+        const msg = err.response?.data?.error || "Failed to create property";
+        toast.error(msg);
+        console.error("Property creation error:", err.response?.status, err.response?.data);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 

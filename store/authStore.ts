@@ -14,6 +14,7 @@ export interface User {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   setUser: (user: User | null) => void;
   setAccessToken: (token: string | null) => void;
@@ -37,7 +38,6 @@ axios.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    // Only attempt refresh for 401s that aren't from auth endpoints themselves
     const isAuthEndpoint = original?.url?.includes("/api/auth/");
     if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       if (isRefreshing) {
@@ -51,18 +51,26 @@ axios.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
       try {
-        const { data } = await axios.post("/api/auth/refresh");
-        const newToken = data.data.accessToken;
-        useAuthStore.getState().setAccessToken(newToken);
-        processQueue(null, newToken);
-        original.headers["Authorization"] = `Bearer ${newToken}`;
+        // Send stored refreshToken in body — cookie may not be forwarded on Vercel
+        const storedRefreshToken = useAuthStore.getState().refreshToken;
+        const { data } = await axios.post(
+          "/api/auth/refresh",
+          storedRefreshToken ? { refreshToken: storedRefreshToken } : {},
+          { withCredentials: true }
+        );
+        const newAccessToken = data.data.accessToken;
+        const newRefreshToken = data.data.refreshToken;
+        useAuthStore.getState().setAccessToken(newAccessToken);
+        if (newRefreshToken) {
+          useAuthStore.setState({ refreshToken: newRefreshToken });
+        }
+        processQueue(null, newAccessToken);
+        original.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return axios(original);
       } catch (err) {
         processQueue(err, null);
-        // Clear session if refresh failed (401 = invalid token, 500 = server error)
-        if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 500)) {
-          useAuthStore.getState().setUser(null);
-          useAuthStore.getState().setAccessToken(null);
+        if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+          useAuthStore.setState({ user: null, accessToken: null, refreshToken: null });
         }
         return Promise.reject(err);
       } finally {
@@ -78,6 +86,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
       isLoading: false,
 
       setUser: (user) => set({ user }),
@@ -87,7 +96,11 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const { data } = await axios.post("/api/auth/login", { email, password });
-          set({ user: data.data.user, accessToken: data.data.accessToken });
+          set({
+            user: data.data.user,
+            accessToken: data.data.accessToken,
+            refreshToken: data.data.refreshToken,
+          });
         } finally {
           set({ isLoading: false });
         }
@@ -97,15 +110,19 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const { data } = await axios.post("/api/auth/register", formData);
-          set({ user: data.data.user, accessToken: data.data.accessToken });
+          set({
+            user: data.data.user,
+            accessToken: data.data.accessToken,
+            refreshToken: data.data.refreshToken,
+          });
         } finally {
           set({ isLoading: false });
         }
       },
 
       logout: async () => {
-        await axios.post("/api/auth/logout");
-        set({ user: null, accessToken: null });
+        try { await axios.post("/api/auth/logout"); } catch { /* silent */ }
+        set({ user: null, accessToken: null, refreshToken: null });
       },
 
       fetchMe: async () => {
@@ -116,9 +133,8 @@ export const useAuthStore = create<AuthState>()(
           });
           set({ user: data.data.user });
         } catch (err) {
-          // Only clear session on explicit 401 — not on network errors or 500s
           if (axios.isAxiosError(err) && err.response?.status === 401) {
-            set({ user: null, accessToken: null });
+            set({ user: null, accessToken: null, refreshToken: null });
           }
         }
       },
@@ -142,6 +158,14 @@ export const useAuthStore = create<AuthState>()(
         });
       },
     }),
-    { name: "auth-storage", partialize: (state) => ({ user: state.user, accessToken: state.accessToken }) }
+    {
+      name: "auth-storage",
+      // Persist all three — user, accessToken, refreshToken
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+      }),
+    }
   )
 );

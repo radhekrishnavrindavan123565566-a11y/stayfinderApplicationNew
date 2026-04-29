@@ -162,6 +162,7 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setShowQuick(false);
+        setShowFilters(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -186,21 +187,47 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
 
   if (compact) {
     return (
-      <div ref={wrapperRef} className="relative flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-          <input
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Search properties..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-          />
+      <div ref={wrapperRef} className="relative">
+        <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 p-1.5 shadow-sm">
+          {/* Search input */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <input
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="Search properties, locations..."
+              className="w-full pl-9 pr-3 py-2 bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"
+            />
+          </div>
+          
+          {/* Divider */}
+          <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700" />
+          
+          {/* Filter button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              showFilters 
+                ? "bg-rose-500 text-white" 
+                : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="hidden sm:inline">Filters</span>
+          </button>
+          
+          {/* Search button */}
+          <button
+            onClick={handleSearch}
+            className="flex items-center gap-1.5 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden sm:inline">Search</span>
+          </button>
         </div>
-        <Button onClick={handleSearch} size="sm">Search</Button>
-        <Button onClick={() => setShowFilters(!showFilters)} variant="outline" size="sm">
-          <SlidersHorizontal className="w-4 h-4" />
-        </Button>
+        
+        {/* Quick results dropdown */}
         <AnimatePresence>
           {showQuick && (
             <QuickResults
@@ -212,7 +239,21 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
             />
           )}
         </AnimatePresence>
-        {showFilters && <FilterPanel filters={filters} setFilters={setFilters} onApply={handleSearch} onClear={clearFilters} />}
+        
+        {/* Filter panel dropdown */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 p-5 z-[100]"
+            >
+              <FilterPanel filters={filters} setFilters={setFilters} onApply={handleSearch} onClear={clearFilters} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -222,46 +263,68 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-2xl p-2 flex flex-col sm:flex-row gap-2 relative z-50"
+        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 p-2 flex flex-col sm:flex-row items-stretch gap-2 relative z-50"
       >
         {/* Search input */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-zinc-50 transition-colors">
-          <Search className="w-5 h-5 text-rose-400 shrink-0" />
-          <input
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            onFocus={() => (localSearch || localCity) && setShowQuick(true)}
-            placeholder="Search destinations, properties..."
-            className="flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
-          />
+        <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
+          <Search className="w-5 h-5 text-rose-500 shrink-0 group-hover:scale-110 transition-transform" />
+          <div className="flex-1">
+            <input
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onFocus={() => (localSearch || localCity) && setShowQuick(true)}
+              placeholder="Search destinations, properties..."
+              className="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"
+            />
+          </div>
           {localSearch && (
-            <button onClick={() => { setLocalSearch(""); setQuickResults([]); setShowQuick(false); }}>
-              <X className="w-4 h-4 text-zinc-300 hover:text-zinc-500 transition-colors" />
+            <button onClick={() => { setLocalSearch(""); setQuickResults([]); setShowQuick(false); }}
+              className="p-1 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+              <X className="w-4 h-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300" />
             </button>
           )}
         </div>
 
+        {/* Divider */}
+        <div className="hidden sm:block w-px bg-zinc-200 dark:bg-zinc-700 my-2" />
+
         {/* City input */}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-zinc-50 transition-colors border-l border-zinc-100">
-          <MapPin className="w-5 h-5 text-rose-400 shrink-0" />
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group sm:w-48">
+          <MapPin className="w-5 h-5 text-rose-500 shrink-0 group-hover:scale-110 transition-transform" />
           <input
             value={localCity}
             onChange={(e) => setLocalCity(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             onFocus={() => (localSearch || localCity) && setShowQuick(true)}
             placeholder="City"
-            className="w-28 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"
           />
         </div>
 
+        {/* Divider */}
+        <div className="hidden sm:block w-px bg-zinc-200 dark:bg-zinc-700 my-2" />
+
+        {/* Action buttons */}
         <div className="flex items-center gap-2">
-          <Button onClick={() => setShowFilters(!showFilters)} variant="ghost" size="sm" className="gap-1">
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-          </Button>
-          <Button onClick={handleSearch} size="md" className="rounded-xl">
-            <Search className="w-4 h-4" /> Search
-          </Button>
+          <button 
+            onClick={() => setShowFilters(!showFilters)} 
+            className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              showFilters 
+                ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25" 
+                : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="hidden lg:inline">Filters</span>
+          </button>
+          <button 
+            onClick={handleSearch}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl text-sm font-semibold shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 transition-all"
+          >
+            <Search className="w-4 h-4" />
+            <span>Search</span>
+          </button>
         </div>
       </motion.div>
 
@@ -279,15 +342,19 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
       </AnimatePresence>
 
       {/* Advanced filters panel */}
-      {showFilters && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-3 bg-white rounded-2xl shadow-xl p-5 border border-zinc-100"
-        >
-          <FilterPanel filters={filters} setFilters={setFilters} onApply={handleSearch} onClear={clearFilters} />
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="mt-3 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-100 dark:border-zinc-800 p-5 z-[100]"
+          >
+            <FilterPanel filters={filters} setFilters={setFilters} onApply={handleSearch} onClear={clearFilters} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -300,56 +367,60 @@ function FilterPanel({ filters, setFilters, onApply, onClear }: {
 }) {
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Advanced Filters</h3>
+      </div>
+      
       {/* Near college/office */}
       <div>
-        <label className="text-xs font-medium text-zinc-600 mb-1 block flex items-center gap-1">
+        <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block flex items-center gap-1">
           🎓 Near College / Office
         </label>
         <input
           value={filters.nearLocation}
           onChange={(e) => setFilters({ nearLocation: e.target.value })}
           placeholder="e.g. Allahabad University, TCS Lucknow..."
-          className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+          className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
-          <label className="text-xs font-medium text-zinc-600 mb-1 block">Min Price</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Min Price</label>
           <div className="relative">
             <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <input type="number" value={filters.minPrice} onChange={(e) => setFilters({ minPrice: e.target.value })}
-              placeholder="0" className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
+              placeholder="0" className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-zinc-600 mb-1 block">Max Price</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Max Price</label>
           <div className="relative">
             <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <input type="number" value={filters.maxPrice} onChange={(e) => setFilters({ maxPrice: e.target.value })}
-              placeholder="Any" className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
+              placeholder="Any" className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-zinc-600 mb-1 block">Property Type</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Property Type</label>
           <div className="relative">
             <Home className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <select value={filters.propertyType} onChange={(e) => setFilters({ propertyType: e.target.value })}
-              className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
+              className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
               <option value="">All Types</option>
               {PROPERTY_TYPES.map((t) => <option key={t} value={t} className="capitalize">{t}</option>)}
             </select>
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-zinc-600 mb-1 block">Min Bedrooms</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Min Bedrooms</label>
           <select value={filters.bedrooms} onChange={(e) => setFilters({ bedrooms: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
+            className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
             <option value="">Any</option>
             {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+</option>)}
           </select>
         </div>
       </div>
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-2">
         <Button onClick={onClear} variant="ghost" size="sm"><X className="w-3.5 h-3.5" /> Clear</Button>
         <Button onClick={onApply} size="sm">Apply Filters</Button>
       </div>

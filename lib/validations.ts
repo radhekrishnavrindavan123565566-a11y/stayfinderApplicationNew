@@ -27,7 +27,7 @@ export const propertySchema = z.object({
   bedrooms: z.number().min(1),
   bathrooms: z.number().min(1),
   maxGuests: z.number().min(1),
-  area: z.number().min(1).optional(),
+  area: z.number().min(1).optional().or(z.nan().transform(() => undefined)),
   isAvailable: z.boolean().optional(),
 });
 

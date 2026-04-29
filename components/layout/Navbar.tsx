@@ -38,9 +38,15 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+    setDropdownOpen(false);
+  }, [pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -180,9 +186,22 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2 rounded-xl hover:bg-zinc-100">
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <DarkModeToggle />
+            {mounted && user && (
+              <Link href="/chat" className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                <MessageCircle className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
+                <ChatBadge />
+              </Link>
+            )}
+            <button 
+              onClick={() => setMenuOpen(!menuOpen)} 
+              className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors touch-target"
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X className="w-5 h-5 text-zinc-600 dark:text-zinc-300" /> : <Menu className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -193,31 +212,43 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-zinc-100 px-4 py-4 space-y-2"
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="md:hidden bg-white dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 overflow-hidden"
+            style={{ willChange: "height, opacity" }}
           >
-            <Link href="/properties" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Explore</Link>
-            {user ? (
-              <>
-                <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Dashboard</Link>
-                <Link href="/dashboard/bookings" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Bookings</Link>
-                <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Maintenance</Link>
-                <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Wishlist</Link>
-                <Link href="/chat" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Messages</Link>
-                {user.role === "owner" && (
-                  <>
-                    <Link href="/dashboard/properties" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">My Properties</Link>
-                    <Link href="/dashboard/properties/new" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-rose-500">+ Add Property</Link>
-                  </>
-                )}
-                <Link href="/compare" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Compare</Link>
-                <button onClick={handleLogout} className="block w-full text-left py-2 text-sm font-medium text-red-500">Logout</button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-zinc-700">Login</Link>
-                <Link href="/auth/register" onClick={() => setMenuOpen(false)} className="block py-2 text-sm font-medium text-rose-500">Sign Up</Link>
-              </>
-            )}
+            <div className="px-4 py-4 space-y-1">
+              <Link href="/properties" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Explore</Link>
+              {user ? (
+                <>
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Dashboard</Link>
+                  <Link href="/dashboard/rewards" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rewards</Link>
+                  <Link href="/dashboard/bookings" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Bookings</Link>
+                  <Link href="/dashboard/rent-split" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rent Split</Link>
+                  <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Maintenance</Link>
+                  <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Wishlist</Link>
+                  <Link href="/chat" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">
+                    <span>Messages</span>
+                    <ChatBadge />
+                  </Link>
+                  {user.role === "owner" && (
+                    <>
+                      <Link href="/dashboard/properties" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">My Properties</Link>
+                      <Link href="/dashboard/properties/new" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors touch-target">+ Add Property</Link>
+                      <Link href="/dashboard/analytics" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Analytics</Link>
+                    </>
+                  )}
+                  <Link href="/compare" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Compare</Link>
+                  <div className="pt-2 mt-2 border-t border-zinc-100 dark:border-zinc-800">
+                    <button onClick={handleLogout} className="block w-full text-left py-3 px-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors touch-target">Logout</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Login</Link>
+                  <Link href="/auth/register" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors touch-target">Sign Up</Link>
+                </>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
