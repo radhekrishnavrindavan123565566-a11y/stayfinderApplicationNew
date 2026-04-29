@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Users, Calendar, IndianRupee, CheckCircle, Clock, AlertCircle, Plus, X, Home, TrendingUp, ArrowRight } from "lucide-react";
 import RentSplitManager from "@/components/rent/RentSplitManager";
@@ -25,8 +26,8 @@ interface RentSplit {
   createdAt: Date;
 }
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } } };
+const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const fadeUp: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } } };
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { icon: React.ReactNode; label: string; cls: string }> = {
