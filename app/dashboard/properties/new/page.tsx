@@ -102,10 +102,25 @@ export default function NewPropertyPage() {
   });
 
   useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
-  // Wait for auth to hydrate before redirecting — avoids false redirect on page load
-  if (mounted && user && user.role === "tenant") { router.push("/"); return null; }
-  if (mounted && !user) { router.push("/auth/login"); return null; }
+  
+  // Redirect logic in useEffect to prevent race conditions
+  useEffect(() => {
+    if (!mounted) return;
+    if (!user) {
+      router.push("/auth/login");
+    } else if (user.role === "tenant") {
+      router.push("/");
+    }
+  }, [mounted, user, router]);
+
+  // Show loading while checking auth
+  if (!mounted || !user || user.role === "tenant") {
+    return (
+      <div className="min-h-screen bg-zinc-50 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   const nextStep = async () => {
     const fieldsPerStep: (keyof PropertyInput)[][] = [
