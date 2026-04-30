@@ -43,15 +43,18 @@ export default function DashboardPage() {
       try {
         await fetchMe();
         const { data: meData } = await axios.get("/api/auth/me", authHeaders());
-        const freshUser = meData.data.user;
+        const freshUser = meData.data?.user;
+        if (!freshUser) return;
         const [bRes] = await Promise.all([
           axios.get(`/api/bookings?role=${freshUser.role === "owner" ? "owner" : "tenant"}`, authHeaders()),
         ]);
-        setBookings(bRes.data.data.bookings.slice(0, 5));
+        setBookings(bRes.data?.data?.bookings?.slice(0, 5) ?? []);
         if (freshUser.role === "owner") {
           const pRes = await axios.get("/api/properties/my", authHeaders());
-          setProperties(pRes.data.data.properties);
+          setProperties(pRes.data?.data?.properties ?? []);
         }
+      } catch {
+        // silent — show empty state
       } finally {
         setLoading(false);
       }
@@ -65,8 +68,6 @@ export default function DashboardPage() {
       <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
     </div>
   );
-
-  if (!user) return null;
 
   const stats = [
     { icon: <Calendar className="w-5 h-5" />, label: "Total Bookings", value: bookings.length, color: "bg-gradient-to-br from-blue-500 to-blue-600 text-white", border: "border-blue-100 dark:border-blue-900/30", shadow: "shadow-blue-500/20" },

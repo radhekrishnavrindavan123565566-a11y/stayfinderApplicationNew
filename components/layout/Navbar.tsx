@@ -8,7 +8,6 @@ import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
 import Image from "next/image";
-import NotificationBell from "@/components/notifications/NotificationBell";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 import DarkModeToggle from "@/components/ui/DarkModeToggle";
 
@@ -62,10 +61,15 @@ export default function Navbar() {
   }, [pathname]);
 
   const handleLogout = async () => {
-    await logout();
-    toast.success("Logged out");
-    router.push("/");
-    setDropdownOpen(false);
+    try {
+      await logout();
+      toast.success("Logged out");
+      router.push("/");
+    } catch {
+      toast.error("Logout failed");
+    } finally {
+      setDropdownOpen(false);
+    }
   };
 
   const isHome = pathname === "/";
@@ -145,15 +149,15 @@ export default function Navbar() {
                       initial={{ opacity: 0, y: 8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-zinc-100 overflow-hidden"
+                      className="absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden z-50"
                     >
-                      <div className="px-4 py-3 border-b border-zinc-100">
-                        <p className="font-semibold text-zinc-900 text-sm">{user.username}</p>
-                        <p className="text-xs text-zinc-500">{user.email}</p>
+                      <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
+                        <p className="font-semibold text-zinc-900 dark:text-white text-sm">{user.username}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{user.email}</p>
                         <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
-                          user.role === "owner" ? "bg-rose-100 text-rose-600" :
-                          user.role === "admin" ? "bg-purple-100 text-purple-600" :
-                          "bg-zinc-100 text-zinc-500"
+                          user.role === "owner" ? "bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400" :
+                          user.role === "admin" ? "bg-purple-100 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400" :
+                          "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
                         }`}>{user.role}</span>
                       </div>
                       <div className="py-1">
@@ -272,8 +276,8 @@ export default function Navbar() {
 
 function DropItem({ href, icon, label, onClick }: { href: string; icon: React.ReactNode; label: string; onClick: () => void }) {
   return (
-    <Link href={href} onClick={onClick} className="flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors">
-      <span className="text-zinc-400">{icon}</span> {label}
+    <Link href={href} onClick={onClick} className="flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors min-h-[44px]">
+      <span className="text-zinc-400 dark:text-zinc-500">{icon}</span> {label}
     </Link>
   );
 }

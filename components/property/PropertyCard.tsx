@@ -35,14 +35,22 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!user) { toast.error("Please login to save properties"); return; }
-    await toggleWishlist(property._id);
-    toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
+    try {
+      await toggleWishlist(property._id);
+      toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
+    } catch {
+      toast.error("Failed to update wishlist");
+    }
   };
 
   const handleCompare = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isComparing) { remove(property._id); toast.success("Removed from compare"); }
-    else { add(property._id); toast.success("Added to compare"); }
+    try {
+      if (isComparing) { remove(property._id); toast.success("Removed from compare"); }
+      else { add(property._id); toast.success("Added to compare"); }
+    } catch {
+      toast.error("Failed to update compare");
+    }
   };
 
   const image = property.images?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800";
@@ -83,29 +91,31 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+          {/* Action buttons — larger touch targets */}
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5">
             <motion.button
-              whileHover={{ scale: 1.15 }}
+              whileHover={{ scale: 1.12 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleWishlist}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               className={cn(
-                "w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center shadow-md transition-colors",
-                isWishlisted ? "bg-rose-500" : "bg-white/90"
+                "w-9 h-9 rounded-full backdrop-blur-sm flex items-center justify-center shadow-md transition-colors",
+                isWishlisted ? "bg-rose-500" : "bg-white/90 dark:bg-zinc-800/90"
               )}
             >
-              <Heart className={cn("w-4 h-4 transition-colors", isWishlisted ? "fill-white text-white" : "text-zinc-600")} />
+              <Heart className={cn("w-4 h-4 transition-colors", isWishlisted ? "fill-white text-white" : "text-zinc-600 dark:text-zinc-300")} />
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.15 }}
+              whileHover={{ scale: 1.12 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleCompare}
+              aria-label={isComparing ? "Remove from compare" : "Add to compare"}
               className={cn(
-                "w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center shadow-md transition-colors",
-                isComparing ? "bg-blue-600" : "bg-white/90"
+                "w-9 h-9 rounded-full backdrop-blur-sm flex items-center justify-center shadow-md transition-colors",
+                isComparing ? "bg-blue-600" : "bg-white/90 dark:bg-zinc-800/90"
               )}
             >
-              <GitCompare className={cn("w-4 h-4", isComparing ? "text-white" : "text-zinc-600")} />
+              <GitCompare className={cn("w-4 h-4", isComparing ? "text-white" : "text-zinc-600 dark:text-zinc-300")} />
             </motion.button>
           </div>
 

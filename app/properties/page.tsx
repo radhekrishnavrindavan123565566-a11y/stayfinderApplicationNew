@@ -75,7 +75,7 @@ export default function PropertiesPage() {
         <AnimatePresence mode="wait">
           {viewMode === "map" ? (
             <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="h-[600px] mb-8">
+              className="h-[50vh] sm:h-[600px] mb-8">
               {isLoading ? (
                 <div className="w-full h-full rounded-2xl bg-zinc-200 dark:bg-zinc-800 animate-pulse flex items-center justify-center">
                   <Map className="w-10 h-10 text-zinc-400" />
@@ -98,8 +98,8 @@ export default function PropertiesPage() {
             </motion.div>
           ) : (
             <motion.div key={`page-${page}`} variants={stagger} initial="hidden" animate="show"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
-              {properties.map((p, i) => (
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              {(properties ?? []).map((p, i) => (
                 <motion.div key={p._id} variants={fadeUp}>
                   <PropertyCard property={p} index={i} />
                 </motion.div>
