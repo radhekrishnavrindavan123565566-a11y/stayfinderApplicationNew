@@ -27,7 +27,6 @@ function normalizePhone(phone: string): string {
 async function sendSmsVieFast2SMS(phone: string, otp: string): Promise<void> {
   const apiKey = process.env.FAST2SMS_API_KEY;
   if (!apiKey || apiKey === "your_fast2sms_api_key_here") {
-    // No key configured — log to console for dev
     console.log(`[PHONE OTP DEV] ${phone}: ${otp}`);
     return;
   }
@@ -35,28 +34,41 @@ async function sendSmsVieFast2SMS(phone: string, otp: string): Promise<void> {
   // Strip +91 prefix — Fast2SMS expects 10-digit number
   const number = phone.replace(/^\+91/, "");
 
-  const res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
-    method: "POST",
-    headers: {
-      authorization: apiKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      route: "otp",          // OTP route (free, no DLT needed)
-      variables_values: otp, // OTP value injected into template
-      numbers: number,
-      flash: 0,
-    }),
-  });
+  console.log(`[Fast2SMS] Sending OTP ${otp} to ${number}`);
 
-  const data = await res.json();
+  let res: Response;
+  let data: Record<string, unknown>;
 
-  if (!res.ok || data.return === false) {
-    console.error("[Fast2SMS Error]", data);
-    throw new Error(data.message?.[0] || "Failed to send SMS");
+  try {
+    res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
+      method: "POST",
+      headers: {
+        authorization: apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        route: "otp",
+        variables_values: otp,
+        numbers: number,
+        flash: 0,
+      }),
+    });
+    data = await res.json();
+  } catch (fetchErr) {
+    console.error("[Fast2SMS] Network error:", fetchErr);
+    throw new Error("SMS service unreachable. Please try again.");
   }
 
-  console.log(`[Fast2SMS] OTP sent to ${phone}`);
+  console.log("[Fast2SMS] Response status:", res.status);
+  console.log("[Fast2SMS] Response body:", JSON.stringify(data));
+
+  if (!res.ok || data.return === false) {
+    const msg = Array.isArray(data.message) ? data.message[0] : (data.message as string) || "Failed to send SMS";
+    console.error("[Fast2SMS] Failed:", msg);
+    throw new Error(msg);
+  }
+
+  console.log(`[Fast2SMS] ✓ OTP sent to ${phone}`);
 }
 
 // ── POST /api/auth/phone-otp — send OTP ──────────────────────────────────────
@@ -88,7 +100,15 @@ export async function POST(req: NextRequest) {
     lastSentStore.set(normalized, Date.now());
 
     // Send SMS
-    await sendSmsVieFast2SMS(normalized, otp);
+    try {
+      await sendSmsVieFast2SMS(normalized, otp);
+    } catch (smsErr) {
+      // Remove from store so user can retry
+      phoneOtpStore.delete(normalized);
+      lastSentStore.delete(normalized);
+      const msg = smsErr instanceof Error ? smsErr.message : "Failed to send SMS";
+      return errorResponse(`SMS Error: ${msg}`, 500);
+    }
 
     return successResponse({
       message: "OTP sent to your mobile number",
