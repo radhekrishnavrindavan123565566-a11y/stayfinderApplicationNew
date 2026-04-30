@@ -18,7 +18,14 @@ export async function POST(req: NextRequest) {
     if (existing) return errorResponse("Email already registered", 409);
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const user = await User.create({ username, email, password: hashedPassword, role });
+    const user = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      role,
+      phone: body.phone || "",
+      phoneVerified: body.phoneVerified === true,
+    });
     const payload = { userId: user._id.toString(), email: user.email, role: user.role };
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);

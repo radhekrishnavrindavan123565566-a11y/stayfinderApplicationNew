@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password: string;
   role: "tenant" | "owner" | "admin";
   avatar?: string;
+  phone?: string;
+  phoneVerified: boolean;
   wishlist: mongoose.Types.ObjectId[];
   refreshToken?: string;
   resetPasswordToken?: string;
@@ -36,6 +38,8 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true, minlength: 6 },
     role: { type: String, enum: ["tenant", "owner", "admin"], default: "tenant" },
     avatar: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    phoneVerified: { type: Boolean, default: false },
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Property" }],
     refreshToken: { type: String },
     resetPasswordToken: { type: String },

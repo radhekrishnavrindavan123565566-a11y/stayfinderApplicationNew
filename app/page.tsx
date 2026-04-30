@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight, Star, Shield, Clock, MapPin, Sparkles,
-  TrendingUp, Key, Home, Building2, Trees, Sofa, Hotel,
+  TrendingUp, Key, Home, Building2,
   CheckCircle, Quote, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import SearchBar from "@/components/property/SearchBar";
@@ -24,9 +24,6 @@ import RecentlyViewed from "@/components/home/RecentlyViewed";
 const CATEGORIES = [
   { label: "Apartments", icon: <Building2 className="w-6 h-6" />, type: "apartment", grad: "from-blue-500 to-cyan-400"     },
   { label: "Houses",     icon: <Home      className="w-6 h-6" />, type: "house",     grad: "from-rose-500 to-pink-400"     },
-  { label: "Villas",     icon: <Hotel     className="w-6 h-6" />, type: "villa",     grad: "from-amber-500 to-orange-400"  },
-  { label: "Studios",    icon: <Sofa      className="w-6 h-6" />, type: "studio",    grad: "from-purple-500 to-violet-400" },
-  { label: "Cabins",     icon: <Trees     className="w-6 h-6" />, type: "cabin",     grad: "from-green-500 to-emerald-400" },
   { label: "PG / Rooms", icon: <Key       className="w-6 h-6" />, type: "condo",     grad: "from-indigo-500 to-blue-400"   },
 ];
 
@@ -106,28 +103,37 @@ function Orb({ size, x, y, color, delay }: { size: number; x: string; y: string;
   );
 }
 
-function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
+function CountUp({ display }: { display: string }) {
+  const [show, setShow] = useState(false);
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
+
+  // Parse numeric part and suffix from display string like "10K+", "4.9★", "120+"
+  const match = display.match(/^([\d.]+)(.*)$/);
+  const numericTarget = match ? parseFloat(match[1]) : 0;
+  const suffix = match ? match[2] : "";
+  const isDecimal = numericTarget % 1 !== 0;
+
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       obs.disconnect();
-      const isDecimal = target < 100;
-      const duration = 1800;
-      const steps = 60;
-      const increment = target / steps;
+      setShow(true);
+      const duration = 1600;
+      const steps = 50;
+      const increment = numericTarget / steps;
       let current = 0;
       const t = setInterval(() => {
         current += increment;
-        if (current >= target) { setCount(target); clearInterval(t); }
+        if (current >= numericTarget) { setCount(numericTarget); clearInterval(t); }
         else setCount(isDecimal ? Math.round(current * 10) / 10 : Math.floor(current));
       }, duration / steps);
     }, { threshold: 0.5 });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, [target]);
-  return <span ref={ref}>{count}{suffix}</span>;
+  }, [numericTarget, isDecimal]);
+
+  return <span ref={ref}>{show ? count : 0}{suffix}</span>;
 }
 
 function RecommendationsSection() {

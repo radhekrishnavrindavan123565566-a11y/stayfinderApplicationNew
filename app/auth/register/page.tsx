@@ -8,26 +8,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
 import {
-  Mail, Lock, User, Eye, EyeOff,
+  Mail, Lock, User, Eye, EyeOff, Phone,
   AlertCircle, CheckCircle2, ArrowRight, KeyRound, ShieldCheck,
 } from "lucide-react";
-import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
+
+type RegStep = "form" | "phone-otp" | "email-otp";
 
 function FieldError({ message }: { message?: string }) {
   return (
     <AnimatePresence>
       {message && (
-        <motion.p
-          initial={{ opacity: 0, y: -4, height: 0 }}
-          animate={{ opacity: 1, y: 0, height: "auto" }}
+        <motion.p initial={{ opacity: 0, y: -4, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }}
           exit={{ opacity: 0, y: -4, height: 0 }}
-          className="flex items-center gap-1 text-xs text-red-500 mt-1 overflow-hidden"
-        >
-          <AlertCircle className="w-3 h-3 flex-shrink-0" />
-          {message}
+          className="flex items-center gap-1 text-xs text-red-500 mt-1 overflow-hidden">
+          <AlertCircle className="w-3 h-3 flex-shrink-0" />{message}
         </motion.p>
       )}
     </AnimatePresence>
@@ -42,66 +39,57 @@ function PasswordStrength({ password }: { password: string }) {
     { label: "Number", ok: /\d/.test(password) },
   ];
   const score = checks.filter((c) => c.ok).length;
-  const barColors = ["bg-red-400", "bg-yellow-400", "bg-green-500"];
-  const labels = ["Weak", "Fair", "Strong"];
   return (
-    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 space-y-1.5">
+    <div className="mt-2 space-y-1.5">
       <div className="flex gap-1">
         {[0, 1, 2].map((i) => (
-          <motion.div key={i}
-            initial={{ scaleX: 0 }} animate={{ scaleX: i < score ? 1 : 0.3 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }} style={{ transformOrigin: "left" }}
-            className={`h-1 flex-1 rounded-full transition-colors duration-300 ${i < score ? barColors[score - 1] : "bg-zinc-200 dark:bg-zinc-700"}`}
-          />
+          <div key={i} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+            i < score ? ["bg-red-400","bg-yellow-400","bg-green-500"][score-1] : "bg-zinc-200 dark:bg-zinc-700"
+          }`} />
         ))}
       </div>
-      <div className="flex items-center justify-between flex-wrap gap-1">
-        <span className={`text-xs font-medium ${score === 3 ? "text-green-600" : score === 2 ? "text-yellow-600" : "text-red-500"}`}>
-          {labels[score - 1] || "Too short"}
-        </span>
-        <div className="flex gap-2 flex-wrap">
-          {checks.map((c) => (
-            <span key={c.label} className={`text-[10px] flex items-center gap-0.5 ${c.ok ? "text-green-600" : "text-zinc-400"}`}>
-              {c.ok ? "?" : "?"} {c.label}
-            </span>
-          ))}
-        </div>
+      <div className="flex gap-3 flex-wrap">
+        {checks.map((c) => (
+          <span key={c.label} className={`text-[10px] ${c.ok ? "text-green-600" : "text-zinc-400"}`}>
+            {c.ok ? "✓" : "○"} {c.label}
+          </span>
+        ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 const STATS = [
-  { v: "10K+", l: "Properties" },
-  { v: "50K+", l: "Users" },
-  { v: "120+", l: "Cities" },
-  { v: "4.9?", l: "Rating" },
+  { v: "10K+", l: "Properties" }, { v: "50K+", l: "Users" },
+  { v: "120+", l: "Cities" },    { v: "4.9★", l: "Rating" },
 ];
-
-type RegStep = "form" | "otp";
 
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
   const [serverError, setServerError] = useState("");
   const [regStep, setRegStep] = useState<RegStep>("form");
-  const [otpValue, setOtpValue] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
+  const [phoneValue, setPhoneValue] = useState("");
+  const [phoneOtp, setPhoneOtp] = useState("");
+  const [emailOtp, setEmailOtp] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
   const [pendingData, setPendingData] = useState<RegisterInput | null>(null);
+  const [resendTimer, setResendTimer] = useState(0);
   const { register: registerUser, user } = useAuthStore();
   const router = useRouter();
 
-  useEffect(() => {
-    if (user) router.replace("/");
-  }, [user, router]);
+  useEffect(() => { if (user) router.replace("/"); }, [user, router]);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting, touchedFields },
-  } = useForm<RegisterInput>({
+  // Countdown timer for resend
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer((v) => v - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
+
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting, touchedFields } } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "tenant" as const },
     mode: "onChange",
@@ -112,167 +100,207 @@ export default function RegisterPage() {
   const emailValue = watch("email", "");
   const usernameValue = watch("username", "");
 
+  const inputCls = (err: boolean, touched: boolean, val: string) =>
+    `w-full pl-10 pr-4 py-3 rounded-xl border text-sm transition-all outline-none focus:ring-2 dark:bg-zinc-800 dark:text-white ${
+      err && touched ? "border-red-400 focus:ring-red-200 bg-red-50 dark:border-red-700"
+      : touched && val ? "border-green-400 focus:ring-green-200 bg-green-50/30 dark:border-green-700"
+      : "border-zinc-200 dark:border-zinc-700 focus:ring-rose-200 focus:border-rose-400"
+    }`;
+
+  // Step 1 → send phone OTP
   const onSubmit = async (data: RegisterInput) => {
-    if (!termsAccepted) {
-      setTermsError(true);
-      toast.error("Please accept the Terms & Conditions to continue");
-      return;
+    if (!termsAccepted) { setTermsError(true); toast.error("Accept Terms & Conditions"); return; }
+    if (!phoneValue || phoneValue.replace(/\D/g, "").length !== 10) {
+      toast.error("Enter a valid 10-digit mobile number"); return;
     }
-    setTermsError(false);
-    setServerError("");
-    setOtpLoading(true);
+    setTermsError(false); setServerError(""); setLoading(true);
     try {
-      await axios.post("/api/auth/send-otp", { email: data.email, action: "verify-register" });
+      await axios.post("/api/auth/phone-otp", { phone: phoneValue });
       setPendingData(data);
-      setRegStep("otp");
-      toast.success("OTP sent to your email");
+      setRegStep("phone-otp");
+      setResendTimer(60);
+      toast.success("OTP sent to your mobile number");
     } catch (err) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.error || "Failed to send OTP"
-        : "Something went wrong";
-      setServerError(msg);
-      toast.error(msg);
-    } finally {
-      setOtpLoading(false);
-    }
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Failed to send OTP" : "Something went wrong";
+      setServerError(msg); toast.error(msg);
+    } finally { setLoading(false); }
   };
 
-  const verifyOtpAndRegister = async () => {
-    if (otpValue.length !== 6) { toast.error("Enter the 6-digit OTP"); return; }
-    if (!pendingData) return;
-    setOtpLoading(true);
-    setServerError("");
+  // Step 2 → verify phone OTP
+  const verifyPhoneOtp = async () => {
+    if (phoneOtp.length !== 6) { toast.error("Enter the 6-digit OTP"); return; }
+    setLoading(true); setServerError("");
     try {
-      await axios.put("/api/auth/send-otp", { email: pendingData.email, otp: otpValue });
-      await registerUser(pendingData);
+      await axios.put("/api/auth/phone-otp", { phone: phoneValue, otp: phoneOtp });
+      setPhoneVerified(true);
+      // Now send email OTP
+      await axios.post("/api/auth/send-otp", { email: pendingData!.email, action: "verify-register" });
+      setRegStep("email-otp");
+      setResendTimer(60);
+      toast.success("Phone verified! Check your email for OTP.");
+    } catch (err) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Invalid OTP" : "Something went wrong";
+      setServerError(msg); toast.error(msg);
+    } finally { setLoading(false); }
+  };
+
+  // Step 3 → verify email OTP and register
+  const verifyEmailOtpAndRegister = async () => {
+    if (emailOtp.length !== 6) { toast.error("Enter the 6-digit OTP"); return; }
+    if (!pendingData) return;
+    setLoading(true); setServerError("");
+    try {
+      await axios.put("/api/auth/send-otp", { email: pendingData.email, otp: emailOtp });
+      await registerUser({ ...pendingData, phone: phoneValue, phoneVerified: true } as RegisterInput & { phone: string; phoneVerified: boolean });
       toast.success("Account created! Welcome to Nestora.");
       router.push("/");
     } catch (err) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.error || "Verification failed"
-        : "Something went wrong";
-      setServerError(msg);
-      toast.error(msg);
-    } finally {
-      setOtpLoading(false);
-    }
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Verification failed" : "Something went wrong";
+      setServerError(msg); toast.error(msg);
+    } finally { setLoading(false); }
   };
 
-  const resendOtp = async () => {
-    if (!pendingData) return;
-    setOtpLoading(true);
+  const resendPhoneOtp = async () => {
+    if (resendTimer > 0 || !phoneValue) return;
+    setLoading(true);
+    try {
+      await axios.post("/api/auth/phone-otp", { phone: phoneValue });
+      setResendTimer(60); toast.success("OTP resent");
+    } catch { toast.error("Failed to resend OTP"); }
+    finally { setLoading(false); }
+  };
+
+  const resendEmailOtp = async () => {
+    if (resendTimer > 0 || !pendingData) return;
+    setLoading(true);
     try {
       await axios.post("/api/auth/send-otp", { email: pendingData.email, action: "verify-register" });
-      toast.success("OTP resent");
-    } catch {
-      toast.error("Failed to resend OTP");
-    } finally {
-      setOtpLoading(false);
-    }
+      setResendTimer(60); toast.success("OTP resent");
+    } catch { toast.error("Failed to resend OTP"); }
+    finally { setLoading(false); }
   };
 
-  const inputClass = (hasError: boolean, isTouched: boolean, value: string) =>
-    `w-full pl-10 pr-4 py-3 rounded-xl border text-sm transition-all outline-none focus:ring-2 dark:bg-zinc-800 dark:text-white ${
-      hasError && isTouched
-        ? "border-red-400 focus:ring-red-200 bg-red-50 dark:border-red-700"
-        : isTouched && value
-        ? "border-green-400 focus:ring-green-200 bg-green-50/30 dark:border-green-700"
-        : "border-zinc-200 dark:border-zinc-700 focus:ring-rose-200 focus:border-rose-400"
-    }`;
+  const ErrorBanner = () => serverError ? (
+    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      className="flex items-center gap-2 p-3 mb-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl text-sm text-red-600 dark:text-red-400 overflow-hidden">
+      <AlertCircle className="w-4 h-4 flex-shrink-0" />{serverError}
+    </motion.div>
+  ) : null;
+
+  const OtpInput = ({ value, onChange, onEnter }: { value: string; onChange: (v: string) => void; onEnter: () => void }) => (
+    <div className="relative">
+      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+      <input type="text" inputMode="numeric" maxLength={6} value={value}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+        onKeyDown={(e) => e.key === "Enter" && onEnter()}
+        placeholder="• • • • • •"
+        className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 tracking-[0.5em] text-center text-xl font-bold transition-all"
+      />
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left panel */}
+      {/* Left decorative panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 relative overflow-hidden">
         <div className="absolute inset-0">
-          {Array.from({ length: 12 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <motion.div key={i}
-              animate={{ scale: [1, 1.2, 1], opacity: [0.08, 0.2, 0.08] }}
-              transition={{ duration: 5 + i * 0.4, repeat: Infinity, delay: i * 0.5 }}
+              animate={{ scale: [1, 1.2, 1], opacity: [0.06, 0.15, 0.06] }}
+              transition={{ duration: 5 + i * 0.5, repeat: Infinity, delay: i * 0.6 }}
               className="absolute rounded-full bg-rose-500/30"
-              style={{ width: `${60 + i * 20}px`, height: `${60 + i * 20}px`, left: `${(i * 9) % 80}%`, top: `${(i * 13) % 80}%` }}
+              style={{ width: `${80 + i * 25}px`, height: `${80 + i * 25}px`, left: `${(i * 11) % 80}%`, top: `${(i * 14) % 80}%` }}
             />
           ))}
         </div>
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-14 text-white">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <Image src="/logo.png" alt="Nestora" width={40} height={40} className="rounded-2xl" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg">
+                <span className="text-white font-black text-lg">N</span>
+              </div>
               <span className="text-2xl font-bold group-hover:text-rose-400 transition-colors">Nest<span className="text-amber-400">ora</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Join us today</h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-10 max-w-sm">
-              Create your account and start exploring thousands of amazing properties worldwide.
+              Create your account and start exploring thousands of verified properties across UP.
             </p>
-            <motion.div initial="hidden" animate="show"
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
-              className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {STATS.map((s) => (
-                <motion.div key={s.l}
-                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-                  whileHover={{ scale: 1.04 }}
+                <motion.div key={s.l} whileHover={{ scale: 1.04 }}
                   className="bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 text-center">
                   <div className="text-2xl font-bold text-rose-400">{s.v}</div>
                   <div className="text-xs text-zinc-400 mt-1">{s.l}</div>
                 </motion.div>
               ))}
-            </motion.div>
+            </div>
+            {/* Step indicator */}
+            <div className="mt-10 flex items-center gap-3">
+              {["Details", "Phone OTP", "Email OTP"].map((label, i) => {
+                const stepMap: RegStep[] = ["form", "phone-otp", "email-otp"];
+                const active = regStep === stepMap[i];
+                const done = stepMap.indexOf(regStep) > i;
+                return (
+                  <div key={label} className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      done ? "bg-green-500 text-white" : active ? "bg-rose-500 text-white" : "bg-white/10 text-zinc-400"
+                    }`}>
+                      {done ? "✓" : i + 1}
+                    </div>
+                    <span className={`text-xs ${active ? "text-white" : "text-zinc-500"}`}>{label}</span>
+                    {i < 2 && <div className="w-6 h-px bg-zinc-700" />}
+                  </div>
+                );
+              })}
+            </div>
           </motion.div>
         </div>
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-8 bg-zinc-50 dark:bg-zinc-950 overflow-y-auto min-h-screen lg:min-h-0">
-        <div className="absolute top-6 left-4 lg:hidden">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Nestora" width={32} height={32} className="rounded-xl" />
+      <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-8 bg-zinc-50 dark:bg-zinc-950 overflow-y-auto">
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          className="w-full max-w-md">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 mb-8 lg:hidden">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center">
+              <span className="text-white font-black text-sm">N</span>
+            </div>
             <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
-          </Link>
-        </div>
+          </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
+          {/* Mobile step dots */}
+          <div className="flex items-center gap-2 mb-6 lg:hidden">
+            {(["form","phone-otp","email-otp"] as RegStep[]).map((s, i) => (
+              <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${
+                regStep === s ? "bg-rose-500" : ["form","phone-otp","email-otp"].indexOf(regStep) > i ? "bg-green-500" : "bg-zinc-200 dark:bg-zinc-700"
+              }`} />
+            ))}
+          </div>
+
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-7 sm:p-8">
             <AnimatePresence mode="wait">
 
-              {/* -- STEP 1: Registration Form -- */}
+              {/* ── STEP 1: Registration Form ── */}
               {regStep === "form" && (
                 <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="mb-6">
                     <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Create account</h1>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Join thousands of users on Nestora</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Step 1 of 3 — Your details</p>
                   </div>
-
-                  <AnimatePresence>
-                    {serverError && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8, height: 0 }}
-                        animate={{ opacity: 1, y: 0, height: "auto" }}
-                        exit={{ opacity: 0, y: -8, height: 0 }}
-                        className="flex items-center gap-2 p-3 mb-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl text-sm text-red-600 dark:text-red-400 overflow-hidden"
-                      >
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        {serverError}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <AnimatePresence><ErrorBanner /></AnimatePresence>
 
                   {/* Role toggle */}
-                  <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1 mb-6">
+                  <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1 mb-5">
                     {(["tenant", "owner"] as const).map((r) => (
                       <label key={r} className="flex-1 cursor-pointer">
                         <input type="radio" value={r} {...register("role")} className="sr-only" />
-                        <motion.div
-                          animate={{ backgroundColor: role === r ? "#ffffff" : "transparent", color: role === r ? "#18181b" : "#71717a" }}
-                          transition={{ duration: 0.2 }}
-                          className={`text-center py-2.5 rounded-lg text-sm font-medium ${role === r ? "shadow dark:bg-zinc-700 dark:text-white" : ""}`}
-                        >
-                          {r === "tenant" ? "🏠 I'm a Tenant" : "🔑 I'm an Owner"}
-                        </motion.div>
+                        <div className={`text-center py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          role === r ? "bg-white dark:bg-zinc-700 shadow text-zinc-900 dark:text-white" : "text-zinc-500"
+                        }`}>
+                          {r === "tenant" ? "🏠 Tenant" : "🔑 Owner"}
+                        </div>
                       </label>
                     ))}
                   </div>
@@ -283,17 +311,12 @@ export default function RegisterPage() {
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Username</label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                        <input suppressHydrationWarning type="text" placeholder="johndoe" autoComplete="username"
-                          className={inputClass(!!errors.username, !!touchedFields.username, usernameValue)}
+                        <input type="text" placeholder="johndoe" autoComplete="username"
+                          className={inputCls(!!errors.username, !!touchedFields.username, usernameValue)}
                           {...register("username")} />
-                        <AnimatePresence>
-                          {touchedFields.username && usernameValue && !errors.username && (
-                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <CheckCircle2 className="w-4 h-4 text-green-500" />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        {touchedFields.username && usernameValue && !errors.username && (
+                          <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                        )}
                       </div>
                       <FieldError message={errors.username?.message} />
                     </div>
@@ -303,19 +326,36 @@ export default function RegisterPage() {
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Email address</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                        <input suppressHydrationWarning type="email" placeholder="you@example.com" autoComplete="email"
-                          className={inputClass(!!errors.email, !!touchedFields.email, emailValue)}
+                        <input type="email" placeholder="you@example.com" autoComplete="email"
+                          className={inputCls(!!errors.email, !!touchedFields.email, emailValue)}
                           {...register("email")} />
-                        <AnimatePresence>
-                          {touchedFields.email && emailValue && !errors.email && (
-                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <CheckCircle2 className="w-4 h-4 text-green-500" />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        {touchedFields.email && emailValue && !errors.email && (
+                          <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                        )}
                       </div>
                       <FieldError message={errors.email?.message} />
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+                        Mobile number <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                          <Phone className="w-4 h-4 text-zinc-400" />
+                          <span className="text-xs text-zinc-500 font-medium">+91</span>
+                        </div>
+                        <input type="tel" inputMode="numeric" maxLength={10} placeholder="9876543210"
+                          value={phoneValue}
+                          onChange={(e) => setPhoneValue(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          className="w-full pl-16 pr-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all"
+                        />
+                        {phoneValue.length === 10 && (
+                          <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-zinc-400 mt-1">We&apos;ll send an OTP to verify your number</p>
                     </div>
 
                     {/* Password */}
@@ -323,142 +363,113 @@ export default function RegisterPage() {
                       <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Password</label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                        <input suppressHydrationWarning type={showPass ? "text" : "password"} placeholder="Min. 6 characters"
+                        <input type={showPass ? "text" : "password"} placeholder="Min. 6 characters"
                           autoComplete="new-password"
-                          className={`${inputClass(!!errors.password, !!touchedFields.password, passwordValue)} pr-10`}
+                          className={`${inputCls(!!errors.password, !!touchedFields.password, passwordValue)} pr-10`}
                           {...register("password")} />
-                        <button suppressHydrationWarning type="button" onClick={() => setShowPass(!showPass)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors" tabIndex={-1}>
-                          <AnimatePresence mode="wait">
-                            {showPass
-                              ? <motion.div key="off" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}><EyeOff className="w-4 h-4" /></motion.div>
-                              : <motion.div key="on" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}><Eye className="w-4 h-4" /></motion.div>
-                            }
-                          </AnimatePresence>
+                        <button type="button" onClick={() => setShowPass(!showPass)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1" tabIndex={-1}>
+                          {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                       <FieldError message={errors.password?.message} />
                       <PasswordStrength password={passwordValue} />
                     </div>
 
-                    {/* Terms & Conditions � MANDATORY */}
-                    <div>
-                      <label className={`flex items-start gap-3 cursor-pointer p-3 rounded-xl border transition-colors ${
-                        termsError
-                          ? "border-red-400 bg-red-50 dark:bg-red-950/20"
-                          : termsAccepted
-                          ? "border-green-400 bg-green-50/30 dark:bg-green-950/10"
-                          : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
+                    {/* Terms */}
+                    <label className={`flex items-start gap-3 cursor-pointer p-3 rounded-xl border transition-colors ${
+                      termsError ? "border-red-400 bg-red-50 dark:bg-red-950/20"
+                      : termsAccepted ? "border-green-400 bg-green-50/30 dark:bg-green-950/10"
+                      : "border-zinc-200 dark:border-zinc-700"
+                    }`}>
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                        termsAccepted ? "bg-rose-500 border-rose-500" : "border-zinc-300 dark:border-zinc-600"
                       }`}>
-                        <div className="relative mt-0.5 flex-shrink-0">
-                          <input type="checkbox" checked={termsAccepted}
-                            onChange={(e) => { setTermsAccepted(e.target.checked); if (e.target.checked) setTermsError(false); }}
-                            className="sr-only" />
-                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                            termsAccepted ? "bg-rose-500 border-rose-500" : "border-zinc-300 dark:border-zinc-600"
-                          }`}>
-                            {termsAccepted && (
-                              <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }}
-                                className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </motion.svg>
-                            )}
-                          </div>
-                        </div>
-                        <span className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                          I have read and agree to the{" "}
-                          <Link href="/terms" target="_blank"
-                            className="text-rose-500 font-medium hover:underline"
-                            onClick={(e) => e.stopPropagation()}>
-                            Terms &amp; Conditions
-                          </Link>
-                          {" "}and{" "}
-                          <Link href="/terms" target="_blank"
-                            className="text-rose-500 font-medium hover:underline"
-                            onClick={(e) => e.stopPropagation()}>
-                            Privacy Policy
-                          </Link>
-                        </span>
-                      </label>
-                      <AnimatePresence>
-                        {termsError && (
-                          <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="flex items-center gap-1 text-xs text-red-500 mt-1 overflow-hidden">
-                            <AlertCircle className="w-3 h-3 flex-shrink-0" />
-                            You must accept the Terms &amp; Conditions to register
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                        <input type="checkbox" checked={termsAccepted}
+                          onChange={(e) => { setTermsAccepted(e.target.checked); if (e.target.checked) setTermsError(false); }}
+                          className="sr-only" />
+                        {termsAccepted && <span className="text-white text-xs font-bold">✓</span>}
+                      </div>
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        I agree to the{" "}
+                        <Link href="/terms" target="_blank" className="text-rose-500 font-medium hover:underline" onClick={(e) => e.stopPropagation()}>
+                          Terms &amp; Conditions
+                        </Link>
+                      </span>
+                    </label>
+                    {termsError && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />Accept Terms to continue</p>}
 
-                    <Button type="submit" isLoading={isSubmitting || otpLoading} className="w-full" size="lg">
+                    <Button type="submit" isLoading={isSubmitting || loading} className="w-full" size="lg">
                       Continue <ArrowRight className="w-4 h-4" />
                     </Button>
                   </form>
 
-                  <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mt-6">
+                  <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mt-5">
                     Already have an account?{" "}
                     <Link href="/auth/login" className="text-rose-500 font-medium hover:underline">Sign in</Link>
                   </p>
                 </motion.div>
               )}
 
-              {/* -- STEP 2: OTP Verification -- */}
-              {regStep === "otp" && (
-                <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              {/* ── STEP 2: Phone OTP ── */}
+              {regStep === "phone-otp" && (
+                <motion.div key="phone-otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                   <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <ShieldCheck className="w-8 h-8 text-rose-500" />
+                      <Phone className="w-8 h-8 text-rose-500" />
                     </div>
-                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Verify your email</h1>
+                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Verify mobile</h1>
                     <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-                      Enter the 6-digit OTP sent to<br />
-                      <span className="font-medium text-zinc-700 dark:text-zinc-300">{pendingData?.email}</span>
+                      Step 2 of 3 — OTP sent to<br />
+                      <span className="font-semibold text-zinc-700 dark:text-zinc-300">+91 {phoneValue}</span>
                     </p>
                   </div>
-
-                  <AnimatePresence>
-                    {serverError && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="flex items-center gap-2 p-3 mb-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-xl text-sm text-red-600 dark:text-red-400 overflow-hidden">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                        {serverError}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
+                  <AnimatePresence><ErrorBanner /></AnimatePresence>
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">OTP Code</label>
-                      <div className="relative">
-                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                        <input
-                          type="text"
-                          maxLength={6}
-                          value={otpValue}
-                          onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, ""))}
-                          onKeyDown={(e) => e.key === "Enter" && verifyOtpAndRegister()}
-                          placeholder="Enter 6-digit OTP"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 tracking-widest text-center text-lg font-bold transition-all"
-                        />
-                      </div>
+                    <OtpInput value={phoneOtp} onChange={setPhoneOtp} onEnter={verifyPhoneOtp} />
+                    <Button onClick={verifyPhoneOtp} isLoading={loading} className="w-full" size="lg">
+                      Verify Mobile <ArrowRight className="w-4 h-4" />
+                    </Button>
+                    <div className="flex items-center justify-between text-sm">
+                      <button onClick={() => { setRegStep("form"); setPhoneOtp(""); setServerError(""); }}
+                        className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">← Back</button>
+                      <button onClick={resendPhoneOtp} disabled={resendTimer > 0 || loading}
+                        className="text-rose-500 hover:underline disabled:opacity-50 transition-colors">
+                        {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
+                      </button>
                     </div>
+                  </div>
+                </motion.div>
+              )}
 
-                    <Button onClick={verifyOtpAndRegister} isLoading={otpLoading} className="w-full" size="lg">
+              {/* ── STEP 3: Email OTP ── */}
+              {regStep === "email-otp" && (
+                <motion.div key="email-otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-green-50 dark:bg-green-950/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <ShieldCheck className="w-8 h-8 text-green-500" />
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 text-xs font-medium px-3 py-1 rounded-full mb-3">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Mobile verified
+                    </div>
+                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Verify email</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">
+                      Step 3 of 3 — OTP sent to<br />
+                      <span className="font-semibold text-zinc-700 dark:text-zinc-300">{pendingData?.email}</span>
+                    </p>
+                  </div>
+                  <AnimatePresence><ErrorBanner /></AnimatePresence>
+                  <div className="space-y-4">
+                    <OtpInput value={emailOtp} onChange={setEmailOtp} onEnter={verifyEmailOtpAndRegister} />
+                    <Button onClick={verifyEmailOtpAndRegister} isLoading={loading} className="w-full" size="lg">
                       Verify &amp; Create Account <ArrowRight className="w-4 h-4" />
                     </Button>
-
                     <div className="flex items-center justify-between text-sm">
-                      <button onClick={() => { setRegStep("form"); setOtpValue(""); setServerError(""); }}
-                        className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">
-                        Back
-                      </button>
-                      <button onClick={resendOtp} disabled={otpLoading}
+                      <button onClick={() => { setRegStep("phone-otp"); setEmailOtp(""); setServerError(""); }}
+                        className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">← Back</button>
+                      <button onClick={resendEmailOtp} disabled={resendTimer > 0 || loading}
                         className="text-rose-500 hover:underline disabled:opacity-50 transition-colors">
-                        Resend OTP
+                        {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
                       </button>
                     </div>
                   </div>
