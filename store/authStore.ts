@@ -169,7 +169,13 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
+        // Fires after localStorage is read — state may be undefined if nothing stored
+        if (state) {
+          state.setHasHydrated(true);
+        } else {
+          // No stored data — still mark as hydrated so pages don't hang
+          useAuthStore.getState().setHasHydrated(true);
+        }
       },
     }
   )
