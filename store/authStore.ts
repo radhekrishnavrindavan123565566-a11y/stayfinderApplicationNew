@@ -16,6 +16,8 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   setUser: (user: User | null) => void;
   setAccessToken: (token: string | null) => void;
   login: (email: string, password: string) => Promise<void>;
@@ -51,7 +53,6 @@ axios.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
       try {
-        // Send stored refreshToken in body — cookie may not be forwarded on Vercel
         const storedRefreshToken = useAuthStore.getState().refreshToken;
         const { data } = await axios.post(
           "/api/auth/refresh",
@@ -88,7 +89,9 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isLoading: false,
+      _hasHydrated: false,
 
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
       setUser: (user) => set({ user }),
       setAccessToken: (token) => set({ accessToken: token }),
 
@@ -160,12 +163,14 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-      // Persist all three — user, accessToken, refreshToken
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
