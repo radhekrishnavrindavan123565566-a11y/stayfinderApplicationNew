@@ -8,16 +8,17 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
-    const { username, avatar, verificationDoc } = await req.json();
+    const { username, avatar, verificationDoc, phone } = await req.json();
 
     const updates: Record<string, unknown> = {};
     if (username?.trim()) updates.username = username.trim();
     if (avatar) updates.avatar = avatar;
+    if (phone?.trim()) updates.phone = phone.trim();
 
-    // Owner verification: if doc uploaded, mark as pending verification
+    // Owner verification
     if (verificationDoc && user.role === "owner") {
       updates.verificationDoc = verificationDoc;
-      updates.ownerVerified = false; // admin must approve
+      updates.ownerVerified = false;
     }
 
     const updated = await User.findByIdAndUpdate(user.userId, updates, { new: true }).select("-password");

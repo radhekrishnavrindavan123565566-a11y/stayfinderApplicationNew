@@ -8,7 +8,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera } from "lucide-react";
+import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera, Phone, KeyRound, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import TrustProfile from "@/components/trust/TrustProfile";
 
@@ -24,18 +24,35 @@ export default function ProfilePage() {
   const { user, fetchMe } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();
-  const [username, setUsername] = useState(user?.username || "");
-  const [saving, setSaving] = useState(false);
+  const [username, setUsername]           = useState(user?.username || "");
+  const [saving, setSaving]               = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || "");
   const [verificationDoc, setVerificationDoc] = useState<string | null>(null);
-  const [uploadingDoc, setUploadingDoc] = useState(false);
-  const [avatarHover, setAvatarHover] = useState(false);
+  const [uploadingDoc, setUploadingDoc]   = useState(false);
+  const [avatarHover, setAvatarHover]     = useState(false);
+
+  // Phone verification state
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userAny = user as any;
+  const [phoneInput, setPhoneInput]       = useState((userAny?.phone || "").replace(/^\+91/, ""));
+  const [phoneStep, setPhoneStep]         = useState<"idle" | "otp">("idle");
+  const [phoneOtp, setPhoneOtp]           = useState("");
+  const [phoneLoading, setPhoneLoading]   = useState(false);
+  const [resendTimer, setResendTimer]     = useState(0);
 
   useEffect(() => {
     if (!user) { router.push("/auth/login"); return; }
     setUsername(user.username);
     setAvatarPreview(user.avatar || "");
+    setPhoneInput((userAny?.phone || "").replace(/^\+91/, ""));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, router]);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer((v) => v - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,6 +97,8 @@ export default function ProfilePage() {
         username,
         avatar: avatarPreview,
         ...(verificationDoc ? { verificationDoc } : {}),
+        // Save phone if entered but not yet verified
+        ...(phoneInput.length === 10 && !userAny?.phoneVerified ? { phone: `+91${phoneInput}` } : {}),
       }, authHeaders());
       await fetchMe();
       toast.success("Profile updated!");
@@ -89,6 +108,37 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const sendPhoneOtp = async () => {
+    if (phoneInput.length !== 10) { toast.error("Enter a valid 10-digit number"); return; }
+    setPhoneLoading(true);
+    try {
+      await axios.post("/api/auth/phone-otp", { phone: phoneInput });
+      setPhoneStep("otp");
+      setResendTimer(60);
+      toast.success("OTP sent to your mobile number");
+    } catch (err) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Failed to send OTP" : "Something went wrong";
+      toast.error(msg);
+    } finally { setPhoneLoading(false); }
+  };
+
+  const verifyPhoneOtp = async () => {
+    if (phoneOtp.length !== 6) { toast.error("Enter the 6-digit OTP"); return; }
+    setPhoneLoading(true);
+    try {
+      await axios.put("/api/auth/phone-otp", { phone: phoneInput, otp: phoneOtp },);
+      // Mark phone verified on profile
+      await axios.patch("/api/user/profile", { phone: `+91${phoneInput}` }, authHeaders());
+      await fetchMe();
+      setPhoneStep("idle");
+      setPhoneOtp("");
+      toast.success("Phone number verified!");
+    } catch (err) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Invalid OTP" : "Something went wrong";
+      toast.error(msg);
+    } finally { setPhoneLoading(false); }
   };
 
   if (!user) return null;
@@ -190,6 +240,82 @@ export default function ProfilePage() {
               <Mail className="w-4 h-4 text-zinc-400" />
               <span className="text-sm text-zinc-500 dark:text-zinc-400">{user.email}</span>
             </div>
+          </div>
+
+          {/* ── Phone verification ── */}
+          <div>
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">
+              Mobile Number
+              {userAny?.phoneVerified && (
+                <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-green-600 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded-full font-semibold">
+                  <CheckCircle className="w-3 h-3" /> Verified
+                </span>
+              )}
+            </label>
+
+            {phoneStep === "idle" ? (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                    <Phone className="w-4 h-4 text-zinc-400" />
+                    <span className="text-xs text-zinc-500 font-medium">+91</span>
+                  </div>
+                  <input
+                    type="tel" inputMode="numeric" maxLength={10}
+                    placeholder="9876543210"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    disabled={userAny?.phoneVerified}
+                    className="w-full pl-16 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  />
+                </div>
+                {!userAny?.phoneVerified && (
+                  <Button
+                    onClick={sendPhoneOtp}
+                    isLoading={phoneLoading}
+                    disabled={phoneInput.length !== 10}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Send OTP
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                className="space-y-3 p-4 bg-rose-50 dark:bg-rose-950/20 rounded-xl border border-rose-100 dark:border-rose-900">
+                <div className="flex items-center gap-2 text-sm text-rose-700 dark:text-rose-400">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  OTP sent to +91 {phoneInput}
+                </div>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                  <input
+                    type="text" inputMode="numeric" maxLength={6}
+                    placeholder="Enter 6-digit OTP"
+                    value={phoneOtp}
+                    onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, ""))}
+                    onKeyDown={(e) => e.key === "Enter" && verifyPhoneOtp()}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 tracking-widest text-center font-bold transition-all"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={verifyPhoneOtp} isLoading={phoneLoading} size="sm" className="flex-1">
+                    Verify
+                  </Button>
+                  <Button onClick={() => { setPhoneStep("idle"); setPhoneOtp(""); }} variant="outline" size="sm">
+                    Cancel
+                  </Button>
+                  <button
+                    onClick={sendPhoneOtp}
+                    disabled={resendTimer > 0 || phoneLoading}
+                    className="text-xs text-rose-500 hover:underline disabled:opacity-50 px-2"
+                  >
+                    {resendTimer > 0 ? `${resendTimer}s` : "Resend"}
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Owner verification */}

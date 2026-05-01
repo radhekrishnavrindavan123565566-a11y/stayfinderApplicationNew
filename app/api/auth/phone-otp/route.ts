@@ -23,42 +23,31 @@ function normalizePhone(phone: string): string {
 }
 
 async function sendSms(phone: string, otp: string): Promise<void> {
-  const apiKey = process.env.FAST2SMS_API_KEY;
+  const twoFactorKey = process.env.TWOFACTOR_API_KEY;
+  const fast2smsKey  = process.env.FAST2SMS_API_KEY;
+  const number = phone.replace(/^\+91/, "");
 
-  if (!apiKey || apiKey === "your_fast2sms_api_key_here") {
-    console.log(`[PHONE OTP DEV] ${phone}: ${otp}`);
+  if (twoFactorKey && twoFactorKey !== "your_2factor_api_key_here") {
+    const url = `https://2factor.in/API/V1/${twoFactorKey}/SMS/${number}/${otp}/OTP1`;
+    const res  = await fetch(url);
+    const data = await res.json() as Record<string, unknown>;
+    if (data.Status !== "Success") throw new Error(String(data.Details ?? "Failed to send OTP"));
     return;
   }
 
-  const number = phone.replace(/^\+91/, "");
-  const message = `Your Nestora OTP is ${otp}. Valid for 10 minutes. Do not share with anyone.`;
-
-  console.log(`[Fast2SMS] Sending to ${number}`);
-
-  // Promotional route — works immediately with balance, no DLT/website verification
-  const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(apiKey)}&sender_id=FSTSMS&message=${encodeURIComponent(message)}&language=english&route=p&numbers=${number}`;
-
-  let res: Response;
-  let data: Record<string, unknown>;
-
-  try {
-    res = await fetch(url, { method: "GET" });
-    data = await res.json() as Record<string, unknown>;
-  } catch (err) {
-    console.error("[Fast2SMS] Network error:", err);
-    throw new Error("SMS service unreachable. Please try again.");
+  if (fast2smsKey && fast2smsKey !== "your_fast2sms_api_key_here") {
+    const msg = `Your Nestora OTP is ${otp}. Valid for 10 minutes. Do not share.`;
+    const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(fast2smsKey)}&sender_id=FSTSMS&message=${encodeURIComponent(msg)}&language=english&route=p&numbers=${number}`;
+    const res  = await fetch(url);
+    const data = await res.json() as Record<string, unknown>;
+    if (!res.ok || data.return === false) {
+      throw new Error(Array.isArray(data.message) ? (data.message as string[])[0] : String(data.message ?? "SMS failed"));
+    }
+    return;
   }
 
-  console.log("[Fast2SMS] Response:", JSON.stringify(data));
-
-  if (!res.ok || data.return === false) {
-    const msg = Array.isArray(data.message)
-      ? (data.message as string[])[0]
-      : String(data.message ?? "Failed to send SMS");
-    throw new Error(msg);
-  }
-
-  console.log(`[Fast2SMS] ✓ Sent to ${phone}`);
+  // No SMS provider — log OTP to console (dev only)
+  console.log(`[PHONE OTP DEV] ${phone}: ${otp}`);
 }
 
 // POST — send OTP
