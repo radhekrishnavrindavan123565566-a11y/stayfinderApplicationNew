@@ -45,6 +45,7 @@ export interface IProperty extends Document {
   weeklyBookings: number;
   unitCount: number;
   area: number;
+  smartTags?: string[];
 }
 
 const PropertySchema = new Schema<IProperty>(
@@ -120,6 +121,7 @@ const PropertySchema = new Schema<IProperty>(
     weeklyBookings: { type: Number, default: 0 },
     unitCount: { type: Number, default: 1 },
     area: { type: Number, default: 0 },
+    smartTags: [{ type: String }],
   },
   { timestamps: true }
 );
