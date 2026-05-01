@@ -37,6 +37,15 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue = [];
 }
 
+// Auto-attach Authorization header on every request
+axios.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken;
+  if (token && !config.headers["Authorization"]) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
 axios.interceptors.response.use(
   (res) => res,
   async (error) => {

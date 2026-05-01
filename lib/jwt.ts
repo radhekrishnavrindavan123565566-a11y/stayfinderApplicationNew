@@ -10,11 +10,11 @@ export interface JWTPayload {
 }
 
 export function signAccessToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "2h" }); // Extended from 15m to 2h
 }
 
 export function signRefreshToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "30d" }); // Extended from 7d to 30d
 }
 
 export function verifyAccessToken(token: string): JWTPayload {
