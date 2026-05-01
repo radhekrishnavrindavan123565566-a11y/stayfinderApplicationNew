@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import axios from "axios";
 
 export interface User {
@@ -16,8 +16,9 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;
+  // Module-level flag — never resets between renders
   _hasHydrated: boolean;
-  setHasHydrated: (state: boolean) => void;
+  setHasHydrated: (v: boolean) => void;
   setUser: (user: User | null) => void;
   setAccessToken: (token: string | null) => void;
   login: (email: string, password: string) => Promise<void>;
@@ -27,7 +28,7 @@ interface AuthState {
   toggleWishlist: (propertyId: string) => Promise<void>;
 }
 
-// Axios interceptor: auto-refresh access token on 401
+// ── Token refresh interceptor ─────────────────────────────────────────────────
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (v: string) => void; reject: (e: unknown) => void }> = [];
 
@@ -62,9 +63,7 @@ axios.interceptors.response.use(
         const newAccessToken = data.data.accessToken;
         const newRefreshToken = data.data.refreshToken;
         useAuthStore.getState().setAccessToken(newAccessToken);
-        if (newRefreshToken) {
-          useAuthStore.setState({ refreshToken: newRefreshToken });
-        }
+        if (newRefreshToken) useAuthStore.setState({ refreshToken: newRefreshToken });
         processQueue(null, newAccessToken);
         original.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return axios(original);
@@ -82,6 +81,7 @@ axios.interceptors.response.use(
   }
 );
 
+// ── Store ─────────────────────────────────────────────────────────────────────
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -91,7 +91,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       _hasHydrated: false,
 
-      setHasHydrated: (state) => set({ _hasHydrated: state }),
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
       setUser: (user) => set({ user }),
       setAccessToken: (token) => set({ accessToken: token }),
 
@@ -163,17 +163,28 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
+      storage: createJSONStorage(() => {
+        // SSR guard — localStorage is not available on server
+        if (typeof window === "undefined") {
+          return {
+            getItem: () => null,
+            setItem: () => {},
+            removeItem: () => {},
+          };
+        }
+        return localStorage;
+      }),
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
-        // Fires after localStorage is read — state may be undefined if nothing stored
+        // Called synchronously after localStorage is read
         if (state) {
           state.setHasHydrated(true);
         } else {
-          // No stored data — still mark as hydrated so pages don't hang
+          // No stored data — still unblock pages
           useAuthStore.getState().setHasHydrated(true);
         }
       },

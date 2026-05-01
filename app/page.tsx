@@ -338,9 +338,9 @@ export default function HomePage() {
           <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">What are you looking for?</h2>
         </motion.div>
         <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          className="flex flex-wrap justify-center gap-4 sm:gap-6">
           {CATEGORIES.map((cat) => (
-            <motion.div key={cat.type} variants={fadeUp}>
+            <motion.div key={cat.type} variants={fadeUp} className="w-36 sm:w-44">
               <TiltCard className="h-full">
                 <motion.button whileTap={{ scale: 0.93 }} onClick={() => handleCategory(cat.type)}
                   className="w-full h-full flex flex-col items-center gap-3 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 hover:shadow-2xl transition-all group relative overflow-hidden">

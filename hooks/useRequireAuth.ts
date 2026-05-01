@@ -1,45 +1,65 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore, User } from "@/store/authStore";
 
 /**
- * Waits for Zustand persist to fully rehydrate before checking auth.
- * Uses onRehydrateStorage flag — no setTimeout, no race conditions.
- *
- * @param requiredRoles  Redirect to `redirectTo` if user role not in list.
- * @param redirectTo     Where to send unauthenticated users (default: /auth/login).
+ * Reads auth state directly from localStorage on first render —
+ * synchronous, no race condition, no false redirects.
  */
 export function useRequireAuth(
   requiredRoles?: string[],
   redirectTo = "/auth/login"
 ) {
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const hydrated = useAuthStore((s) => s._hasHydrated);
+  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const checked = useRef(false);
 
   useEffect(() => {
-    // Don't do anything until localStorage has been read
-    if (!hydrated) return;
+    if (checked.current) return;
+    checked.current = true;
 
-    // Not logged in → send to login
-    if (!user) {
+    let resolvedUser: User | null = null;
+
+    // 1. Read directly from localStorage — synchronous
+    try {
+      const raw = localStorage.getItem("auth-storage");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        resolvedUser = parsed?.state?.user ?? null;
+      }
+    } catch { /* ignore */ }
+
+    // 2. Also sync Zustand if not yet hydrated
+    if (!useAuthStore.getState()._hasHydrated) {
+      useAuthStore.getState().setHasHydrated(true);
+    }
+
+    if (!resolvedUser) {
       router.replace(redirectTo);
       return;
     }
 
-    // Logged in but wrong role → send to dashboard
-    if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(user.role)) {
+    if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(resolvedUser.role)) {
       router.replace("/dashboard");
+      return;
     }
 
-    // Correct role → do nothing, page renders normally
+    setUser(resolvedUser);
+    setReady(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, user?._id, user?.role]);
+  }, []);
 
-  // ready = hydration done AND user has the right role (or no role required)
-  const hasCorrectRole = !requiredRoles || !user || requiredRoles.includes(user.role);
-  const ready = hydrated && !!user && hasCorrectRole;
+  // Keep in sync with live Zustand state (e.g. logout while on page)
+  const liveUser = useAuthStore((s) => s.user);
+  useEffect(() => {
+    if (!ready) return;
+    if (!liveUser) {
+      router.replace(redirectTo);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveUser]);
 
-  return { ready, user: ready ? user : null };
+  return { ready, user };
 }
