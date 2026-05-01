@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ChatWidget from "@/components/chat/ChatWidget";
 import AIChatbot from "@/components/ai/AIChatbot";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import SocketProvider from "@/components/providers/SocketProvider";
 import PWAProvider from "@/components/providers/PWAProvider";
 

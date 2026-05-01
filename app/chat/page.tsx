@@ -112,8 +112,7 @@ export default function ChatPage() {
 
   // Debug log
   useEffect(() => {
-    console.log("Active conversation ID:", activeConversationId);
-    console.log("Active conversation:", activeConvo);
+    // removed debug logs
   }, [activeConversationId, activeConvo]);
 
   if (!mounted) return (
