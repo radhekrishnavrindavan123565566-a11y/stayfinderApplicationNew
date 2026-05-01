@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";`nimport { getAppUrl } from "@/lib/appUrl";
 import RentPayment from "@/models/RentPayment";
 import { sendEmail } from "@/lib/mailer";
 import { validateCronSecret } from "@/lib/cronSecret";
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
             <p>Hi <strong>${tenant.username}</strong>,</p>
             <p>Your rent of <strong>₹${payment.amount.toLocaleString("en-IN")}</strong> for <strong>${property.title}</strong> is <strong>${daysLate} day${daysLate !== 1 ? "s" : ""} overdue</strong>.</p>
             <p style="color:#71717a;font-size:13px;">Please pay immediately to avoid further issues with your tenancy.</p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/rent-tracker" style="display:inline-block;background:#ef4444;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Pay Now</a>
+            <a href="${getAppUrl()}/dashboard/rent-tracker" style="display:inline-block;background:#ef4444;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Pay Now</a>
           </div>`
         );
       }
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
             <h2 style="color:#f43f5e;">Payment Alert 🔔</h2>
             <p>Hi <strong>${owner.username}</strong>,</p>
             <p>Tenant <strong>${tenant.username}</strong> has not paid rent of <strong>₹${payment.amount.toLocaleString("en-IN")}</strong> for <strong>${property.title}</strong>. It is <strong>${daysLate} day${daysLate !== 1 ? "s" : ""} overdue</strong>.</p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/rent-tracker" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">View Details</a>
+            <a href="${getAppUrl()}/dashboard/rent-tracker" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">View Details</a>
           </div>`
         );
       }
@@ -74,3 +74,4 @@ export async function GET(req: NextRequest) {
     return handleApiError(error);
   }
 }
+

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";`nimport { getAppUrl } from "@/lib/appUrl";
 import RentPayment from "@/models/RentPayment";
 import { sendEmail } from "@/lib/mailer";
 import { validateCronSecret } from "@/lib/cronSecret";
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
             <p style="margin:4px 0 0;font-size:13px;color:#71717a;">Due: ${dueDate}</p>
           </div>
           <p style="color:#71717a;font-size:13px;">Please ensure timely payment to avoid late fees.</p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/rent-tracker" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">View Payment</a>
+          <a href="${getAppUrl()}/dashboard/rent-tracker" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">View Payment</a>
         </div>`
       );
       sent++;
@@ -61,3 +61,4 @@ export async function GET(req: NextRequest) {
     return handleApiError(error);
   }
 }
+

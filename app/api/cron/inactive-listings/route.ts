@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";`nimport { getAppUrl } from "@/lib/appUrl";
 import Property from "@/models/Property";
 import { sendEmail } from "@/lib/mailer";
 import { validateCronSecret } from "@/lib/cronSecret";
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
             <li>Reduce price slightly to appear in more searches</li>
             <li>Boost your listing for featured placement</li>
           </ul>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/properties/${property._id}/edit" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Improve Listing</a>
+          <a href="${getAppUrl()}/dashboard/properties/${property._id}/edit" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Improve Listing</a>
         </div>`
       );
       notified++;
@@ -56,3 +56,4 @@ export async function GET(req: NextRequest) {
     return handleApiError(error);
   }
 }
+

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";`nimport { getAppUrl } from "@/lib/appUrl";
 import Property from "@/models/Property";
 import Booking from "@/models/Booking";
 import User from "@/models/User";
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
 
           ${pending > 0 ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;margin-top:16px;font-size:13px;color:#92400e;">⏳ You have <strong>${pending} pending booking request${pending !== 1 ? "s" : ""}</strong> waiting for your response.</div>` : ""}
 
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/analytics" style="display:block;background:#f43f5e;color:#fff;padding:14px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:20px;text-align:center;">View Full Analytics →</a>
+          <a href="${getAppUrl()}/dashboard/analytics" style="display:block;background:#f43f5e;color:#fff;padding:14px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:20px;text-align:center;">View Full Analytics →</a>
 
           <p style="margin-top:20px;color:#a1a1aa;font-size:11px;text-align:center;">© ${new Date().getFullYear()} Nestora · Unsubscribe from weekly reports in your profile settings</p>
         </div>`
@@ -109,3 +109,4 @@ export async function GET(req: NextRequest) {
     return handleApiError(error);
   }
 }
+

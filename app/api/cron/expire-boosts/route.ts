@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";`nimport { getAppUrl } from "@/lib/appUrl";
 import Property from "@/models/Property";
 import { sendEmail } from "@/lib/mailer";
 import { validateCronSecret } from "@/lib/cronSecret";
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
             <p>Hi <strong>${owner.username}</strong>,</p>
             <p>The featured boost for <strong>${property.title}</strong> has expired. Your listing is no longer highlighted at the top of search results.</p>
             <p style="color:#71717a;font-size:13px;">Boost again to get more visibility and bookings.</p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/properties" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Boost Again</a>
+            <a href="${getAppUrl()}/dashboard/properties" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Boost Again</a>
           </div>`
         );
       }
@@ -53,3 +53,4 @@ export async function GET(req: NextRequest) {
     return handleApiError(error);
   }
 }
+

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";`nimport { getAppUrl } from "@/lib/appUrl";
 import Booking from "@/models/Booking";
 import { sendEmail } from "@/lib/mailer";
 import { validateCronSecret } from "@/lib/cronSecret";
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
             <p>Hi <strong>${tenant.username}</strong>,</p>
             <p>Your booking request for <strong>${property.title}</strong> has been automatically cancelled as the owner did not respond within 48 hours.</p>
             <p style="color:#71717a;font-size:13px;">You can browse other properties and submit a new request.</p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/properties" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Browse Properties</a>
+            <a href="${getAppUrl()}/properties" style="display:inline-block;background:#f43f5e;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:8px;">Browse Properties</a>
           </div>`
         );
       }
@@ -52,3 +52,4 @@ export async function GET(req: NextRequest) {
     return handleApiError(error);
   }
 }
+
