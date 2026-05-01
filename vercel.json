@@ -1,28 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/rent-reminders",
+      "path": "/api/cron/run-all",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/expire-bookings",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/late-payments",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/expire-boosts",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/inactive-listings",
-      "schedule": "0 8 * * 1"
-    },
-    {
-      "path": "/api/cron/weekly-report",
-      "schedule": "0 8 * * 1"
     }
   ]
 }
