@@ -11,6 +11,7 @@ import Badge from "@/components/ui/Badge";
 import { cn } from "@/utils/cn";
 import MatchScoreBadge from "@/components/properties/MatchScoreBadge";
 import SmartTags from "@/components/properties/SmartTags";
+import { useTranslations } from "next-intl";
 
 interface PropertyCardProps {
   property: Property;
@@ -27,6 +28,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function PropertyCard({ property, index = 0 }: PropertyCardProps) {
+  const t = useTranslations("property");
   const { user, toggleWishlist } = useAuthStore();
   const { add, remove, has } = useCompareStore();
   const isWishlisted = user?.wishlist?.includes(property._id);
@@ -34,22 +36,22 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!user) { toast.error("Please login to save properties"); return; }
+    if (!user) { toast.error(t("loginToSave")); return; }
     try {
       await toggleWishlist(property._id);
-      toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist");
+      toast.success(isWishlisted ? t("removedFromWishlist") : t("addedToWishlist"));
     } catch {
-      toast.error("Failed to update wishlist");
+      toast.error(t("failedToUpdate"));
     }
   };
 
   const handleCompare = (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      if (isComparing) { remove(property._id); toast.success("Removed from compare"); }
-      else { add(property._id); toast.success("Added to compare"); }
+      if (isComparing) { remove(property._id); toast.success(t("removedFromCompare")); }
+      else { add(property._id); toast.success(t("addedToCompare")); }
     } catch {
-      toast.error("Failed to update compare");
+      toast.error(t("failedToUpdate"));
     }
   };
 

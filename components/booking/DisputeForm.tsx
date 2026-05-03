@@ -5,22 +5,24 @@ import { AlertOctagon, ChevronDown, ChevronUp, CheckCircle } from "lucide-react"
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface Props {
   bookingId: string;
   onSubmitted?: () => void;
 }
 
-const REASONS = [
-  { value: "property_mismatch", label: "Property doesn't match listing" },
-  { value: "no_access", label: "Unable to access property" },
-  { value: "safety_issue", label: "Safety concern" },
-  { value: "fraud", label: "Suspected fraud" },
-  { value: "other", label: "Other" },
-];
-
 export default function DisputeForm({ bookingId, onSubmitted }: Props) {
+  const t = useTranslations("dispute");
   const { authHeaders } = useApi();
+  
+  const REASONS = [
+    { value: "property_mismatch", label: t("reasons.property_mismatch") },
+    { value: "no_access", label: t("reasons.no_access") },
+    { value: "safety_issue", label: t("reasons.safety_issue") },
+    { value: "fraud", label: t("reasons.fraud") },
+    { value: "other", label: t("reasons.other") },
+  ];
   const [expanded, setExpanded] = useState(false);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
@@ -28,15 +30,15 @@ export default function DisputeForm({ bookingId, onSubmitted }: Props) {
   const [submitted, setSubmitted] = useState(false);
 
   const submit = async () => {
-    if (!reason || !description.trim()) { toast.error("Fill in all fields"); return; }
+    if (!reason || !description.trim()) { toast.error(t("errors.fill_all_fields")); return; }
     setSubmitting(true);
     try {
       await axios.post("/api/disputes", { bookingId, reason, description }, authHeaders());
-      toast.success("Dispute submitted. Our team will review it.");
+      toast.success(t("success"));
       setSubmitted(true);
       onSubmitted?.();
     } catch (err) {
-      if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || "Failed to submit dispute");
+      if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || t("errors.submit_failed"));
     } finally {
       setSubmitting(false);
     }
@@ -49,7 +51,7 @@ export default function DisputeForm({ bookingId, onSubmitted }: Props) {
       className="flex items-center gap-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-800"
     >
       <CheckCircle className="w-5 h-5 text-blue-500" />
-      <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Dispute submitted. We&apos;ll review within 24 hours.</p>
+      <p className="text-sm font-medium text-blue-700 dark:text-blue-400">{t("submitted_message")}</p>
     </motion.div>
   );
 
@@ -61,7 +63,7 @@ export default function DisputeForm({ bookingId, onSubmitted }: Props) {
       >
         <div className="flex items-center gap-2">
           <AlertOctagon className="w-5 h-5 text-red-500" />
-          <span className="font-semibold text-zinc-900 dark:text-white">Raise a Dispute</span>
+          <span className="font-semibold text-zinc-900 dark:text-white">{t("title")}</span>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
       </button>
@@ -76,11 +78,11 @@ export default function DisputeForm({ bookingId, onSubmitted }: Props) {
           >
             <div className="px-5 pb-5 space-y-4">
               <p className="text-sm text-zinc-500">
-                If there&apos;s a problem with your booking, raise a dispute and our team will investigate within 24 hours.
+                {t("description")}
               </p>
 
               <div>
-                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">Reason</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">{t("reason_label")}</label>
                 <div className="space-y-2">
                   {REASONS.map((r) => (
                     <label
@@ -106,11 +108,11 @@ export default function DisputeForm({ bookingId, onSubmitted }: Props) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">Description</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">{t("description_label")}</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the issue in detail..."
+                  placeholder={t("description_placeholder")}
                   rows={4}
                   className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-600 text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
                 />
@@ -122,7 +124,7 @@ export default function DisputeForm({ bookingId, onSubmitted }: Props) {
                 disabled={submitting || !reason || !description.trim()}
                 className="w-full py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
               >
-                {submitting ? "Submitting..." : "Submit Dispute"}
+                {submitting ? t("submitting") : t("submit")}
               </motion.button>
             </div>
           </motion.div>

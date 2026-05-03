@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X, Grid } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ImageGalleryProps {
   images: string[];
@@ -10,6 +11,7 @@ interface ImageGalleryProps {
 }
 
 export default function ImageGallery({ images, title }: ImageGalleryProps) {
+  const t = useTranslations("gallery");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const fallback = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800";
@@ -30,7 +32,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
             {i === 3 && imgs.length > 5 && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white font-semibold flex items-center gap-1.5">
-                  <Grid className="w-4 h-4" /> +{imgs.length - 5} more
+                  <Grid className="w-4 h-4" /> {t("more", { count: imgs.length - 5 })}
                 </span>
               </div>
             )}

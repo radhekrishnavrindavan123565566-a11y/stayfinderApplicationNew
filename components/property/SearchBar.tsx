@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Image from "next/image";
 import Link from "next/link";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 const PROPERTY_TYPES = ["apartment", "house", "villa", "studio", "condo", "cabin"];
 
@@ -17,6 +18,7 @@ function QuickResults({
 }: {
   results: Property[]; loading: boolean; query: string; city: string; onClose: () => void;
 }) {
+  const t = useTranslations("search");
   const hasQuery = query.trim().length > 0 || city.trim().length > 0;
   if (!hasQuery) return null;
 
@@ -35,7 +37,7 @@ function QuickResults({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
         <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
-          {loading ? "Searching…" : `${results.length} result${results.length !== 1 ? "s" : ""} found`}
+          {loading ? t("searching") : t("resultsFound", { count: results.length, plural: results.length !== 1 ? "s" : "" })}
         </p>
         <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <X className="w-3.5 h-3.5 text-zinc-400" />
@@ -46,7 +48,7 @@ function QuickResults({
       {loading && (
         <div className="flex items-center justify-center py-10 gap-2 text-zinc-400">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Finding properties…</span>
+          <span className="text-sm">{t("findingProperties")}</span>
         </div>
       )}
 
@@ -54,8 +56,8 @@ function QuickResults({
       {!loading && results.length === 0 && (
         <div className="text-center py-10">
           <div className="text-4xl mb-2">🏠</div>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No properties found</p>
-          <p className="text-xs text-zinc-400 mt-1">Try a different city or keyword</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("noProperties")}</p>
+          <p className="text-xs text-zinc-400 mt-1">{t("tryDifferent")}</p>
         </div>
       )}
 
@@ -112,12 +114,10 @@ function QuickResults({
       {/* Footer — view all */}
       {!loading && results.length > 0 && (
         <div className="border-t border-zinc-100 dark:border-zinc-800 px-4 py-3">
-          <Link
-            href={`/properties?${params.toString()}`}
-            onClick={onClose}
+          <Link href={`/properties?${params.toString()}`} onClick={onClose}
             className="flex items-center justify-center gap-2 text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors group"
           >
-            View all {results.length} results
+            {t("viewAll", { count: results.length })}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -128,6 +128,9 @@ function QuickResults({
 
 /* ── main SearchBar ── */
 export default function SearchBar({ compact = false }: { compact?: boolean }) {
+  const t = useTranslations("search");
+  const tBar = useTranslations("searchBar");
+  const tHero = useTranslations("hero");
   const { filters, setFilters, fetchProperties } = usePropertyStore();
   const [showFilters, setShowFilters] = useState(false);
   const [localSearch, setLocalSearch] = useState(filters.search);
@@ -196,7 +199,7 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Search properties, locations..."
+              placeholder={tBar("compactPlaceholder")}
               className="w-full pl-9 pr-3 py-2 bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"
             />
           </div>
@@ -208,22 +211,17 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              showFilters 
-                ? "bg-rose-500 text-white" 
-                : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              showFilters ? "bg-rose-500 text-white" : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{tBar("filters")}</span>
           </button>
-          
-          {/* Search button */}
-          <button
-            onClick={handleSearch}
+          <button onClick={handleSearch}
             className="flex items-center gap-1.5 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Search className="w-4 h-4" />
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:inline">{tBar("search")}</span>
           </button>
         </div>
         
@@ -274,9 +272,8 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
               onChange={(e) => setLocalSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               onFocus={() => (localSearch || localCity) && setShowQuick(true)}
-              placeholder="Search destinations, properties..."
-              className="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"
-            />
+              placeholder={tBar("searchPlaceholder")}
+              className="w-full bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"            />
           </div>
           {localSearch && (
             <button onClick={() => { setLocalSearch(""); setQuickResults([]); setShowQuick(false); }}
@@ -297,7 +294,7 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
             onChange={(e) => setLocalCity(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             onFocus={() => (localSearch || localCity) && setShowQuick(true)}
-            placeholder="City"
+            placeholder={tBar("cityPlaceholder")}
             className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none"
           />
         </div>
@@ -310,20 +307,17 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
           <button 
             onClick={() => setShowFilters(!showFilters)} 
             className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-              showFilters 
-                ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25" 
-                : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              showFilters ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25" : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            <span className="hidden lg:inline">Filters</span>
+            <span className="hidden lg:inline">{tBar("filters")}</span>
           </button>
-          <button 
-            onClick={handleSearch}
+          <button onClick={handleSearch}
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl text-sm font-semibold shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 transition-all"
           >
             <Search className="w-4 h-4" />
-            <span>Search</span>
+            <span>{tBar("search")}</span>
           </button>
         </div>
       </motion.div>
@@ -365,27 +359,23 @@ function FilterPanel({ filters, setFilters, onApply, onClear }: {
   onApply: () => void;
   onClear: () => void;
 }) {
+  const t = useTranslations("searchBar");
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Advanced Filters</h3>
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">{t("advancedFilters")}</h3>
       </div>
-      
-      {/* Near college/office */}
       <div>
         <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block flex items-center gap-1">
-          🎓 Near College / Office
+          🎓 {t("nearCollege")}
         </label>
-        <input
-          value={filters.nearLocation}
-          onChange={(e) => setFilters({ nearLocation: e.target.value })}
-          placeholder="e.g. Allahabad University, TCS Lucknow..."
-          className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-        />
+        <input value={filters.nearLocation} onChange={(e) => setFilters({ nearLocation: e.target.value })}
+          placeholder={t("nearPlaceholder")}
+          className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Min Price</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">{t("minPrice")}</label>
           <div className="relative">
             <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <input type="number" value={filters.minPrice} onChange={(e) => setFilters({ minPrice: e.target.value })}
@@ -393,36 +383,36 @@ function FilterPanel({ filters, setFilters, onApply, onClear }: {
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Max Price</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">{t("maxPrice")}</label>
           <div className="relative">
             <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <input type="number" value={filters.maxPrice} onChange={(e) => setFilters({ maxPrice: e.target.value })}
-              placeholder="Any" className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
+              placeholder={t("any")} className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Property Type</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">{t("propertyType")}</label>
           <div className="relative">
             <Home className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <select value={filters.propertyType} onChange={(e) => setFilters({ propertyType: e.target.value })}
               className="w-full pl-7 pr-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
-              <option value="">All Types</option>
-              {PROPERTY_TYPES.map((t) => <option key={t} value={t} className="capitalize">{t}</option>)}
+              <option value="">{t("allTypes")}</option>
+              {PROPERTY_TYPES.map((pt) => <option key={pt} value={pt} className="capitalize">{pt}</option>)}
             </select>
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">Min Bedrooms</label>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1 block">{t("minBedrooms")}</label>
           <select value={filters.bedrooms} onChange={(e) => setFilters({ bedrooms: e.target.value })}
             className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white">
-            <option value="">Any</option>
+            <option value="">{t("any")}</option>
             {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+</option>)}
           </select>
         </div>
       </div>
       <div className="flex gap-2 justify-end pt-2">
-        <Button onClick={onClear} variant="ghost" size="sm"><X className="w-3.5 h-3.5" /> Clear</Button>
-        <Button onClick={onApply} size="sm">Apply Filters</Button>
+        <Button onClick={onClear} variant="ghost" size="sm"><X className="w-3.5 h-3.5" /> {t("clear")}</Button>
+        <Button onClick={onApply} size="sm">{t("applyFilters")}</Button>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 function FieldError({ message }: { message?: string }) {
   return (
@@ -31,18 +32,20 @@ function FieldError({ message }: { message?: string }) {
   );
 }
 
-const FEATURES = [
-  { text: "10,000+ verified properties", icon: Shield },
-  { text: "Instant booking confirmation", icon: Zap },
-  { text: "24/7 customer support", icon: Clock },
-  { text: "Secure escrow payments", icon: CreditCard },
-];
-
 export default function LoginPage() {
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const [showPass, setShowPass] = useState(false);
   const [serverError, setServerError] = useState("");
   const { login, user } = useAuthStore();
   const router = useRouter();
+
+  const FEATURES = [
+    { text: t("features.verifiedProperties"), icon: Shield },
+    { text: t("features.instantBooking"), icon: Zap },
+    { text: t("features.support"), icon: Clock },
+    { text: t("features.securePayments"), icon: CreditCard },
+  ];
 
   useEffect(() => {
     if (user) router.replace("/");
@@ -65,12 +68,12 @@ export default function LoginPage() {
     setServerError("");
     try {
       await login(data.email, data.password);
-      toast.success("Welcome back!");
+      toast.success(t("welcomeBack"));
       router.push("/");
     } catch (err) {
       const msg = axios.isAxiosError(err)
-        ? err.response?.data?.error || "Login failed"
-        : "Something went wrong";
+        ? err.response?.data?.error || tCommon("error")
+        : tCommon("error");
       setServerError(msg);
       toast.error(msg);
     }
@@ -131,9 +134,9 @@ export default function LoginPage() {
               </motion.div>
               <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">Nest<span className="text-amber-300">ora</span></span>
             </Link>
-            <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Welcome back!</h2>
+            <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">{t("welcomeBack")}</h2>
             <p className="text-white/80 text-lg leading-relaxed mb-10 max-w-sm">
-              Sign in to manage your bookings, wishlist, and discover new properties.
+              {t("welcomeBack")}
             </p>
             <div className="space-y-3">
               {FEATURES.map((item, i) => {
@@ -205,8 +208,8 @@ export default function LoginPage() {
         >
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-7 sm:p-8">
             <div className="mb-7">
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Sign in</h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm">Enter your credentials to continue</p>
+              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">{t("signIn")}</h1>
+              <p className="text-zinc-500 dark:text-zinc-400 text-sm">{t("continue")}</p>
             </div>
 
             <AnimatePresence>
@@ -227,7 +230,7 @@ export default function LoginPage() {
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  Email address
+                  {t("email")}
                 </label>
                 <div className="relative group">
                   <motion.div
@@ -268,7 +271,7 @@ export default function LoginPage() {
               {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  Password
+                  {t("password")}
                 </label>
                 <div className="relative group">
                   <motion.div
@@ -341,7 +344,7 @@ export default function LoginPage() {
                     whileHover={{ x: -2 }}
                     transition={{ duration: 0.2 }}
                   >
-                    Forgot password?
+                    {t("forgotPassword")}
                   </motion.span>
                   <motion.span
                     initial={{ opacity: 0, x: -5 }}
@@ -354,14 +357,14 @@ export default function LoginPage() {
               </motion.div>
 
               <Button type="submit" isLoading={isSubmitting} className="w-full" size="lg">
-                Sign In <ArrowRight className="w-4 h-4" />
+                {t("signIn")} <ArrowRight className="w-4 h-4" />
               </Button>
             </form>
 
             <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mt-6">
-              Don&apos;t have an account?{" "}
+              {t("noAccount")}{" "}
               <Link href="/auth/register" className="text-rose-500 font-medium hover:underline">
-                Sign up
+                {t("signUp")}
               </Link>
             </p>
           </div>

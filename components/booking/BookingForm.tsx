@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import { differenceInCalendarMonths, format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const PLATFORM_FEE_PCT = 0.1; // 10%
 
@@ -29,25 +30,27 @@ interface BookingFormProps {
 const DAILY_TYPES = ["villa", "cabin"];
 const DAILY_LABEL: Record<string, string> = { villa: "night", cabin: "night" };
 
-const POLICY_LABELS = {
-  flexible: "Full refund up to 1 day before",
-  moderate: "Full refund up to 5 days before",
-  strict: "50% refund up to 7 days before",
-};
-
 export default function BookingForm({ propertyId, price, maxGuests, instantBooking, cancellationPolicy = "moderate", propertyType = "apartment", ownerId }: BookingFormProps) {
+  const t = useTranslations("booking");
+  const tProperty = useTranslations("property");
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();
   const isDaily = DAILY_TYPES.includes(propertyType);
-  const unit = isDaily ? (DAILY_LABEL[propertyType] || "night") : "month";
-  const [duration, setDuration] = useState(0); // months or nights
+  const unit = isDaily ? (DAILY_LABEL[propertyType] || t("night")) : t("month");
+  const [duration, setDuration] = useState(0);
+
+  const POLICY_LABELS: Record<string, string> = {
+    flexible: t("flexible"),
+    moderate: t("moderate"),
+    strict: t("strict"),
+  };
 
   // Block owner from seeing booking form
   if (user && ownerId && user._id === ownerId) {
     return (
       <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 text-center">
-        <p className="text-amber-700 dark:text-amber-400 text-sm font-medium">This is your property — you cannot book it.</p>
+        <p className="text-amber-700 dark:text-amber-400 text-sm font-medium">{tProperty("ownProperty")}</p>
       </div>
     );
   }
@@ -80,10 +83,10 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
     if (!user) { router.push("/auth/login"); return; }
     try {
       await axios.post("/api/bookings", data, authHeaders());
-      toast.success(instantBooking ? "Booking confirmed instantly!" : "Booking request sent!");
+      toast.success(t("bookingSuccess"));
       router.push("/dashboard/bookings");
     } catch (err) {
-      if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || "Booking failed");
+      if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || t("bookingFailed"));
     }
   };
 
@@ -102,7 +105,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         </div>
         {instantBooking && (
           <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
-            <Zap className="w-3 h-3" /> Instant
+            <Zap className="w-3 h-3" /> {tProperty("instantBooking")}
           </span>
         )}
       </div>
@@ -113,7 +116,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         {/* Date picker */}
         <div className="grid grid-cols-2 gap-0 border border-zinc-200 rounded-xl overflow-hidden">
           <div className="p-3 border-r border-zinc-200">
-            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Check-in</label>
+            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">{t("checkIn")}</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
               <input
@@ -127,7 +130,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
             {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
           </div>
           <div className="p-3">
-            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Check-out</label>
+            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">{t("checkOut")}</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
               <input
@@ -144,21 +147,21 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
 
         {/* Guests */}
         <div className="border border-zinc-200 rounded-xl p-3">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Guests</label>
+          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">{t("guests")}</label>
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-zinc-400" />
-            <span className="text-sm text-zinc-700">Up to {maxGuests} guests</span>
+            <span className="text-sm text-zinc-700">{t("upToGuests", { count: maxGuests })}</span>
           </div>
         </div>
 
         {/* Message */}
         <div className="border border-zinc-200 rounded-xl p-3">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Message (optional)</label>
+          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">{t("message")}</label>
           <div className="flex items-start gap-2">
             <MessageSquare className="w-4 h-4 text-zinc-400 mt-0.5" />
             <textarea
               {...register("message")}
-              placeholder="Tell the owner about your trip..."
+              placeholder={t("messagePlaceholder")}
               rows={2}
               className="flex-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none resize-none"
             />
@@ -178,13 +181,13 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
             </div>
             <div className="flex justify-between text-sm text-zinc-500">
               <span className="flex items-center gap-1">
-                Service fee (10%)
+                {t("platformFee")}
                 <Info className="w-3 h-3 text-zinc-400" />
               </span>
               <span>₹{platformFee.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between font-bold text-zinc-900 pt-2 border-t border-zinc-100">
-              <span>Total</span>
+              <span>{t("total")}</span>
               <span>₹{total.toLocaleString("en-IN")}</span>
             </div>
           </motion.div>
@@ -194,13 +197,13 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         <div className="flex items-start gap-2 p-3 bg-zinc-50 rounded-xl">
           <Info className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
           <div>
-            <p className="text-xs font-medium text-zinc-700 capitalize">{cancellationPolicy} cancellation</p>
+            <p className="text-xs font-medium text-zinc-700 capitalize">{t("cancellationPolicy")}</p>
             <p className="text-xs text-zinc-500 mt-0.5">{POLICY_LABELS[cancellationPolicy]}</p>
           </div>
         </div>
 
         <Button type="submit" isLoading={isSubmitting} className="w-full" size="lg">
-          {user ? (instantBooking ? "Book Now" : "Request Booking") : "Login to Book"}
+          {user ? (instantBooking ? t("confirmBooking") : t("requestBooking")) : t("loginToBook")}
         </Button>
       </form>
     </motion.div>

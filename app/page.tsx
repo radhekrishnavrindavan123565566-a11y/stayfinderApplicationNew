@@ -19,28 +19,29 @@ import Button from "@/components/ui/Button";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import axios from "axios";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
+import { useTranslations } from "next-intl";
 
 /* ─── data ──────────────────────────────────────────────────────────────── */
-const CATEGORIES = [
-  { label: "Apartments", icon: <Building2 className="w-6 h-6" />, type: "apartment", grad: "from-blue-500 to-cyan-400"     },
-  { label: "Houses",     icon: <Home      className="w-6 h-6" />, type: "house",     grad: "from-rose-500 to-pink-400"     },
-  { label: "PG / Rooms", icon: <Key       className="w-6 h-6" />, type: "condo",     grad: "from-indigo-500 to-blue-400"   },
+const CATEGORIES = (t: ReturnType<typeof useTranslations>) => [
+  { label: t("apartments"), icon: <Building2 className="w-6 h-6" />, type: "apartment", grad: "from-blue-500 to-cyan-400"     },
+  { label: t("houses"),     icon: <Home      className="w-6 h-6" />, type: "house",     grad: "from-rose-500 to-pink-400"     },
+  { label: t("pgRooms"),    icon: <Key       className="w-6 h-6" />, type: "condo",     grad: "from-indigo-500 to-blue-400"   },
 ];
 
-const STATS = [
-  { value: 10000, display: "10K+", label: "Properties",    icon: "🏠" },
-  { value: 50000, display: "50K+", label: "Happy Tenants", icon: "😊" },
-  { value: 120,   display: "120+", label: "UP Cities",     icon: "📍" },
-  { value: 4.9,   display: "4.9★", label: "Avg Rating",    icon: "⭐" },
+const STATS = (t: ReturnType<typeof useTranslations>) => [
+  { value: 10000, display: "10K+", label: t("properties"),    icon: "🏠" },
+  { value: 50000, display: "50K+", label: t("happyTenants"), icon: "😊" },
+  { value: 120,   display: "120+", label: t("upCities"),     icon: "📍" },
+  { value: 4.9,   display: "4.9★", label: t("avgRating"),    icon: "⭐" },
 ];
 
-const WHY_US = [
-  { icon: <Shield     className="w-7 h-7" />, title: "Verified Listings", desc: "Aadhaar-verified owners. Every listing checked before going live.", grad: "from-blue-600 to-cyan-500",     check: "Aadhaar verified" },
-  { icon: <Star       className="w-7 h-7" />, title: "Top Rated Stays",   desc: "Real reviews from real tenants — no fake ratings.",               grad: "from-amber-500 to-orange-400",  check: "Genuine reviews" },
-  { icon: <Clock      className="w-7 h-7" />, title: "Instant Booking",   desc: "Book your room in minutes, move in the same day.",                 grad: "from-green-500 to-emerald-400", check: "Same-day move-in" },
-  { icon: <TrendingUp className="w-7 h-7" />, title: "Fair Pricing",      desc: "AI-powered price intelligence keeps rents transparent.",           grad: "from-purple-600 to-violet-400", check: "No hidden fees" },
-  { icon: <MapPin     className="w-7 h-7" />, title: "Prime Locations",   desc: "Rooms near colleges, offices & transport hubs across UP.",         grad: "from-rose-500 to-pink-400",     check: "Near transit" },
-  { icon: <Sparkles   className="w-7 h-7" />, title: "AI Match",          desc: "Smart suggestions based on your budget and preferences.",          grad: "from-indigo-500 to-blue-400",   check: "Personalised" },
+const WHY_US = (t: ReturnType<typeof useTranslations>) => [
+  { icon: <Shield     className="w-7 h-7" />, title: t("verifiedListings"),  desc: t("verifiedListingsDesc"),  grad: "from-blue-600 to-cyan-500",     check: t("aadhaarVerified") },
+  { icon: <Star       className="w-7 h-7" />, title: t("topRatedStays"),     desc: t("topRatedStaysDesc"),     grad: "from-amber-500 to-orange-400",  check: t("genuineReviews") },
+  { icon: <Clock      className="w-7 h-7" />, title: t("instantBooking"),    desc: t("instantBookingDesc"),    grad: "from-green-500 to-emerald-400", check: t("sameDayMoveIn") },
+  { icon: <TrendingUp className="w-7 h-7" />, title: t("fairPricing"),       desc: t("fairPricingDesc"),       grad: "from-purple-600 to-violet-400", check: t("noHiddenFees") },
+  { icon: <MapPin     className="w-7 h-7" />, title: t("primeLocations"),    desc: t("primeLocationsDesc"),    grad: "from-rose-500 to-pink-400",     check: t("nearTransit") },
+  { icon: <Sparkles   className="w-7 h-7" />, title: t("aiMatch"),           desc: t("aiMatchDesc"),           grad: "from-indigo-500 to-blue-400",   check: t("personalised") },
 ];
 
 const CITY_CARDS = [
@@ -56,18 +57,18 @@ const HERO_SLIDES = [
   "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80",
 ];
 
-const TESTIMONIALS = [
-  { name: "Priya Sharma",   role: "Student, Lucknow",    avatar: "PS", text: "Found my PG in 10 minutes! The verified badge gave me confidence. Best platform for students.", rating: 5, color: "from-rose-400 to-pink-500"    },
-  { name: "Rahul Verma",    role: "IT Professional, Noida", avatar: "RV", text: "Moved to a new city and Nestora made finding a flat so easy. Transparent pricing, no broker fees.", rating: 5, color: "from-blue-400 to-indigo-500"  },
-  { name: "Anjali Singh",   role: "Owner, Prayagraj",    avatar: "AS", text: "Listed my property and got 3 tenants in a week. The AI matching is genuinely impressive.", rating: 5, color: "from-amber-400 to-orange-500"  },
-  { name: "Vikram Mishra",  role: "Teacher, Varanasi",   avatar: "VM", text: "The police verification reminder saved me from a lot of legal hassle. Very thoughtful platform.", rating: 5, color: "from-green-400 to-emerald-500" },
+const TESTIMONIALS = (t: ReturnType<typeof useTranslations>) => [
+  { name: "Priya Sharma",   role: t("studentLucknow"),      avatar: "PS", text: t("testimonial1"), rating: 5, color: "from-rose-400 to-pink-500"    },
+  { name: "Rahul Verma",    role: t("itProfNoida"),         avatar: "RV", text: t("testimonial2"), rating: 5, color: "from-blue-400 to-indigo-500"  },
+  { name: "Anjali Singh",   role: t("ownerPrayagraj"),      avatar: "AS", text: t("testimonial3"), rating: 5, color: "from-amber-400 to-orange-500"  },
+  { name: "Vikram Mishra",  role: t("teacherVaranasi"),     avatar: "VM", text: t("testimonial4"), rating: 5, color: "from-green-400 to-emerald-500" },
 ];
 
-const PROCESS_STEPS = [
-  { step: "01", title: "Search",   desc: "Filter by city, budget, type and amenities.",  icon: "🔍", color: "from-blue-500 to-cyan-400"    },
-  { step: "02", title: "Explore",  desc: "View verified photos, 3D tours and reviews.",  icon: "🏠", color: "from-purple-500 to-violet-400" },
-  { step: "03", title: "Connect",  desc: "Chat directly with the owner — no middlemen.", icon: "💬", color: "from-rose-500 to-pink-400"     },
-  { step: "04", title: "Move In",  desc: "Sign digitally and move in the same day.",     icon: "🎉", color: "from-green-500 to-emerald-400" },
+const PROCESS_STEPS = (t: ReturnType<typeof useTranslations>) => [
+  { step: "01", title: t("searchStep"),   desc: t("searchStepDesc"),   icon: "🔍", color: "from-blue-500 to-cyan-400"    },
+  { step: "02", title: t("exploreStep"),  desc: t("exploreStepDesc"),  icon: "🏠", color: "from-purple-500 to-violet-400" },
+  { step: "03", title: t("connectStep"),  desc: t("connectStepDesc"),  icon: "💬", color: "from-rose-500 to-pink-400"     },
+  { step: "04", title: t("moveInStep"),   desc: t("moveInStepDesc"),   icon: "🎉", color: "from-green-500 to-emerald-400" },
 ];
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
@@ -137,6 +138,7 @@ function CountUp({ display }: { display: string }) {
 }
 
 function RecommendationsSection() {
+  const t = useTranslations("home");
   const { user, accessToken } = useAuthStore();
   const [recs, setRecs] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -153,8 +155,8 @@ function RecommendationsSection() {
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Recommended for You</h2>
-          <p className="text-sm text-zinc-500">Based on your booking history</p>
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("recommendedForYou")}</h2>
+          <p className="text-sm text-zinc-500">{t("basedOnHistory")}</p>
         </div>
       </motion.div>
       <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
@@ -167,6 +169,9 @@ function RecommendationsSection() {
 
 export default function HomePage() {
   const { properties, isLoading, fetchProperties, setFilters } = usePropertyStore();
+  const t = useTranslations();
+  const tStats = useTranslations("stats");
+  const tCategories = useTranslations("categories");
   const heroRef = useRef<HTMLDivElement>(null);
   const [slide, setSlide] = useState(0);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
@@ -174,6 +179,16 @@ export default function HomePage() {
   const heroY       = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
   const heroScale   = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+
+  const categories = CATEGORIES(tCategories);
+  const stats = STATS(tStats);
+  const tHome = useTranslations("home");
+  const tWhyUs = useTranslations("whyUs");
+  const tProcess = useTranslations("process");
+  const tTestimonials = useTranslations("testimonials");
+  const whyUs = WHY_US(tWhyUs);
+  const processSteps = PROCESS_STEPS(tProcess);
+  const testimonials = TESTIMONIALS(tTestimonials);
 
   useEffect(() => { fetchProperties(1); }, [fetchProperties]);
   useEffect(() => {
@@ -245,19 +260,19 @@ export default function HomePage() {
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium px-5 py-2 rounded-full mb-8 shadow-xl">
               <motion.span animate={{ rotate: [0, 20, -20, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>✨</motion.span>
-              Connecting Dwellings, Linking Hearts
+              {t("hero.badge")}
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             </motion.div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.05] mb-6 tracking-tight">
-              Find Your Perfect
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.05] mb-6 tracking-tight">
+              {t("hero.title")}
               <br />
-              <span className="gradient-text">Room in UP</span>
+              <span className="gradient-text">{t("hero.titleHighlight")}</span>
             </h1>
 
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-              className="text-lg sm:text-xl text-white/75 max-w-2xl mx-auto mb-10 leading-relaxed">
-              Browse verified PGs, rooms &amp; flats across Prayagraj, Lucknow, Kanpur and 120+ cities in Uttar Pradesh.
+              className="text-base sm:text-lg md:text-xl text-white/75 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed px-4">
+              {t("hero.subtitle")}
             </motion.p>
           </motion.div>
 
@@ -272,7 +287,7 @@ export default function HomePage() {
               <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.97 }}
                 className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all shadow-lg">
                 <span className="w-5 h-5 rounded-full bg-green-400 flex items-center justify-center text-xs font-black text-white">+</span>
-                Add Property — Free
+                {t("hero.addProperty")}
                 <ArrowRight className="w-4 h-4" />
               </motion.div>
             </Link>
@@ -281,7 +296,7 @@ export default function HomePage() {
           {/* Stats */}
           <motion.div variants={stagger} initial="hidden" animate="show"
             className="flex flex-wrap justify-center gap-6 sm:gap-12 mt-12">
-            {STATS.map((s) => (
+            {stats.map((s) => (
               <motion.div key={s.label} variants={fadeUp} whileHover={{ scale: 1.12, y: -4 }}
                 className="text-center group cursor-default">
                 <div className="text-3xl mb-1">{s.icon}</div>
@@ -319,7 +334,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 relative z-10">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
             className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {STATS.map((s) => (
+            {stats.map((s) => (
               <motion.div key={s.label} variants={fadeUp} className="group">
                 <div className="text-4xl sm:text-5xl font-black text-white mb-1">
                   <CountUp display={s.display} />
@@ -334,12 +349,12 @@ export default function HomePage() {
       {/* ══ CATEGORIES — 3-D tilt ═════════════════════════════════════════ */}
       <section className="py-20 px-4 max-w-7xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-semibold mb-3">Browse by Type</span>
-          <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">What are you looking for?</h2>
+          <span className="inline-block px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-semibold mb-3">{t("home.browseByType")}</span>
+          <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">{t("home.lookingFor")}</h2>
         </motion.div>
         <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
           className="flex flex-wrap justify-center gap-4 sm:gap-6">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <motion.div key={cat.type} variants={fadeUp} className="w-36 sm:w-44">
               <TiltCard className="h-full">
                 <motion.button whileTap={{ scale: 0.93 }} onClick={() => handleCategory(cat.type)}
@@ -364,12 +379,12 @@ export default function HomePage() {
         <Orb size={400} x="-5%" y="60%"  color="bg-blue-500/10"   delay={2} />
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500 text-sm font-semibold mb-3">Simple Process</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">Find a Room in 4 Steps</h2>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500 text-sm font-semibold mb-3">{tHome("simpleProcess")}</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">{t("home.findRoom4Steps")}</h2>
           </motion.div>
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PROCESS_STEPS.map((step, i) => (
+            {processSteps.map((step, i) => (
               <motion.div key={i} variants={fadeUp}>
                 <TiltCard>
                   <motion.div whileHover={{ y: -8 }}
@@ -403,8 +418,8 @@ export default function HomePage() {
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500 text-sm font-semibold mb-3">Top Cities</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">Explore Across UP</h2>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-500 text-sm font-semibold mb-3">{tHome("topCities")}</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">{t("home.exploreAcrossUP")}</h2>
           </motion.div>
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
             className="grid grid-cols-2 lg:grid-cols-4 gap-5">
@@ -445,9 +460,9 @@ export default function HomePage() {
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>
-            <span className="inline-block px-4 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-500 text-sm font-semibold mb-3">Featured</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">Handpicked Properties</h2>
-            <p className="text-zinc-500 dark:text-zinc-400 mt-1">Verified stays across Uttar Pradesh</p>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-500 text-sm font-semibold mb-3">{t("home.featured")}</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">{t("home.handpicked")}</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-1">{t("home.verifiedStays")}</p>
           </div>
           <Link href="/properties">
             <Button variant="outline" size="sm" className="group">
@@ -461,8 +476,8 @@ export default function HomePage() {
           ) : properties.length === 0 ? (
             <motion.div key="empty" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-24">
               <div className="text-7xl mb-4">🏠</div>
-              <p className="text-zinc-400 text-lg mb-6">No properties yet. Be the first to list one!</p>
-              <Link href="/auth/register"><Button size="lg">Get Started <ArrowRight className="w-4 h-4" /></Button></Link>
+              <p className="text-zinc-400 text-lg mb-6">{tHome("noProperties")}</p>
+              <Link href="/auth/register"><Button size="lg">{tHome("getStarted")} <ArrowRight className="w-4 h-4" /></Button></Link>
             </motion.div>
           ) : (
             <motion.div key="grid" variants={stagger} initial="hidden" animate="show"
@@ -484,13 +499,13 @@ export default function HomePage() {
         <Orb size={400} x="-5%" y="50%"  color="bg-indigo-500/10" delay={2} />
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-semibold mb-3">Why Nestora</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">Built for Tenants &amp; Owners</h2>
-            <p className="text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl mx-auto">Everything you need to find or list a room — safely, quickly, and fairly.</p>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/30 text-rose-500 text-sm font-semibold mb-3">{tHome("whyNestora")}</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">{tHome("builtFor")}</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl mx-auto">{tHome("builtForSub")}</p>
           </motion.div>
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {WHY_US.map((item, i) => (
+            {whyUs.map((item, i) => (
               <motion.div key={i} variants={fadeUp}>
                 <TiltCard>
                   <motion.div whileHover={{ y: -8 }}
@@ -525,8 +540,8 @@ export default function HomePage() {
           style={{ backgroundImage: "radial-gradient(circle at 1px 1px,rgba(255,255,255,0.04) 1px,transparent 0)", backgroundSize: "36px 36px" }} />
         <div className="max-w-5xl mx-auto px-4 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/80 text-sm font-semibold mb-3">Testimonials</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white">What People Say</h2>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/80 text-sm font-semibold mb-3">{tHome("testimonials")}</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-white">{tHome("whatPeopleSay")}</h2>
           </motion.div>
 
           <div className="relative">
@@ -540,20 +555,20 @@ export default function HomePage() {
                 className="bg-white/8 backdrop-blur-md border border-white/12 rounded-3xl p-8 sm:p-10">
                 <Quote className="w-10 h-10 text-rose-400 mb-6 opacity-80" />
                 <p className="text-white/85 text-lg sm:text-xl leading-relaxed mb-8 font-medium">
-                  &ldquo;{TESTIMONIALS[testimonialIdx].text}&rdquo;
+                  &ldquo;{testimonials[testimonialIdx].text}&rdquo;
                 </p>
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${TESTIMONIALS[testimonialIdx].color} flex items-center justify-center text-white font-black text-lg shadow-lg`}>
-                      {TESTIMONIALS[testimonialIdx].avatar}
+                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${testimonials[testimonialIdx].color} flex items-center justify-center text-white font-black text-lg shadow-lg`}>
+                      {testimonials[testimonialIdx].avatar}
                     </div>
                     <div>
-                      <p className="text-white font-bold">{TESTIMONIALS[testimonialIdx].name}</p>
-                      <p className="text-white/50 text-sm">{TESTIMONIALS[testimonialIdx].role}</p>
+                      <p className="text-white font-bold">{testimonials[testimonialIdx].name}</p>
+                      <p className="text-white/50 text-sm">{testimonials[testimonialIdx].role}</p>
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    {Array.from({ length: TESTIMONIALS[testimonialIdx].rating }).map((_, i) => (
+                    {Array.from({ length: testimonials[testimonialIdx].rating }).map((_, i) => (
                       <motion.div key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.08 }}>
                         <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
                       </motion.div>
@@ -566,18 +581,18 @@ export default function HomePage() {
             {/* Nav */}
             <div className="flex items-center justify-center gap-4 mt-8">
               <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                onClick={() => setTestimonialIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+                onClick={() => setTestimonialIdx(i => (i - 1 + testimonials.length) % testimonials.length)}
                 className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </motion.button>
               <div className="flex gap-2">
-                {TESTIMONIALS.map((_, i) => (
+                {testimonials.map((_, i) => (
                   <button key={i} onClick={() => setTestimonialIdx(i)}
                     className={`rounded-full transition-all duration-300 ${i === testimonialIdx ? "w-6 h-2 bg-rose-400" : "w-2 h-2 bg-white/30 hover:bg-white/60"}`} />
                 ))}
               </div>
               <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                onClick={() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length)}
+                onClick={() => setTestimonialIdx(i => (i + 1) % testimonials.length)}
                 className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors">
                 <ChevronRight className="w-5 h-5" />
               </motion.button>
@@ -622,24 +637,24 @@ export default function HomePage() {
               </div>
             </motion.div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-5 leading-tight">
-              List Your Property<br />
-              <span className="gradient-text">Earn Every Month</span>
+              {tHome("listProperty")}<br />
+              <span className="gradient-text">{tHome("earnEveryMonth")}</span>
             </h2>
             <p className="text-white/65 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-              Join thousands of owners across UP earning steady income. Free to list, easy to manage.
+              {tHome("listPropertySub")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth/register">
                 <motion.div whileHover={{ scale: 1.06, y: -2 }} whileTap={{ scale: 0.97 }}>
                   <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-rose-500 to-amber-400 text-white border-0 shadow-2xl shadow-rose-500/30 hover:shadow-rose-500/50 transition-shadow">
-                    Start Hosting <ArrowRight className="w-5 h-5" />
+                    {tHome("startHosting")} <ArrowRight className="w-5 h-5" />
                   </Button>
                 </motion.div>
               </Link>
               <Link href="/properties">
                 <motion.div whileHover={{ scale: 1.06, y: -2 }} whileTap={{ scale: 0.97 }}>
                   <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
-                    Browse Properties
+                    {tHome("browseProperties")}
                   </Button>
                 </motion.div>
               </Link>

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const GLITCH_CHARS = "!@#$%^&*01";
 
@@ -32,6 +33,7 @@ function GlitchText({ text }: { text: string }) {
 }
 
 export default function NotFound() {
+  const t = useTranslations("notFound");
   const [clicked, setClicked] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -119,47 +121,37 @@ export default function NotFound() {
         className="relative z-10 text-center px-4 -mt-8 md:-mt-16"
       >
         <h1 className="text-2xl md:text-4xl font-bold text-white mb-3">
-          Oops, this page got lost
+          {t("title")}
         </h1>
         <p className="text-zinc-400 text-sm md:text-base max-w-md mx-auto mb-8">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          {t("subtitle")}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
             <Link href="/" className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-colors">
-              Go Home
+              {t("goHome")}
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-            <button
-              onClick={() => window.history.back()}
-              className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-colors"
-            >
-              Go Back
+            <button onClick={() => window.history.back()}
+              className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-colors">
+              {t("goBack")}
             </button>
           </motion.div>
         </div>
       </motion.div>
 
       {/* Easter egg */}
-      <motion.button
-        className="absolute bottom-8 text-zinc-600 text-xs hover:text-zinc-400 transition-colors z-10"
-        onClick={() => setClicked(true)}
-        whileTap={{ scale: 0.9 }}
-      >
-        click me
+      <motion.button className="absolute bottom-8 text-zinc-600 text-xs hover:text-zinc-400 transition-colors z-10"
+        onClick={() => setClicked(true)} whileTap={{ scale: 0.9 }}>
+        {t("clickMe")}
       </motion.button>
       <AnimatePresence>
         {clicked && (
-          <motion.div
-            key="egg"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
+          <motion.div key="egg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             onAnimationComplete={() => setTimeout(() => setClicked(false), 2000)}
-            className="absolute bottom-16 text-rose-400 text-sm font-medium z-10"
-          >
-            still 404 though ¯\_(ツ)_/¯
+            className="absolute bottom-16 text-rose-400 text-sm font-medium z-10">
+            {t("easterEgg")}
           </motion.div>
         )}
       </AnimatePresence>

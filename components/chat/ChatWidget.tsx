@@ -6,8 +6,10 @@ import { useChatStore, Conversation } from "@/store/chatStore";
 import { useAuthStore } from "@/store/authStore";
 import ChatWindow from "./ChatWindow";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 function ConversationItem({ convo, onClick }: { convo: Conversation; onClick: () => void }) {
+  const t = useTranslations("chat");
   const initial = convo.otherUser?.username?.[0]?.toUpperCase() ?? "?";
   return (
     <motion.button
@@ -36,7 +38,7 @@ function ConversationItem({ convo, onClick }: { convo: Conversation; onClick: ()
         </div>
         <div className="flex items-center justify-between gap-1 mt-0.5">
           <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-            {convo.lastMessage?.content || "Start a conversation"}
+            {convo.lastMessage?.content || t("start_conversation")}
           </p>
           {(convo.unreadCount ?? 0) > 0 && (
             <span className="ml-1 flex-shrink-0 min-w-[18px] h-[18px] bg-rose-500 rounded-full text-[10px] text-white flex items-center justify-center px-1 font-bold">
@@ -50,6 +52,7 @@ function ConversationItem({ convo, onClick }: { convo: Conversation; onClick: ()
 }
 
 export default function ChatWidget() {
+  const t = useTranslations("chat");
   const { user } = useAuthStore();
   const { isOpen, toggleChat, conversations, fetchConversations, activeConversationId, setActiveConversation, unreadTotal } = useChatStore();
   const [view, setView] = useState<"list" | "chat">("list");
@@ -91,13 +94,13 @@ export default function ChatWidget() {
                 {/* Header */}
                 <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex items-center justify-between flex-shrink-0">
                   <div>
-                    <h3 className="font-semibold text-sm">Messages</h3>
-                    <p className="text-[10px] text-rose-100">{conversations.length} conversation{conversations.length !== 1 ? "s" : ""}</p>
+                    <h3 className="font-semibold text-sm">{t("messages")}</h3>
+                    <p className="text-[10px] text-rose-100">{conversations.length} {t("conversation", { count: conversations.length })}</p>
                   </div>
                   <button
                     onClick={toggleChat}
                     className="p-2 rounded-full hover:bg-white/20 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
-                    aria-label="Close chat"
+                    aria-label={t("close_chat")}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -107,8 +110,8 @@ export default function ChatWidget() {
                   {conversations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-zinc-400 gap-3 py-8 px-4">
                       <MessageCircle className="w-10 h-10 opacity-20" />
-                      <p className="text-sm text-center">No conversations yet</p>
-                      <p className="text-xs text-center text-zinc-400">Visit a property and message the owner to start</p>
+                      <p className="text-sm text-center">{t("no_conversations")}</p>
+                      <p className="text-xs text-center text-zinc-400">{t("no_conversations_hint")}</p>
                     </div>
                   ) : (
                     conversations.map((c) => (
@@ -126,7 +129,7 @@ export default function ChatWidget() {
                 <button
                   onClick={() => { setView("list"); setActiveConversation(null); }}
                   className="absolute top-3 left-3 z-10 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
-                  aria-label="Back to conversations"
+                  aria-label={t("back_to_conversations")}
                 >
                   <ChevronLeft className="w-4 h-4 text-white" />
                 </button>
@@ -152,7 +155,7 @@ export default function ChatWidget() {
         whileTap={{ scale: 0.94 }}
         onClick={toggleChat}
         className="relative w-14 h-14 bg-gradient-to-br from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 rounded-full shadow-lg shadow-rose-500/30 flex items-center justify-center transition-colors"
-        aria-label={isOpen ? "Close messages" : "Open messages"}
+        aria-label={isOpen ? t("close_messages") : t("open_messages")}
       >
         <AnimatePresence mode="wait">
           {isOpen ? (

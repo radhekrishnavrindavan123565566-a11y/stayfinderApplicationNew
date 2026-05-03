@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, Maximize2, RotateCcw, Move } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   images: string[];
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function Tour360Viewer({ images, title }: Props) {
+  const t = useTranslations("tour360");
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -72,8 +74,8 @@ export default function Tour360Viewer({ images, title }: Props) {
         className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-shadow"
       >
         <Maximize2 className="w-4 h-4" />
-        360° Virtual Tour
-        <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full">{images.length} rooms</span>
+        {t("button")}
+        <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full">{t("rooms", { count: images.length })}</span>
       </motion.button>
 
       <AnimatePresence>
@@ -87,8 +89,8 @@ export default function Tour360Viewer({ images, title }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-black/80 backdrop-blur-sm flex-shrink-0">
               <div>
-                <p className="text-white font-semibold text-sm">{title} — 360° Tour</p>
-                <p className="text-white/50 text-xs">Room {current + 1} of {images.length} · Drag or use gyroscope</p>
+                <p className="text-white font-semibold text-sm">{t("header", { title })}</p>
+                <p className="text-white/50 text-xs">{t("roomOf", { current: current + 1, total: images.length })}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={reset} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors">
@@ -146,7 +148,7 @@ export default function Tour360Viewer({ images, title }: Props) {
               >
                 <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-5 py-3 flex items-center gap-2 text-white text-sm">
                   <Move className="w-5 h-5" />
-                  Drag to look around
+                  {t("dragHint")}
                 </div>
               </motion.div>
 

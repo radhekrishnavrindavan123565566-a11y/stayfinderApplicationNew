@@ -2,8 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { Plus, Trash2, Users, DollarSign, Calendar } from "lucide-react";
+import { Plus, Trash2, Users } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "next-intl";
 
 interface Split {
   name: string;
@@ -23,6 +24,7 @@ export default function RentSplitManager({
   totalRent,
   onSave,
 }: RentSplitManagerProps) {
+  const t = useTranslations("rentSplit");
   const [splits, setSplits] = useState<Split[]>([
     { name: "", email: "", percentage: 100, amount: totalRent },
   ]);
@@ -63,11 +65,9 @@ export default function RentSplitManager({
   const updateSplit = (index: number, field: keyof Split, value: string | number) => {
     const newSplits = [...splits];
     newSplits[index] = { ...newSplits[index], [field]: value };
-
     if (field === "percentage") {
       newSplits[index].amount = (totalRent * Number(value)) / 100;
     }
-
     setSplits(newSplits);
   };
 
@@ -76,17 +76,13 @@ export default function RentSplitManager({
 
   const handleSave = async () => {
     if (!isValid) return;
-
     try {
       const res = await fetch("/api/rent-split", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookingId, splits, month, dueDate }),
       });
-
-      if (res.ok) {
-        onSave(splits);
-      }
+      if (res.ok) onSave(splits);
     } catch (error) {
       console.error("Failed to save rent split:", error);
     }
@@ -104,10 +100,10 @@ export default function RentSplitManager({
         </div>
         <div>
           <h3 className="font-bold text-xl text-zinc-900 dark:text-white">
-            Split Rent with Roommates
+            {t("title")}
           </h3>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Total: ₹{totalRent.toLocaleString()}
+            {t("total")}: ₹{totalRent.toLocaleString()}
           </p>
         </div>
       </div>
@@ -116,7 +112,7 @@ export default function RentSplitManager({
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-            Month
+            {t("month")}
           </label>
           <input
             type="month"
@@ -127,7 +123,7 @@ export default function RentSplitManager({
         </div>
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-            Due Date
+            {t("dueDate")}
           </label>
           <input
             type="date"
@@ -151,7 +147,7 @@ export default function RentSplitManager({
             >
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-zinc-900 dark:text-white">
-                  Roommate {index + 1}
+                  {t("roommate")} {index + 1}
                 </span>
                 {splits.length > 1 && (
                   <motion.button
@@ -168,14 +164,14 @@ export default function RentSplitManager({
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
-                  placeholder="Name"
+                  placeholder={t("namePlaceholder")}
                   value={split.name}
                   onChange={(e) => updateSplit(index, "name", e.target.value)}
                   className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-sm"
                 />
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder={t("emailPlaceholder")}
                   value={split.email}
                   onChange={(e) => updateSplit(index, "email", e.target.value)}
                   className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-sm"
@@ -190,18 +186,16 @@ export default function RentSplitManager({
                     max="100"
                     step="0.1"
                     value={split.percentage}
-                    onChange={(e) =>
-                      updateSplit(index, "percentage", parseFloat(e.target.value))
-                    }
+                    onChange={(e) => updateSplit(index, "percentage", parseFloat(e.target.value))}
                     className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-sm"
                   />
-                  <p className="text-xs text-zinc-500 mt-1">Percentage</p>
+                  <p className="text-xs text-zinc-500 mt-1">{t("percentage")}</p>
                 </div>
                 <div className="flex-1">
                   <div className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-white font-semibold text-sm">
                     ₹{split.amount.toLocaleString()}
                   </div>
-                  <p className="text-xs text-zinc-500 mt-1">Amount</p>
+                  <p className="text-xs text-zinc-500 mt-1">{t("amount")}</p>
                 </div>
               </div>
             </motion.div>
@@ -217,14 +211,14 @@ export default function RentSplitManager({
         className="w-full py-3 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center gap-2 mb-6"
       >
         <Plus className="w-5 h-5" />
-        Add Roommate
+        {t("addRoommate")}
       </motion.button>
 
       {/* Summary */}
       <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-4 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-zinc-700 dark:text-zinc-300">
-            Total Percentage
+            {t("totalPercentage")}
           </span>
           <span
             className={cn(
@@ -239,7 +233,7 @@ export default function RentSplitManager({
         </div>
         {Math.abs(totalPercentage - 100) >= 0.01 && (
           <p className="text-xs text-red-600 dark:text-red-400">
-            Percentages must add up to 100%
+            {t("percentageError")}
           </p>
         )}
       </div>
@@ -257,7 +251,7 @@ export default function RentSplitManager({
             : "bg-zinc-300 dark:bg-zinc-700 cursor-not-allowed"
         )}
       >
-        Save Rent Split
+        {t("save")}
       </motion.button>
     </motion.div>
   );

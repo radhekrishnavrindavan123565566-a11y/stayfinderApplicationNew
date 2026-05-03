@@ -15,6 +15,7 @@ import Badge from "@/components/ui/Badge";
 import ProfileCompleteness from "@/components/ui/ProfileCompleteness";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 const statusVariant: Record<string, "success" | "warning" | "danger" | "info" | "default"> = {
   approved: "success", pending: "warning", rejected: "danger", cancelled: "danger", completed: "info",
@@ -27,6 +28,9 @@ const fadeUp: Variants = {
 };
 
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
+  const tNav = useTranslations("nav");
+  const tCommon = useTranslations("common");
   const { ready, user } = useRequireAuth();
   const { authHeaders } = useApi();
   const router = useRouter();
@@ -70,25 +74,25 @@ export default function DashboardPage() {
   );
 
   const stats = [
-    { icon: <Calendar className="w-5 h-5" />, label: "Total Bookings", value: bookings.length, color: "bg-gradient-to-br from-blue-500 to-blue-600 text-white", border: "border-blue-100 dark:border-blue-900/30", shadow: "shadow-blue-500/20" },
-    { icon: <Home className="w-5 h-5" />, label: user.role === "owner" ? "My Properties" : "Wishlist", value: user.role === "owner" ? properties.length : user.wishlist?.length || 0, color: "bg-gradient-to-br from-rose-500 to-rose-600 text-white", border: "border-rose-100 dark:border-rose-900/30", shadow: "shadow-rose-500/20" },
-    { icon: <Star className="w-5 h-5" />, label: "Approved", value: bookings.filter((b) => b.status === "approved").length, color: "bg-gradient-to-br from-green-500 to-emerald-600 text-white", border: "border-green-100 dark:border-green-900/30", shadow: "shadow-green-500/20" },
-    { icon: <TrendingUp className="w-5 h-5" />, label: "Pending", value: bookings.filter((b) => b.status === "pending").length, color: "bg-gradient-to-br from-amber-500 to-orange-500 text-white", border: "border-amber-100 dark:border-amber-900/30", shadow: "shadow-amber-500/20" },
+    { icon: <Calendar className="w-5 h-5" />, label: t("totalBookings"), value: bookings.length, color: "bg-gradient-to-br from-blue-500 to-blue-600 text-white", border: "border-blue-100 dark:border-blue-900/30", shadow: "shadow-blue-500/20" },
+    { icon: <Home className="w-5 h-5" />, label: user.role === "owner" ? t("myProperties") : t("wishlist"), value: user.role === "owner" ? properties.length : user.wishlist?.length || 0, color: "bg-gradient-to-br from-rose-500 to-rose-600 text-white", border: "border-rose-100 dark:border-rose-900/30", shadow: "shadow-rose-500/20" },
+    { icon: <Star className="w-5 h-5" />, label: t("approved"), value: bookings.filter((b) => b.status === "approved").length, color: "bg-gradient-to-br from-green-500 to-emerald-600 text-white", border: "border-green-100 dark:border-green-900/30", shadow: "shadow-green-500/20" },
+    { icon: <TrendingUp className="w-5 h-5" />, label: t("pending"), value: bookings.filter((b) => b.status === "pending").length, color: "bg-gradient-to-br from-amber-500 to-orange-500 text-white", border: "border-amber-100 dark:border-amber-900/30", shadow: "shadow-amber-500/20" },
   ];
 
   const quickActions = [
     ...(user.role === "owner" ? [
-      { href: "/dashboard/properties/new", icon: <PlusCircle className="w-6 h-6 mb-3" />, title: "Add New Property", sub: "List your property today", gradient: true, color: "bg-rose-500 text-white shadow-lg shadow-rose-500/25" },
-      { href: "/dashboard/properties", icon: <Home className="w-6 h-6 mb-3 text-rose-500" />, title: "My Properties", sub: "Manage your listings", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+      { href: "/dashboard/properties/new", icon: <PlusCircle className="w-6 h-6 mb-3" />, title: t("addNewProperty"), sub: t("listPropertyToday"), gradient: true, color: "bg-rose-500 text-white shadow-lg shadow-rose-500/25" },
+      { href: "/dashboard/properties", icon: <Home className="w-6 h-6 mb-3 text-rose-500" />, title: t("myProperties"), sub: t("manageProperties"), gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     ] : []),
-    { href: "/dashboard/bookings", icon: <Calendar className="w-6 h-6 mb-3 text-blue-500" />, title: "Manage Bookings", sub: "View all your bookings", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
-    { href: "/dashboard/maintenance", icon: <Wrench className="w-6 h-6 mb-3 text-amber-500" />, title: "Maintenance", sub: "Report & track issues", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
-    { href: "/wishlist", icon: <Heart className="w-6 h-6 mb-3 text-rose-400" />, title: "Wishlist", sub: "Your saved properties", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
-    { href: "/chat", icon: <MessageCircle className="w-6 h-6 mb-3 text-blue-500" />, title: "Messages", sub: "Chat with owners & tenants", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
-    { href: "/compare", icon: <GitCompare className="w-6 h-6 mb-3 text-purple-500" />, title: "Compare", sub: "Compare properties side-by-side", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    { href: "/dashboard/bookings", icon: <Calendar className="w-6 h-6 mb-3 text-blue-500" />, title: tNav("bookings"), sub: t("viewAllBookings"), gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    { href: "/dashboard/maintenance", icon: <Wrench className="w-6 h-6 mb-3 text-amber-500" />, title: tNav("maintenance"), sub: t("reportTrackIssues"), gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    { href: "/wishlist", icon: <Heart className="w-6 h-6 mb-3 text-rose-400" />, title: tNav("wishlist"), sub: t("savedProperties"), gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    { href: "/chat", icon: <MessageCircle className="w-6 h-6 mb-3 text-blue-500" />, title: tNav("messages"), sub: t("chatWithUsers"), gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    { href: "/compare", icon: <GitCompare className="w-6 h-6 mb-3 text-purple-500" />, title: tNav("compareProperties"), sub: t("compareProperties"), gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     ...(user.role === "owner" ? [
-      { href: "/dashboard/analytics", icon: <BarChart2 className="w-6 h-6 mb-3" />, title: "Analytics", sub: "Earnings & occupancy stats", gradient: true, color: "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-lg shadow-purple-500/25" },
-      { href: "/dashboard/income", icon: <TrendingUp className="w-6 h-6 mb-3" />, title: "Rental Income", sub: "Earnings, auto-pricing & broadcast", gradient: true, color: "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/25" },
+      { href: "/dashboard/analytics", icon: <BarChart2 className="w-6 h-6 mb-3" />, title: tNav("analytics"), sub: t("earningsStats"), gradient: true, color: "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-lg shadow-purple-500/25" },
+      { href: "/dashboard/income", icon: <TrendingUp className="w-6 h-6 mb-3" />, title: tNav("rentalIncome"), sub: t("rentalIncome"), gradient: true, color: "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/25" },
     ] : []),
   ];
 
@@ -103,9 +107,9 @@ export default function DashboardPage() {
           className="mb-8 pt-6"
         >
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">
-            Welcome back, <span className="text-rose-500">{user.username}</span> 👋
+            {t("welcome")}, <span className="text-rose-500">{user.username}</span> 👋
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1 capitalize">{user.role} Dashboard</p>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 capitalize">{user.role} {tNav("dashboard")}</p>
         </motion.div>
 
         {/* Profile Completeness */}
@@ -172,9 +176,9 @@ export default function DashboardPage() {
           className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 overflow-hidden"
         >
           <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-            <h2 className="font-semibold text-zinc-900 dark:text-white">Recent Bookings</h2>
+            <h2 className="font-semibold text-zinc-900 dark:text-white">{t("recentBookings")}</h2>
             <Link href="/dashboard/bookings">
-              <Button variant="ghost" size="sm">View All <ArrowRight className="w-4 h-4" /></Button>
+              <Button variant="ghost" size="sm">{tCommon("viewAll")} <ArrowRight className="w-4 h-4" /></Button>
             </Link>
           </div>
 
@@ -192,7 +196,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1 }}
               className="p-8 text-center text-zinc-400 dark:text-zinc-500"
             >
-              No bookings yet
+              {t("noBookings")}
             </motion.div>
           ) : (
             <div className="divide-y divide-zinc-50 dark:divide-zinc-800">

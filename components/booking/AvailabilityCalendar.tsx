@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, isBefore, addMonths, subMonths, isWithinInterval } from "date-fns";
 import axios from "axios";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "next-intl";
 
 interface Props {
   propertyId: string;
@@ -16,6 +17,7 @@ interface BookedRange { startDate: string; endDate: string; status: string }
 type DemandLevel = "low" | "medium" | "high";
 
 export default function AvailabilityCalendar({ propertyId, onRangeSelect, isOwner }: Props) {
+  const t = useTranslations("calendar");
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [bookedRanges, setBookedRanges] = useState<BookedRange[]>([]);
@@ -68,7 +70,15 @@ export default function AvailabilityCalendar({ propertyId, onRangeSelect, isOwne
     }
   };
 
-  const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  const DAYS = [
+    t("days.su"),
+    t("days.mo"),
+    t("days.tu"),
+    t("days.we"),
+    t("days.th"),
+    t("days.fr"),
+    t("days.sa")
+  ];
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
@@ -143,13 +153,13 @@ export default function AvailabilityCalendar({ propertyId, onRangeSelect, isOwne
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-gray-500">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-100 inline-block" /> Booked</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-100 inline-block" /> Blocked</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-600 inline-block" /> Selected</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-100 inline-block" /> {t("legend.booked")}</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-100 inline-block" /> {t("legend.blocked")}</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-600 inline-block" /> {t("legend.selected")}</span>
         {Object.keys(demandHeatmap).length > 0 && (
           <>
-            <span className="flex items-center gap-1">🔴 High demand</span>
-            <span className="flex items-center gap-1">🟡 Medium demand</span>
+            <span className="flex items-center gap-1">🔴 {t("legend.high_demand")}</span>
+            <span className="flex items-center gap-1">🟡 {t("legend.medium_demand")}</span>
           </>
         )}
       </div>

@@ -5,6 +5,7 @@ import { CheckCircle, AlertTriangle, Plus, X, Home } from "lucide-react";
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface Props {
   bookingId: string;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function MoveInConfirmation({ bookingId, onConfirmed }: Props) {
+  const t = useTranslations("moveIn");
   const { authHeaders } = useApi();
   const [issues, setIssues] = useState<string[]>([]);
   const [issueInput, setIssueInput] = useState("");
@@ -32,11 +34,11 @@ export default function MoveInConfirmation({ bookingId, onConfirmed }: Props) {
         confirmed,
         issues,
       }, authHeaders());
-      toast.success(confirmed ? "Move-in confirmed!" : "Issues reported");
+      toast.success(confirmed ? t("confirmed") : t("issuesReported"));
       setDone(true);
       onConfirmed?.();
     } catch {
-      toast.error("Failed to confirm move-in");
+      toast.error(t("failed"));
     } finally {
       setSubmitting(false);
     }
@@ -49,7 +51,7 @@ export default function MoveInConfirmation({ bookingId, onConfirmed }: Props) {
       className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800"
     >
       <CheckCircle className="w-5 h-5 text-green-500" />
-      <p className="text-sm font-medium text-green-700 dark:text-green-400">Move-in confirmation submitted</p>
+      <p className="text-sm font-medium text-green-700 dark:text-green-400">{t("submitted")}</p>
     </motion.div>
   );
 
@@ -61,25 +63,22 @@ export default function MoveInConfirmation({ bookingId, onConfirmed }: Props) {
     >
       <div className="flex items-center gap-2 mb-4">
         <Home className="w-5 h-5 text-rose-500" />
-        <h3 className="font-semibold text-zinc-900 dark:text-white">Move-in Confirmation</h3>
+        <h3 className="font-semibold text-zinc-900 dark:text-white">{t("title")}</h3>
       </div>
 
-      <p className="text-sm text-zinc-500 mb-4">
-        Please confirm your move-in. If everything is as described, the payment will be released to the owner.
-        If there are issues, report them here.
-      </p>
+      <p className="text-sm text-zinc-500 mb-4">{t("description")}</p>
 
       {/* Issues */}
       <div className="mb-4">
         <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">
-          Report any issues (optional)
+          {t("reportIssues")}
         </label>
         <div className="flex gap-2 mb-2">
           <input
             value={issueInput}
             onChange={(e) => setIssueInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addIssue()}
-            placeholder="e.g. Broken AC, dirty bathroom..."
+            placeholder={t("placeholder")}
             className="flex-1 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-600 text-sm bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400"
           />
           <button
@@ -116,7 +115,7 @@ export default function MoveInConfirmation({ bookingId, onConfirmed }: Props) {
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors disabled:opacity-50"
         >
           <CheckCircle className="w-4 h-4" />
-          {issues.length > 0 ? "Confirm with Issues" : "All Good — Confirm"}
+          {issues.length > 0 ? t("confirmWithIssues") : t("allGood")}
         </motion.button>
         {issues.length > 0 && (
           <motion.button
@@ -126,7 +125,7 @@ export default function MoveInConfirmation({ bookingId, onConfirmed }: Props) {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50"
           >
             <AlertTriangle className="w-4 h-4" />
-            Report Issues Only
+            {t("reportOnly")}
           </motion.button>
         )}
       </div>

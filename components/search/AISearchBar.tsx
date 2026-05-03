@@ -5,8 +5,10 @@ import { Sparkles, Search, Loader2, X } from "lucide-react";
 import axios from "axios";
 import { usePropertyStore } from "@/store/propertyStore";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 export default function AISearchBar() {
+  const t = useTranslations("search");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [parsedFilters, setParsedFilters] = useState<Record<string, unknown> | null>(null);
@@ -31,7 +33,7 @@ export default function AISearchBar() {
       });
       fetchProperties(1);
     } catch {
-      toast.error("AI search failed, try again");
+      toast.error(t("aiSearchFailed"));
     } finally {
       setLoading(false);
     }
@@ -54,7 +56,7 @@ export default function AISearchBar() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && search()}
-            placeholder="Describe your ideal home... e.g. 2BHK apartment in Mumbai under ₹15000/month with WiFi"
+            placeholder={t("aiSearchPlaceholder")}
             className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none"
           />
           {query && (
@@ -69,7 +71,7 @@ export default function AISearchBar() {
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            {loading ? "Searching..." : "Search"}
+            {loading ? t("aiSearching") : t("button")}
           </motion.button>
         </div>
 

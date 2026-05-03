@@ -7,8 +7,10 @@ import { useAuthStore } from "@/store/authStore";
 import { usePreferencesStore } from "@/store/preferencesStore";
 import PropertyCard from "@/components/property/PropertyCard";
 import { Property } from "@/store/propertyStore";
+import { useTranslations } from "next-intl";
 
 export default function RecentlyViewed() {
+  const t = useTranslations("recentlyViewed");
   const { user, accessToken } = useAuthStore();
   const { preferences, fetchPreferences } = usePreferencesStore();
   const [properties, setProperties] = useState<Property[]>([]);
@@ -55,8 +57,8 @@ export default function RecentlyViewed() {
           <Clock className="w-5 h-5 text-rose-500" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900">Recently Viewed</h2>
-          <p className="text-sm text-zinc-500">Pick up where you left off</p>
+          <h2 className="text-2xl font-bold text-zinc-900">{t("title")}</h2>
+          <p className="text-sm text-zinc-500">{t("subtitle")}</p>
         </div>
       </motion.div>
 

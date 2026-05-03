@@ -12,6 +12,7 @@ import ChatActionBar from "./ChatActionBar";
 import OfferCard from "./OfferCard";
 import VisitCard from "./VisitCard";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 interface Props {
   conversationId: string;
@@ -29,8 +30,9 @@ function MessageTick({ status }: { status: ChatMessage["status"] }) {
 }
 
 function DateDivider({ date }: { date: string }) {
+  const t = useTranslations("chat");
   const d = new Date(date);
-  const label = isToday(d) ? "Today" : isYesterday(d) ? "Yesterday" : format(d, "MMM d, yyyy");
+  const label = isToday(d) ? t("today") : isYesterday(d) ? t("yesterday") : format(d, "MMM d, yyyy");
   return (
     <div className="flex items-center gap-2 my-3">
       <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
@@ -155,6 +157,7 @@ function MessageBubble({ msg, isMine, conversationId, myUserId }: {
 
 
 export default function ChatWindow({ conversationId, otherUser, propertyId, propertyTitle, propertyAddress, onClose }: Props) {
+  const t = useTranslations("chat");
   const { messages, fetchMessages, fetchActions, actions, sendMessage, markSeen, typingUsers, isSending } = useChatStore();
   const { user, accessToken } = useAuthStore();
   const [input, setInput] = useState("");
@@ -274,8 +277,8 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
           <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{otherUser.username}</p>
           <AnimatePresence mode="wait">
             {isTyping
-              ? <motion.p key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs text-blue-500 font-medium">typing...</motion.p>
-              : <motion.p key="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={cn("text-xs", isOnline ? "text-green-500" : "text-gray-400")}>{isOnline ? "Online" : "Offline"}</motion.p>
+              ? <motion.p key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-xs text-blue-500 font-medium">{t("typing")}</motion.p>
+              : <motion.p key="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={cn("text-xs", isOnline ? "text-green-500" : "text-gray-400")}>{isOnline ? t("online") : t("offline")}</motion.p>
             }
           </AnimatePresence>
         </div>
@@ -367,7 +370,7 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
             propertyId={propertyId} propertyTitle={propertyTitle} propertyAddress={propertyAddress}
             onActionCreated={() => fetchActions(conversationId)} />
           {convActions.length > 0 && (
-            <span className="text-xs text-zinc-400">{convActions.length} pending action{convActions.length > 1 ? "s" : ""}</span>
+            <span className="text-xs text-zinc-400">{convActions.length} {t("pending_action", { count: convActions.length })}</span>
           )}
         </div>
         <div className="flex items-end gap-2 bg-gray-100 dark:bg-gray-700 rounded-2xl px-3 py-2">
@@ -380,7 +383,7 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
           </button>
           <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
           <textarea value={input} onChange={handleInputChange} onKeyDown={handleKeyDown}
-            placeholder={imagePreview ? "Add a caption..." : "Type a message..."} rows={1}
+            placeholder={imagePreview ? t("add_caption") : t("type_message")} rows={1}
             className="flex-1 bg-transparent resize-none outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 max-h-24 py-0.5" />
           <motion.button whileTap={{ scale: 0.9 }} onClick={handleSend}
             disabled={(!input.trim() && !imagePreview) || isSending || isUploading}

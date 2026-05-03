@@ -3,21 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, CheckCircle, Twitter, Instagram, Facebook, Sparkles, Zap, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
-
-const CONTACT_CARDS = [
-  { icon: Mail, title: "Email Us", value: "hello@nestora.com", sub: "Reply within 24h", color: "from-rose-500 to-pink-600", bg: "bg-rose-50 dark:bg-rose-950/30", href: "mailto:hello@nestora.com" },
-  { icon: Phone, title: "Call Us", value: "+91 98765 43210", sub: "Mon-Sat 9am-6pm IST", color: "from-blue-500 to-cyan-600", bg: "bg-blue-50 dark:bg-blue-950/30", href: "tel:+919876543210" },
-  { icon: MapPin, title: "Visit Us", value: "Prayagraj, UP", sub: "Uttar Pradesh, India", color: "from-green-500 to-emerald-600", bg: "bg-green-50 dark:bg-green-950/30", href: "#" },
-  { icon: Clock, title: "Support", value: "24/7 Live Chat", sub: "Always here for you", color: "from-purple-500 to-violet-600", bg: "bg-purple-50 dark:bg-purple-950/30", href: "#" },
-];
-
-const FAQS = [
-  { q: "How do I list my property?", a: "Sign up as an owner, go to your dashboard, and click 'Add New Property'. It takes less than 5 minutes." },
-  { q: "Is Nestora free to use?", a: "Browsing and booking is free for tenants. Owners pay a small platform fee only when a booking is confirmed." },
-  { q: "How do I get a refund?", a: "Refunds depend on the property's cancellation policy. Contact us within 48 hours of your booking for assistance." },
-  { q: "How are properties verified?", a: "Our team manually reviews every listing for accuracy, quality photos, and owner identity before it goes live." },
-  { q: "Can I cancel a booking?", a: "Yes. Cancellation options depend on the policy set by the owner - flexible, moderate, or strict." },
-];
+import { useTranslations } from "next-intl";
 
 function MagneticButton({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -82,6 +68,7 @@ function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
 }
 
 export default function ContactPage() {
+  const t = useTranslations("contact");
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -89,6 +76,15 @@ export default function ContactPage() {
   const [focused, setFocused] = useState<string | null>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+
+  const CONTACT_CARDS = [
+    { icon: Mail,    title: t("emailUs"),  value: "hello@nestora.com",  sub: t("emailSub"),   color: "from-rose-500 to-pink-600",    bg: "bg-rose-50 dark:bg-rose-950/30",    href: "mailto:hello@nestora.com" },
+    { icon: Phone,   title: t("callUs"),   value: "+91 98765 43210",    sub: t("callSub"),    color: "from-blue-500 to-cyan-600",    bg: "bg-blue-50 dark:bg-blue-950/30",    href: "tel:+919876543210" },
+    { icon: MapPin,  title: t("visitUs"),  value: "Prayagraj, UP",      sub: t("visitSub"),   color: "from-green-500 to-emerald-600", bg: "bg-green-50 dark:bg-green-950/30",  href: "#" },
+    { icon: Clock,   title: t("support"),  value: "24/7 Live Chat",     sub: t("supportSub"), color: "from-purple-500 to-violet-600", bg: "bg-purple-50 dark:bg-purple-950/30", href: "#" },
+  ];
+
+  const FAQS = (t.raw("faqs") as { q: string; a: string }[]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     mouseX.set(e.clientX);
@@ -123,14 +119,14 @@ export default function ContactPage() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
           <div className="inline-flex items-center gap-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-rose-100 dark:border-rose-900">
             <Sparkles className="w-4 h-4" />
-            We&apos;re here to help
+            {t("badge")}
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-zinc-900 dark:text-white mb-6 leading-tight">
             Get in{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600">Touch</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600">{t("titleHighlight")}</span>
           </h1>
           <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto">
-            Have a question, feedback, or just want to say hi? We&apos;d love to hear from you.
+            {t("subtitle")}
           </p>
         </motion.div>
       </section>
@@ -139,9 +135,9 @@ export default function ContactPage() {
       <section className="py-10 px-4 z-10 relative">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 text-center">
           {[
-            { label: "Happy Users", value: 48000, suffix: "+" },
-            { label: "Avg Response", value: 2, suffix: "h" },
-            { label: "Properties", value: 12000, suffix: "+" },
+            { label: t("happyUsers"), value: 48000, suffix: "+" },
+            { label: t("avgResponse"), value: 2, suffix: "h" },
+            { label: t("properties"), value: 12000, suffix: "+" },
           ].map((s) => (
             <div key={s.label}>
               <div className="text-3xl font-black text-rose-500">
@@ -179,92 +175,57 @@ export default function ContactPage() {
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Form */}
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">Send a Message</h2>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-8 text-sm">
-              Fill out the form and we&apos;ll get back to you within 24 hours.
-            </p>
+            <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">{t("sendMessage")}</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-8 text-sm">{t("sendSubtitle")}</p>
             <AnimatePresence mode="wait">
               {sent ? (
                 <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-16 text-center">
                   <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
                     <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Message Sent!</h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">We&apos;ll be in touch soon.</p>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">{t("messageSent")}</h3>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">{t("messageSentSub")}</p>
                   <button onClick={() => setSent(false)} className="text-rose-500 text-sm font-medium hover:underline">
-                    Send another
+                    {t("sendAnother")}
                   </button>
                 </motion.div>
               ) : (
                 <motion.form key="form" onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">Name</label>
-                      <input
-                        className={inputCls("name")}
-                        placeholder="Your name"
-                        value={form.name}
-                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                        onFocus={() => setFocused("name")}
-                        onBlur={() => setFocused(null)}
-                        required
-                      />
+                      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">{t("nameLabel")}</label>
+                      <input className={inputCls("name")} placeholder={t("namePlaceholder")}
+                        value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                        onFocus={() => setFocused("name")} onBlur={() => setFocused(null)} required />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">Email</label>
-                      <input
-                        type="email"
-                        className={inputCls("email")}
-                        placeholder="you@email.com"
-                        value={form.email}
-                        onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                        onFocus={() => setFocused("email")}
-                        onBlur={() => setFocused(null)}
-                        required
-                      />
+                      <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">{t("emailLabel")}</label>
+                      <input type="email" className={inputCls("email")} placeholder={t("emailPlaceholder")}
+                        value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                        onFocus={() => setFocused("email")} onBlur={() => setFocused(null)} required />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">Subject</label>
-                    <input
-                      className={inputCls("subject")}
-                      placeholder="What's this about?"
-                      value={form.subject}
-                      onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
-                      onFocus={() => setFocused("subject")}
-                      onBlur={() => setFocused(null)}
-                      required
-                    />
+                    <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">{t("subjectLabel")}</label>
+                    <input className={inputCls("subject")} placeholder={t("subjectPlaceholder")}
+                      value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                      onFocus={() => setFocused("subject")} onBlur={() => setFocused(null)} required />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">Message</label>
-                    <textarea
-                      rows={5}
-                      className={inputCls("message") + " resize-none"}
-                      placeholder="Tell us everything..."
-                      value={form.message}
-                      onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                      onFocus={() => setFocused("message")}
-                      onBlur={() => setFocused(null)}
-                      required
-                    />
+                    <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1 block">{t("messageLabel")}</label>
+                    <textarea rows={5} className={inputCls("message") + " resize-none"} placeholder={t("messagePlaceholder")}
+                      value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                      onFocus={() => setFocused("message")} onBlur={() => setFocused(null)} required />
                   </div>
                   <MagneticButton className="w-full">
-                    <Button
-                      type="submit"
-                      disabled={sending}
-                      className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-                    >
+                    <Button type="submit" disabled={sending}
+                      className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                       {sending ? (
                         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}>
                           <Zap className="w-4 h-4" />
                         </motion.div>
                       ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          Send Message
-                          <ArrowRight className="w-4 h-4" />
-                        </>
+                        <><Send className="w-4 h-4" />{t("sendBtn")}<ArrowRight className="w-4 h-4" /></>
                       )}
                     </Button>
                   </MagneticButton>
@@ -275,8 +236,8 @@ export default function ContactPage() {
 
           {/* FAQ */}
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">FAQs</h2>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-8 text-sm">Quick answers to common questions.</p>
+            <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">{t("faqTitle")}</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-8 text-sm">{t("faqSubtitle")}</p>
             <div className="space-y-3">
               {FAQS.map((faq, i) => (
                 <div key={i} className="border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">

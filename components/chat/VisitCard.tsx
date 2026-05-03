@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface VisitCardProps {
   action: {
@@ -19,15 +20,16 @@ interface VisitCardProps {
 }
 
 export default function VisitCard({ action, isMine, onRespond }: VisitCardProps) {
+  const t = useTranslations("visitCard");
   const { authHeaders } = useApi();
 
   const respond = async (response: "accepted" | "rejected") => {
     try {
       await axios.post(`/api/chat/actions/${action._id}/respond`, { response }, authHeaders());
-      toast.success(response === "accepted" ? "Visit scheduled!" : "Visit declined");
+      toast.success(response === "accepted" ? t("visitScheduled") : t("visitDeclined"));
       onRespond?.();
     } catch {
-      toast.error("Failed to respond");
+      toast.error(t("respondFailed"));
     }
   };
 
@@ -49,7 +51,7 @@ export default function VisitCard({ action, isMine, onRespond }: VisitCardProps)
           <Calendar className="w-4 h-4 text-blue-600" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-zinc-900 dark:text-white">Visit Request</p>
+          <p className="text-sm font-semibold text-zinc-900 dark:text-white">{t("visitRequest")}</p>
           <p className="text-xs text-zinc-500">{action.initiatorId.username}</p>
         </div>
       </div>
@@ -75,24 +77,18 @@ export default function VisitCard({ action, isMine, onRespond }: VisitCardProps)
 
       <div className="flex items-center gap-1 text-xs text-zinc-400 mb-3">
         <Clock className="w-3 h-3" />
-        Expires {format(new Date(action.expiresAt), "MMM d, HH:mm")}
+        {t("expires", { date: format(new Date(action.expiresAt), "MMM d, HH:mm") })}
       </div>
 
       {action.status === "pending" && !isMine && (
         <div className="flex gap-2">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => respond("accepted")}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-blue-500 text-white text-xs font-semibold hover:bg-blue-600 transition-colors"
-          >
-            <Check className="w-3.5 h-3.5" /> Confirm
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => respond("accepted")}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-blue-500 text-white text-xs font-semibold hover:bg-blue-600 transition-colors">
+            <Check className="w-3.5 h-3.5" /> {t("confirm")}
           </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => respond("rejected")}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" /> Decline
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => respond("rejected")}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors">
+            <X className="w-3.5 h-3.5" /> {t("decline")}
           </motion.button>
         </div>
       )}

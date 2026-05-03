@@ -5,6 +5,7 @@ import {
   FileText, Shield, CreditCard, Users, AlertTriangle,
   Lock, RefreshCw, Mail, ChevronDown, BookOpen, Scale,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -127,6 +128,7 @@ Jurisdiction: Prayagraj, Uttar Pradesh, India`,
 ];
 
 export default function TermsPage() {
+  const t = useTranslations("terms");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [openSection, setOpenSection] = useState<string | null>(null);
 
@@ -163,7 +165,7 @@ export default function TermsPage() {
             <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}>
               <BookOpen className="w-4 h-4" />
             </motion.span>
-            Legal Agreement
+            {t("badge")}
           </motion.div>
 
           <motion.h1
@@ -173,7 +175,7 @@ export default function TermsPage() {
             className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-5 leading-tight"
           >
             Terms &amp;{" "}
-            <span className="text-rose-400">Conditions</span>
+            <span className="text-rose-400">{t("titleHighlight")}</span>
           </motion.h1>
 
           <motion.p
@@ -182,7 +184,7 @@ export default function TermsPage() {
             transition={{ delay: 0.25, duration: 0.6 }}
             className="text-white/70 text-lg max-w-xl mx-auto"
           >
-            Please read these terms carefully before using Nestora. They govern your use of our platform and services.
+            {t("subtitle")}
           </motion.p>
 
           <motion.div
@@ -192,7 +194,7 @@ export default function TermsPage() {
             className="mt-6 inline-flex items-center gap-2 text-white/50 text-sm"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            Last updated: April 18, 2026
+            {t("lastUpdated")}
           </motion.div>
         </div>
       </section>
@@ -241,10 +243,11 @@ export default function TermsPage() {
             <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />
           </motion.div>
           <div>
-            <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">Important Notice</p>
+            <p className="font-semibold text-amber-800 dark:text-amber-300 text-sm">{t("importantNotice")}</p>
             <p className="text-amber-700 dark:text-amber-400 text-sm mt-0.5 leading-relaxed">
-              By using Nestora, you agree to these terms. If you have questions, contact us at{" "}
-              <a href="mailto:grievance@Nestora.com" className="underline font-medium">grievance@Nestora.com</a> before proceeding.
+              {t("importantNoticeText").split("grievance@Nestora.com")[0]}
+              <a href="mailto:grievance@Nestora.com" className="underline font-medium">grievance@Nestora.com</a>
+              {t("importantNoticeText").split("grievance@Nestora.com")[1]}
             </p>
           </div>
         </motion.div>
@@ -322,7 +325,7 @@ export default function TermsPage() {
             onClick={() => setOpenSection(openSection ? null : SECTIONS[0].id)}
             className="text-sm text-zinc-400 dark:text-zinc-500 hover:text-rose-500 transition-colors"
           >
-            {openSection ? "Collapse section" : "Click any section to expand"}
+            {openSection ? t("collapseSection") : t("expandHint")}
           </button>
         </motion.div>
       </section>
@@ -337,16 +340,15 @@ export default function TermsPage() {
           className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900 rounded-2xl p-6"
         >
           <p className="font-bold text-rose-700 dark:text-rose-300 text-base mb-3">
-            "I Agree" Summary
+            {t("iAgreeSummary")}
           </p>
           <p className="text-rose-600 dark:text-rose-400 text-sm mb-4 leading-relaxed">
-            By clicking "I Agree," I understand that:
+            {t("iAgreeIntro")}
           </p>
           <ol className="space-y-2 text-sm text-rose-700 dark:text-rose-300 list-decimal list-inside leading-relaxed">
-            <li>Nestora is a <span className="font-semibold">Mediator</span>, not a Landlord.</li>
-            <li>I must <span className="font-semibold">verify</span> the property and person before paying any money.</li>
-            <li>I will comply with <span className="font-semibold">UP Tenancy Laws</span> including written agreements.</li>
-            <li>My data will be used securely to help find me a match.</li>
+            {(t.raw("iAgreePoints") as string[]).map((point, i) => (
+              <li key={i}>{point}</li>
+            ))}
           </ol>
         </motion.div>
       </section>
@@ -368,17 +370,17 @@ export default function TermsPage() {
             <Scale className="w-10 h-10 text-rose-500 mx-auto" />
           </motion.div>
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">
-            Questions about our terms?
+            {t("questionsTitle")}
           </h2>
           <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-            Our team is happy to clarify anything. Reach out and we&apos;ll respond within 24–72 hours.
+            {t("questionsSubtitle")}
           </p>
           <a
             href="mailto:grievance@Nestora.com"
             className="inline-flex items-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-rose-500/25"
           >
             <Mail className="w-4 h-4" />
-            Contact Grievance Officer
+            {t("contactGrievance")}
           </a>
         </motion.div>
       </section>

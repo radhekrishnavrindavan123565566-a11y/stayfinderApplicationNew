@@ -1,23 +1,9 @@
 "use client";
-
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import {
-  SlidersHorizontal,
-  X,
-  MapPin,
-  DollarSign,
-  Home,
-  Users,
-  Wifi,
-  Car,
-  Utensils,
-  Shield,
-  Zap,
-  GraduationCap,
-  Briefcase,
-} from "lucide-react";
+import { SlidersHorizontal, X, MapPin, DollarSign, Home, Users, Wifi, Car, Utensils, Shield, Zap, GraduationCap, Briefcase } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "next-intl";
 
 interface FilterState {
   priceRange: [number, number];
@@ -36,10 +22,8 @@ interface AdvancedFiltersProps {
   initialFilters?: Partial<FilterState>;
 }
 
-export default function AdvancedFilters({
-  onApply,
-  initialFilters = {},
-}: AdvancedFiltersProps) {
+export default function AdvancedFilters({ onApply, initialFilters = {} }: AdvancedFiltersProps) {
+  const t = useTranslations("advancedFilters");
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     priceRange: initialFilters.priceRange || [0, 50000],
@@ -54,25 +38,37 @@ export default function AdvancedFilters({
   });
 
   const propertyTypes = [
-    { id: "apartment", label: "Apartment", icon: Home },
-    { id: "house", label: "House", icon: Home },
-    { id: "villa", label: "Villa", icon: Home },
-    { id: "studio", label: "Studio", icon: Home },
+    { id: "apartment", label: t("types.apartment"), icon: Home },
+    { id: "house",     label: t("types.house"),     icon: Home },
+    { id: "villa",     label: t("types.villa"),      icon: Home },
+    { id: "studio",    label: t("types.studio"),     icon: Home },
   ];
 
   const amenities = [
-    { id: "wifi", label: "WiFi", icon: Wifi },
-    { id: "parking", label: "Parking", icon: Car },
-    { id: "kitchen", label: "Kitchen", icon: Utensils },
-    { id: "ac", label: "AC", icon: Zap },
-    { id: "laundry", label: "Laundry", icon: Home },
-    { id: "gym", label: "Gym", icon: Users },
+    { id: "wifi",    label: t("amenitiesList.wifi"),    icon: Wifi },
+    { id: "parking", label: t("amenitiesList.parking"), icon: Car },
+    { id: "kitchen", label: t("amenitiesList.kitchen"), icon: Utensils },
+    { id: "ac",      label: t("amenitiesList.ac"),      icon: Zap },
+    { id: "laundry", label: t("amenitiesList.laundry"), icon: Home },
+    { id: "gym",     label: t("amenitiesList.gym"),     icon: Users },
   ];
 
   const securityFeatures = [
-    { id: "cctv", label: "CCTV", icon: Shield },
-    { id: "security_guard", label: "Security Guard", icon: Shield },
-    { id: "gated", label: "Gated Community", icon: Shield },
+    { id: "cctv",           label: t("securityList.cctv"),           icon: Shield },
+    { id: "security_guard", label: t("securityList.security_guard"), icon: Shield },
+    { id: "gated",          label: t("securityList.gated"),          icon: Shield },
+  ];
+
+  const foodOptions = [
+    { id: "veg",     label: t("foodOptions.veg") },
+    { id: "non-veg", label: t("foodOptions.non-veg") },
+    { id: "both",    label: t("foodOptions.both") },
+  ];
+
+  const genderOptions = [
+    { id: "male",   label: t("genderOptions.male") },
+    { id: "female", label: t("genderOptions.female") },
+    { id: "any",    label: t("genderOptions.any") },
   ];
 
   const toggleArrayFilter = (key: keyof FilterState, value: string) => {
@@ -133,7 +129,7 @@ export default function AdvancedFilters({
         className="relative flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl hover:border-blue-500 transition-colors"
       >
         <SlidersHorizontal className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
-        <span className="font-medium text-zinc-900 dark:text-white">Filters</span>
+        <span className="font-medium text-zinc-900 dark:text-white">{t("filters")}</span>
         {activeFiltersCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
@@ -169,7 +165,7 @@ export default function AdvancedFilters({
               {/* Header */}
               <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                  Advanced Filters
+                  {t("title")}
                 </h2>
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: 90 }}
@@ -191,7 +187,7 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <DollarSign className="w-5 h-5" />
-                    Price Range
+                    {t("priceRange")}
                   </label>
                   <div className="space-y-3">
                     <input
@@ -227,7 +223,7 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <Home className="w-5 h-5" />
-                    Property Type
+                    {t("propertyType")}
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     {propertyTypes.map((type) => {
@@ -262,7 +258,7 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <Users className="w-5 h-5" />
-                    Bedrooms
+                    {t("bedrooms")}
                   </label>
                   <div className="flex gap-3">
                     {[1, 2, 3, 4, 5].map((num) => {
@@ -295,20 +291,18 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <GraduationCap className="w-5 h-5" />
-                    Near College/Office
+                    {t("nearCollege")}
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter college or office name"
+                    placeholder={t("collegePlaceholder")}
                     value={filters.collegeName || ""}
-                    onChange={(e) =>
-                      setFilters((prev) => ({ ...prev, collegeName: e.target.value }))
-                    }
+                    onChange={(e) => setFilters((prev) => ({ ...prev, collegeName: e.target.value }))}
                     className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white mb-3"
                   />
                   <div>
                     <label className="text-xs text-zinc-600 dark:text-zinc-400 mb-2 block">
-                      Maximum Distance: {filters.distanceFromCollege || 5} km
+                      {t("maxDistance", { km: filters.distanceFromCollege || 5 })}
                     </label>
                     <input
                       type="range"
@@ -334,7 +328,7 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <Zap className="w-5 h-5" />
-                    Amenities
+                    {t("amenities")}
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     {amenities.map((amenity) => {
@@ -369,7 +363,7 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <Shield className="w-5 h-5" />
-                    Security Features
+                    {t("securityFeatures")}
                   </label>
                   <div className="space-y-2">
                     {securityFeatures.map((feature) => {
@@ -404,27 +398,18 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <Utensils className="w-5 h-5" />
-                    Food Preference
+                    {t("foodPreference")}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    {["veg", "non-veg", "both"].map((pref) => {
-                      const isSelected = filters.foodPreference === pref;
+                    {foodOptions.map((pref) => {
+                      const isSelected = filters.foodPreference === pref.id;
                       return (
-                        <motion.button
-                          key={pref}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() =>
-                            setFilters((prev) => ({ ...prev, foodPreference: pref }))
-                          }
-                          className={cn(
-                            "p-3 rounded-xl border-2 font-medium capitalize transition-all",
-                            isSelected
-                              ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400"
-                              : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
-                          )}
-                        >
-                          {pref}
+                        <motion.button key={pref.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                          onClick={() => setFilters((prev) => ({ ...prev, foodPreference: pref.id }))}
+                          className={cn("p-3 rounded-xl border-2 font-medium transition-all",
+                            isSelected ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400"
+                              : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300")}>
+                          {pref.label}
                         </motion.button>
                       );
                     })}
@@ -439,25 +424,18 @@ export default function AdvancedFilters({
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white mb-3">
                     <Users className="w-5 h-5" />
-                    Gender Preference
+                    {t("genderPreference")}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    {["male", "female", "any"].map((gender) => {
-                      const isSelected = filters.gender === gender;
+                    {genderOptions.map((g) => {
+                      const isSelected = filters.gender === g.id;
                       return (
-                        <motion.button
-                          key={gender}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setFilters((prev) => ({ ...prev, gender }))}
-                          className={cn(
-                            "p-3 rounded-xl border-2 font-medium capitalize transition-all",
-                            isSelected
-                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
-                              : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
-                          )}
-                        >
-                          {gender}
+                        <motion.button key={g.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                          onClick={() => setFilters((prev) => ({ ...prev, gender: g.id }))}
+                          className={cn("p-3 rounded-xl border-2 font-medium transition-all",
+                            isSelected ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
+                              : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300")}>
+                          {g.label}
                         </motion.button>
                       );
                     })}
@@ -467,21 +445,13 @@ export default function AdvancedFilters({
 
               {/* Footer */}
               <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleReset}
-                  className="flex-1 py-3 rounded-xl border-2 border-zinc-300 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  Reset
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleReset}
+                  className="flex-1 py-3 rounded-xl border-2 border-zinc-300 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                  {t("reset")}
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleApply}
-                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 font-semibold text-white hover:shadow-lg transition-shadow"
-                >
-                  Apply Filters
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleApply}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 font-semibold text-white hover:shadow-lg transition-shadow">
+                  {t("applyFilters")}
                 </motion.button>
               </div>
             </motion.div>

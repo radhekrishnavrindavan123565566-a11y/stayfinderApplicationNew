@@ -5,6 +5,7 @@ import { Wrench, Sparkles, Truck, Sofa, Check, ChevronDown, ChevronUp } from "lu
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface Service {
   _id: string;
@@ -35,6 +36,7 @@ const typeColor: Record<string, string> = {
 };
 
 export default function EcosystemServices({ bookingId, city }: Props) {
+  const t = useTranslations("ecosystem");
   const { authHeaders } = useApi();
   const [services, setServices] = useState<Service[]>([]);
   const [expanded, setExpanded] = useState(false);
@@ -49,15 +51,15 @@ export default function EcosystemServices({ bookingId, city }: Props) {
   }, [city]);
 
   const book = async (serviceId: string) => {
-    if (!scheduledDate) { toast.error("Select a date"); return; }
+    if (!scheduledDate) { toast.error(t("selectDate")); return; }
     setBooking(true);
     try {
       await axios.post("/api/ecosystem/bookings", { bookingId, serviceId, scheduledDate }, authHeaders());
-      toast.success("Service booked!");
+      toast.success(t("serviceBooked"));
       setBooked((prev) => [...prev, serviceId]);
       setSelected(null);
     } catch {
-      toast.error("Failed to book service");
+      toast.error(t("bookFailed"));
     } finally {
       setBooking(false);
     }
@@ -73,8 +75,8 @@ export default function EcosystemServices({ bookingId, city }: Props) {
       >
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-rose-500" />
-          <span className="font-semibold text-zinc-900 dark:text-white">Add-on Services</span>
-          <span className="text-xs bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">{services.length} available</span>
+          <span className="font-semibold text-zinc-900 dark:text-white">{t("title")}</span>
+          <span className="text-xs bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">{t("available", { count: services.length })}</span>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
       </button>
@@ -126,7 +128,7 @@ export default function EcosystemServices({ bookingId, city }: Props) {
                         className="overflow-hidden mt-3"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <label className="text-xs text-zinc-500 mb-1 block">Preferred Date</label>
+                        <label className="text-xs text-zinc-500 mb-1 block">{t("preferredDate")}</label>
                         <input
                           type="date"
                           value={scheduledDate}
@@ -140,7 +142,7 @@ export default function EcosystemServices({ bookingId, city }: Props) {
                           disabled={booking}
                           className="w-full py-2 rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50"
                         >
-                          {booking ? "Booking..." : "Book Service"}
+                          {booking ? t("booking") : t("bookService")}
                         </motion.button>
                       </motion.div>
                     )}

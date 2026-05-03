@@ -9,8 +9,10 @@ import AIChatbot from "@/components/ai/AIChatbot";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SocketProvider from "@/components/providers/SocketProvider";
 import PWAProvider from "@/components/providers/PWAProvider";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getLocale } from "next-intl/server";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
   title: "Nestora – Find Your Place. Feel At Home.",
@@ -27,9 +29,12 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang={locale} className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
@@ -41,13 +46,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <ChatWidget />
-        <AIChatbot />
-        <SocketProvider />
-        <PWAProvider />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ErrorBoundary>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ChatWidget />
+            <AIChatbot />
+            <SocketProvider />
+            <PWAProvider />
+          </ErrorBoundary>
+        </NextIntlClientProvider>
         <Toaster
           position="top-right"
           toastOptions={{

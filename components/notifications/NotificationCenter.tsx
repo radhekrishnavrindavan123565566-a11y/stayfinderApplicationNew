@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useTranslations } from "next-intl";
 
 interface Notification {
   _id: string;
@@ -26,6 +27,7 @@ interface Notification {
 }
 
 export default function NotificationCenter() {
+  const t = useTranslations("notifications");
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -161,11 +163,11 @@ export default function NotificationCenter() {
               <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
-                    Notifications
+                    {t("title")}
                   </h2>
                   {unreadCount > 0 && (
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {unreadCount} unread
+                      {t("unread_count", { count: unreadCount })}
                     </p>
                   )}
                 </div>
@@ -177,7 +179,7 @@ export default function NotificationCenter() {
                       onClick={markAllAsRead}
                       className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      Mark all read
+                      {t("mark_all_read")}
                     </motion.button>
                   )}
                   <motion.button
@@ -213,10 +215,10 @@ export default function NotificationCenter() {
                       <Bell className="w-12 h-12 text-zinc-400" />
                     </motion.div>
                     <p className="text-zinc-600 dark:text-zinc-400 font-medium">
-                      No notifications yet
+                      {t("no_notifications")}
                     </p>
                     <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">
-                      We'll notify you when something happens
+                      {t("no_notifications_hint")}
                     </p>
                   </div>
                 ) : (

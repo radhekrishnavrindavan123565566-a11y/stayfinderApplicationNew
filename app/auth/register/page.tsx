@@ -14,6 +14,7 @@ import {
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 type RegStep = "form" | "email-otp";
 
@@ -32,11 +33,12 @@ function FieldError({ message }: { message?: string }) {
 }
 
 function PasswordStrength({ password }: { password: string }) {
+  const t = useTranslations("auth.passwordStrength");
   if (!password) return null;
   const checks = [
-    { label: "6+ chars", ok: password.length >= 6 },
-    { label: "Uppercase", ok: /[A-Z]/.test(password) },
-    { label: "Number", ok: /\d/.test(password) },
+    { label: t("chars"), ok: password.length >= 6 },
+    { label: t("uppercase"), ok: /[A-Z]/.test(password) },
+    { label: t("number"), ok: /\d/.test(password) },
   ];
   const score = checks.filter((c) => c.ok).length;
   return (
@@ -65,6 +67,8 @@ const STATS = [
 ];
 
 export default function RegisterPage() {
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const [showPass, setShowPass]       = useState(false);
   const [serverError, setServerError] = useState("");
   const [regStep, setRegStep]         = useState<RegStep>("form");
