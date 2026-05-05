@@ -67,10 +67,10 @@ export const usePropertyStore = create<PropertyState>((set, get) => ({
       const { filters } = get();
       const params = new URLSearchParams({ page: String(page) });
       Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
-      // Exclude properties already booked by this tenant
-      const currentUser = useAuthStore.getState().user;
-      if (currentUser?.role === "tenant") {
-        params.set("excludeBooked", currentUser._id);
+      // Only send excludeBooked once auth is fully hydrated — prevents stale ID filtering
+      const authState = useAuthStore.getState();
+      if (authState._hasHydrated && authState.user?.role === "tenant") {
+        params.set("excludeBooked", authState.user._id);
       }
       const { data } = await axios.get(`/api/properties?${params}`);
       set({ properties: data.data.properties, total: data.data.total, page: data.data.page, pages: data.data.pages });

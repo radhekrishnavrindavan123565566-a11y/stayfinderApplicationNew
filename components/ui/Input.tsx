@@ -18,9 +18,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           suppressHydrationWarning
           className={cn(
-            "w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400",
+            "w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
             "focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200",
-            "disabled:bg-zinc-50 disabled:cursor-not-allowed",
+            "disabled:bg-zinc-50 dark:disabled:bg-zinc-900 disabled:cursor-not-allowed",
             icon && "pl-10",
             error && "border-red-400 focus:ring-red-400",
             className

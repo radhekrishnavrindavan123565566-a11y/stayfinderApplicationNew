@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Smile, X, Check, CheckCheck, ImageIcon, Loader2 } from "lucide-react";
+import {
+  Send, Smile, X, Check, CheckCheck, ImageIcon, Loader2,
+  FileText, Video, Download, Paperclip,
+} from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { useInView } from "react-intersection-observer";
 import { useChatStore, ChatMessage } from "@/store/chatStore";
@@ -23,9 +26,9 @@ interface Props {
 }
 
 function MessageTick({ status }: { status: ChatMessage["status"] }) {
-  if (status === "seen") return <CheckCheck className="w-3.5 h-3.5 text-blue-300" />;
-  if (status === "delivered") return <CheckCheck className="w-3.5 h-3.5 text-blue-200/60" />;
-  return <Check className="w-3.5 h-3.5 text-blue-200/40" />;
+  if (status === "seen")      return <CheckCheck className="w-3.5 h-3.5 text-blue-300 flex-shrink-0" />;
+  if (status === "delivered") return <CheckCheck className="w-3.5 h-3.5 text-blue-200/60 flex-shrink-0" />;
+  return <Check className="w-3.5 h-3.5 text-blue-200/40 flex-shrink-0" />;
 }
 
 function DateDivider({ date }: { date: string }) {
@@ -65,7 +68,88 @@ function ReactionPicker({ messageId, conversationId, existingEmoji, onClose }: {
   );
 }
 
+async function downloadFile(url: string, filename: string) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch { window.open(url, "_blank"); }
+}
 
+function getFilename(url: string) { return url.split("/").pop() || "file"; }
+
+/* ── Media bubble content ── */
+function MediaContent({ msg, isMine }: { msg: ChatMessage; isMine: boolean }) {
+  if (!msg.mediaUrl) return null;
+  const filename = getFilename(msg.mediaUrl);
+
+  if (msg.type === "image") {
+    return (
+      <div className="relative group/img mb-1">
+        <img
+          src={msg.mediaUrl} alt="image"
+          className="rounded-xl max-w-full max-h-56 object-cover cursor-pointer hover:opacity-90 transition-opacity block"
+          onClick={() => window.open(msg.mediaUrl, "_blank")}
+        />
+        <button
+          onClick={() => downloadFile(msg.mediaUrl!, filename)}
+          className="absolute top-1.5 right-1.5 opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+          title="Download"
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
+
+  if (msg.type === "video") {
+    return (
+      <div className="relative group/vid mb-1">
+        <video
+          src={msg.mediaUrl} controls
+          className="rounded-xl max-w-full max-h-56 block"
+          preload="metadata"
+        />
+        <button
+          onClick={() => downloadFile(msg.mediaUrl!, filename)}
+          className="absolute top-1.5 right-1.5 opacity-0 group-hover/vid:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+          title="Download"
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
+
+  if (msg.type === "file") {
+    return (
+      <div className={cn(
+        "flex items-center gap-2 rounded-xl px-3 py-2 mb-1 border",
+        isMine
+          ? "bg-blue-500/30 border-blue-400/30"
+          : "bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+      )}>
+        <FileText className="w-5 h-5 flex-shrink-0 text-blue-400" />
+        <span className="text-xs truncate max-w-[140px]">{filename}</span>
+        <button
+          onClick={() => downloadFile(msg.mediaUrl!, filename)}
+          className="ml-auto flex-shrink-0 hover:text-blue-400 transition-colors"
+          title="Download"
+        >
+          <Download className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+/* ── Message bubble — stable key prevents re-mount on status change ── */
 function MessageBubble({ msg, isMine, conversationId, myUserId }: {
   msg: ChatMessage; isMine: boolean; conversationId: string; myUserId: string;
 }) {
@@ -88,12 +172,8 @@ function MessageBubble({ msg, isMine, conversationId, myUserId }: {
   }, {});
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: "spring", stiffness: 380, damping: 28 }}
-      className={cn("flex group mb-1.5", isMine ? "justify-end" : "justify-start")}
-    >
+    /* No initial/animate on the outer div — prevents flicker on status updates */
+    <div className={cn("flex group mb-1.5", isMine ? "justify-end" : "justify-start")}>
       <div className="relative max-w-[72%]">
         {/* Reaction trigger */}
         <div ref={pickerRef} className={cn("absolute -top-9 z-20 hidden group-hover:flex", isMine ? "right-0" : "left-0")}>
@@ -113,14 +193,11 @@ function MessageBubble({ msg, isMine, conversationId, myUserId }: {
 
         {/* Bubble */}
         <div className={cn("px-3 py-2 rounded-2xl text-sm shadow-sm",
-          isMine ? "bg-blue-600 text-white rounded-br-sm"
+          isMine
+            ? "bg-blue-600 text-white rounded-br-sm"
             : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-sm border border-gray-100 dark:border-gray-700"
         )}>
-          {msg.type === "image" && msg.mediaUrl && (
-            <img src={msg.mediaUrl} alt="media"
-              className="rounded-xl max-w-full mb-1 max-h-52 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-              onClick={() => window.open(msg.mediaUrl, "_blank")} />
-          )}
+          <MediaContent msg={msg} isMine={isMine} />
           {msg.content && <p className="leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>}
           <div className={cn("flex items-center gap-1 mt-0.5", isMine ? "justify-end" : "justify-start")}>
             <span className={cn("text-[10px]", isMine ? "text-blue-200" : "text-gray-400")}>
@@ -132,10 +209,9 @@ function MessageBubble({ msg, isMine, conversationId, myUserId }: {
 
         {/* Reaction bubbles */}
         {Object.keys(reactionGroups).length > 0 && (
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            className={cn("flex gap-0.5 mt-1 flex-wrap", isMine ? "justify-end" : "justify-start")}>
+          <div className={cn("flex gap-0.5 mt-1 flex-wrap", isMine ? "justify-end" : "justify-start")}>
             {Object.entries(reactionGroups).map(([emoji, count]) => (
-              <motion.button key={emoji} whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}
+              <button key={emoji}
                 onClick={() => useChatStore.getState().addReaction(msg._id, conversationId, emoji)}
                 className={cn("flex items-center gap-0.5 text-xs rounded-full px-1.5 py-0.5 shadow-sm border transition-colors",
                   myReaction === emoji
@@ -144,33 +220,106 @@ function MessageBubble({ msg, isMine, conversationId, myUserId }: {
                 )}>
                 <span>{emoji}</span>
                 {count > 1 && <span className="text-gray-500 dark:text-gray-400">{count}</span>}
-              </motion.button>
+              </button>
             ))}
-          </motion.div>
+          </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Attachment preview strip ── */
+type AttachFile = { file: File; url: string; kind: "image" | "video" | "file" };
+
+function AttachPreview({ attach, onRemove }: { attach: AttachFile; onRemove: () => void }) {
+  return (
+    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+      className="px-3 py-2 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="relative inline-block">
+        {attach.kind === "image" && (
+          <img src={attach.url} alt="preview" className="h-20 w-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700" />
+        )}
+        {attach.kind === "video" && (
+          <div className="h-20 w-20 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 flex flex-col items-center justify-center gap-1">
+            <Video className="w-6 h-6 text-gray-400" />
+            <span className="text-[10px] text-gray-400 truncate max-w-[72px] px-1">{attach.file.name}</span>
+          </div>
+        )}
+        {attach.kind === "file" && (
+          <div className="h-20 w-32 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-700 flex flex-col items-center justify-center gap-1 px-2">
+            <FileText className="w-6 h-6 text-blue-400" />
+            <span className="text-[10px] text-gray-500 truncate w-full text-center">{attach.file.name}</span>
+          </div>
+        )}
+        <button onClick={onRemove}
+          className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white shadow">
+          <X className="w-3 h-3" />
+        </button>
       </div>
     </motion.div>
   );
 }
 
-
+/* ── Main ChatWindow ── */
 export default function ChatWindow({ conversationId, otherUser, propertyId, propertyTitle, propertyAddress, onClose }: Props) {
-  const { messages, fetchMessages, fetchActions, actions, sendMessage, markSeen, typingUsers, isSending } = useChatStore();
+  const { messages, fetchMessages, fetchActions, actions, sendMessage, markSeen, typingUsers, isSending,
+    addIncomingMessage, updateMessageStatus, updateMessageReactions, setTyping } = useChatStore();
   const { user, accessToken } = useAuthStore();
   const [input, setInput] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [isOnline, setIsOnline] = useState(otherUser.isOnline ?? false);
   const [isUploading, setIsUploading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<{ file: File; url: string } | null>(null);
+  const [attach, setAttach] = useState<AttachFile | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sseRef = useRef<EventSource | null>(null);
   const { ref: topRef } = useInView();
 
   const msgs = messages[conversationId] || [];
   const convActions = actions[conversationId] || [];
   const isTyping = typingUsers[conversationId];
 
+  /* ── SSE: real-time incoming messages ── */
+  useEffect(() => {
+    if (!accessToken) return;
+
+    // Close any existing SSE connection
+    sseRef.current?.close();
+
+    const es = new EventSource(`/api/chat/sse?token=${encodeURIComponent(accessToken)}`);
+    sseRef.current = es;
+
+    es.addEventListener("message:new", (e) => {
+      const { message } = JSON.parse(e.data) as { message: ChatMessage };
+      if (message.conversationId !== conversationId) return;
+      // Deduplicate: skip if we already have this message (optimistic update)
+      const existing = useChatStore.getState().messages[conversationId] || [];
+      if (existing.some((m) => m._id === message._id)) return;
+      addIncomingMessage(message);
+    });
+
+    es.addEventListener("message:status", (e) => {
+      const { messageId, status, conversationId: cid } = JSON.parse(e.data);
+      updateMessageStatus(messageId, cid, status);
+    });
+
+    es.addEventListener("typing", (e) => {
+      const { conversationId: cid, isTyping: t } = JSON.parse(e.data);
+      setTyping(cid, t);
+    });
+
+    es.addEventListener("message:reaction", (e) => {
+      const { messageId, conversationId: cid, reactions } = JSON.parse(e.data);
+      updateMessageReactions(messageId, cid, reactions);
+    });
+
+    return () => { es.close(); sseRef.current = null; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
+
+  /* ── Initial load ── */
   useEffect(() => {
     fetchMessages(conversationId);
     fetchActions(conversationId);
@@ -178,9 +327,10 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
     if (accessToken) {
       axios.post("/api/chat/seen", { conversationId }, { headers: { Authorization: `Bearer ${accessToken}` } }).catch(() => {});
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
-  // Poll online status every 30s
+  /* ── Online presence poll ── */
   useEffect(() => {
     const check = async () => {
       try {
@@ -191,8 +341,10 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
     check();
     const t = setInterval(check, 30000);
     return () => clearInterval(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otherUser._id, accessToken]);
 
+  /* ── Scroll to bottom on new messages ── */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs.length]);
@@ -207,27 +359,28 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
-    if (!text && !imagePreview) return;
+    if (!text && !attach) return;
     setInput("");
     setShowEmoji(false);
     sendTyping(false);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
-    if (imagePreview) {
+    if (attach) {
       setIsUploading(true);
       try {
         const fd = new FormData();
-        fd.append("file", imagePreview.file);
+        fd.append("file", attach.file);
         const { data } = await axios.post("/api/chat/upload", fd, { headers: { Authorization: `Bearer ${accessToken}` } });
-        await sendMessage({ receiverId: otherUser._id, content: text || "", type: "image", mediaUrl: data.data.url });
+        const msgType: ChatMessage["type"] = attach.kind === "image" ? "image" : attach.kind === "video" ? "video" : "file";
+        await sendMessage({ receiverId: otherUser._id, content: text || "", type: msgType, mediaUrl: data.data.url });
       } finally {
         setIsUploading(false);
-        setImagePreview(null);
+        setAttach(null);
       }
     } else {
       await sendMessage({ receiverId: otherUser._id, content: text, type: "text" });
     }
-  }, [input, imagePreview, otherUser._id, sendMessage, accessToken, sendTyping]);
+  }, [input, attach, otherUser._id, sendMessage, accessToken, sendTyping]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
@@ -243,11 +396,14 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImagePreview({ file, url: URL.createObjectURL(file) });
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+    const kind: AttachFile["kind"] = isImage ? "image" : isVideo ? "video" : "file";
+    setAttach({ file, url: URL.createObjectURL(file), kind });
     e.target.value = "";
   };
 
-  // Group messages by date
+  /* ── Group messages by date ── */
   const grouped: { date: string; msgs: ChatMessage[] }[] = [];
   msgs.forEach((m) => {
     const d = format(new Date(m.createdAt), "yyyy-MM-dd");
@@ -266,9 +422,8 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
               ? <img src={otherUser.avatar} alt={otherUser.username} className="w-full h-full object-cover" />
               : otherUser.username[0]?.toUpperCase()}
           </div>
-          <motion.span animate={{ scale: isOnline ? 1 : 0.8, opacity: isOnline ? 1 : 0.5 }}
-            className={cn("absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-gray-800",
-              isOnline ? "bg-green-500" : "bg-gray-400")} />
+          <span className={cn("absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-gray-800",
+            isOnline ? "bg-green-500" : "bg-gray-400")} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{otherUser.username}</p>
@@ -293,9 +448,13 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
           <div key={group.date}>
             <DateDivider date={group.msgs[0].createdAt} />
             {group.msgs.map((m) => (
-              <MessageBubble key={m._id} msg={m}
+              <MessageBubble
+                key={m._id}
+                msg={m}
                 isMine={typeof m.senderId === "object" ? m.senderId._id === user?._id : m.senderId === user?._id}
-                conversationId={conversationId} myUserId={user?._id ?? ""} />
+                conversationId={conversationId}
+                myUserId={user?._id ?? ""}
+              />
             ))}
           </div>
         ))}
@@ -334,20 +493,9 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
         <div ref={bottomRef} />
       </div>
 
-      {/* Image preview */}
+      {/* Attachment preview */}
       <AnimatePresence>
-        {imagePreview && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-            className="px-3 py-2 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-            <div className="relative inline-block">
-              <img src={imagePreview.url} alt="preview" className="h-20 w-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700" />
-              <button onClick={() => setImagePreview(null)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white shadow">
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          </motion.div>
-        )}
+        {attach && <AttachPreview attach={attach} onRemove={() => setAttach(null)} />}
       </AnimatePresence>
 
       {/* Emoji picker */}
@@ -375,15 +523,26 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
             className={cn("flex-shrink-0 transition-colors", showEmoji ? "text-yellow-500" : "text-gray-500 hover:text-yellow-500")}>
             <Smile className="w-5 h-5" />
           </button>
-          <button onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-blue-500 transition-colors flex-shrink-0">
-            <ImageIcon className="w-5 h-5" />
+          {/* Attachment button — images, videos, documents */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="text-gray-500 hover:text-blue-500 transition-colors flex-shrink-0"
+            title="Attach image, video or document"
+          >
+            <Paperclip className="w-5 h-5" />
           </button>
-          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
+            onChange={handleFileChange}
+          />
           <textarea value={input} onChange={handleInputChange} onKeyDown={handleKeyDown}
-            placeholder={imagePreview ? "Add a caption..." : "Type a message..."} rows={1}
+            placeholder={attach ? "Add a caption..." : "Type a message..."} rows={1}
             className="flex-1 bg-transparent resize-none outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 max-h-24 py-0.5" />
           <motion.button whileTap={{ scale: 0.9 }} onClick={handleSend}
-            disabled={(!input.trim() && !imagePreview) || isSending || isUploading}
+            disabled={(!input.trim() && !attach) || isSending || isUploading}
             className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors">
             {isUploading || isSending ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Send className="w-4 h-4 text-white" />}
           </motion.button>

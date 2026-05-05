@@ -175,6 +175,7 @@ function RecommendationsSection() {
 
 export default function HomePage() {
   const { properties, isLoading, fetchProperties, setFilters } = usePropertyStore();
+  const { _hasHydrated } = useAuthStore();
   const heroRef = useRef<HTMLDivElement>(null);
   const [slide, setSlide] = useState(0);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
@@ -183,7 +184,14 @@ export default function HomePage() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
   const heroScale   = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
 
+  // Fetch once on mount (works for unauthenticated users immediately)
   useEffect(() => { fetchProperties(1); }, [fetchProperties]);
+
+  // Re-fetch after auth hydrates so excludeBooked is applied correctly for tenants
+  useEffect(() => {
+    if (_hasHydrated) fetchProperties(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated]);
   useEffect(() => {
     const t = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), 5000);
     return () => clearInterval(t);

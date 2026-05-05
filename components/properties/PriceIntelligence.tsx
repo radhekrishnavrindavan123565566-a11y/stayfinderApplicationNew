@@ -82,10 +82,10 @@ export default function PriceIntelligence({ property }: Props) {
 
   const badge = (() => {
     if (pricePosition === "below_average")
-      return { label: "Below Average 🎉", className: "bg-blue-100 text-blue-700" };
+      return { label: "Below Average 🎉", className: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" };
     if (pricePosition === "above_average")
-      return { label: "Above Average", className: "bg-amber-100 text-amber-700" };
-    return { label: "Fair Price", className: "bg-green-100 text-green-700" };
+      return { label: "Above Average", className: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300" };
+    return { label: "Fair Price", className: "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-300" };
   })();
 
   const diffText = (() => {
@@ -101,16 +101,16 @@ export default function PriceIntelligence({ property }: Props) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="rounded-2xl border border-zinc-100 bg-white p-5 space-y-4 shadow-sm"
+      className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-4 shadow-sm"
     >
-      <h3 className="text-base font-semibold text-zinc-900">Price Intelligence</h3>
+      <h3 className="text-base font-semibold text-zinc-900 dark:text-white">Price Intelligence</h3>
 
       {/* Badge + diff */}
       <div className="flex flex-wrap items-center gap-3">
         <span className={cn("px-3 py-1 rounded-full text-xs font-semibold", badge.className)}>
           {badge.label}
         </span>
-        {diffText && <span className="text-sm text-zinc-500">{diffText}</span>}
+        {diffText && <span className="text-sm text-zinc-500 dark:text-zinc-400">{diffText}</span>}
       </div>
 
       {/* City avg */}

@@ -45,10 +45,10 @@ export default function MatchScoreBadge({ propertyId }: MatchScoreBadgeProps) {
   const { score } = matchData;
   const colorClass =
     score >= 70
-      ? "bg-green-100 text-green-700 border-green-200"
+      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800"
       : score >= 40
-      ? "bg-yellow-100 text-yellow-700 border-yellow-200"
-      : "bg-red-100 text-red-700 border-red-200";
+      ? "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-800"
+      : "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800";
 
   return (
     <>

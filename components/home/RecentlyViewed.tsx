@@ -51,12 +51,12 @@ export default function RecentlyViewed() {
         viewport={{ once: true }}
         className="flex items-center gap-3 mb-8"
       >
-        <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center">
+        <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-950/40 flex items-center justify-center">
           <Clock className="w-5 h-5 text-rose-500" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900">Recently Viewed</h2>
-          <p className="text-sm text-zinc-500">Pick up where you left off</p>
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Recently Viewed</h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Pick up where you left off</p>
         </div>
       </motion.div>
 

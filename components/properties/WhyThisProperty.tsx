@@ -40,15 +40,15 @@ export default function WhyThisProperty({ score, reasons, tags, breakdown, onClo
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5"
+        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-zinc-900">Why this property?</h2>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Why this property?</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center text-zinc-500 transition-colors"
+            className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 dark:text-zinc-400 transition-colors"
           >
             ✕
           </button>
@@ -56,7 +56,7 @@ export default function WhyThisProperty({ score, reasons, tags, breakdown, onClo
 
         {/* Score */}
         <div className="text-center py-2">
-          <span className="text-5xl font-black text-zinc-900">{score}</span>
+          <span className="text-5xl font-black text-zinc-900 dark:text-white">{score}</span>
           <span className="text-xl text-zinc-400 font-medium">% Match</span>
         </div>
 
@@ -68,11 +68,11 @@ export default function WhyThisProperty({ score, reasons, tags, breakdown, onClo
             const pct = max > 0 ? (value / max) * 100 : 0;
             return (
               <div key={key}>
-                <div className="flex justify-between text-xs text-zinc-600 mb-1">
+                <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400 mb-1">
                   <span>{label}</span>
                   <span className="font-medium">{value}/{max}</span>
                 </div>
-                <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${pct}%` }}
@@ -91,7 +91,7 @@ export default function WhyThisProperty({ score, reasons, tags, breakdown, onClo
             <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Reasons</p>
             <ul className="space-y-1">
               {reasons.map((r, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-zinc-700">
+                <li key={i} className="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                   <span className="text-green-500 mt-0.5">✓</span>
                   {r}
                 </li>
