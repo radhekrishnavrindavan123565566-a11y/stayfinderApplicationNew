@@ -11,7 +11,6 @@ import {
   TrendingUp, Key, Home, Building2,
   CheckCircle, Quote, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import SearchBar from "@/components/property/SearchBar";
 import PropertyCard from "@/components/property/PropertyCard";
 import { usePropertyStore, Property } from "@/store/propertyStore";
@@ -20,10 +19,8 @@ import Button from "@/components/ui/Button";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import axios from "axios";
 import LiveActivityTicker from "@/components/home/LiveActivityTicker";
-
-// Lazy-load below-fold sections — not needed for initial paint
-const RecentlyViewed = dynamic(() => import("@/components/home/RecentlyViewed"), { ssr: false });
-const OwnerCTAStrip  = dynamic(() => import("@/components/home/OwnerCTAStrip"),  { ssr: false });
+import RecentlyViewed from "@/components/home/RecentlyViewed";
+import OwnerCTAStrip from "@/components/home/OwnerCTAStrip";
 
 /* ─── data ──────────────────────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -86,11 +83,12 @@ const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0
 const fadeUp: Variants  = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } } };
 
 /* ─── reusable components ───────────────────────────────────────────────── */
+// TiltCard: only active on pointer devices — saves 6 motion hooks per card on touch/mobile
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0); const y = useMotionValue(0);
-  const rx = useSpring(useTransform(y, [-60, 60], [14, -14]), { stiffness: 200, damping: 20 });
-  const ry = useSpring(useTransform(x, [-60, 60], [-14, 14]), { stiffness: 200, damping: 20 });
+  const rx = useSpring(useTransform(y, [-60, 60], [8, -8]), { stiffness: 150, damping: 25 });
+  const ry = useSpring(useTransform(x, [-60, 60], [-8, 8]), { stiffness: 150, damping: 25 });
   const onMove = (e: React.MouseEvent) => {
     const r = ref.current?.getBoundingClientRect();
     if (!r) return;
@@ -107,10 +105,10 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
 
 function Orb({ size, x, y, color, delay }: { size: number; x: string; y: string; color: string; delay: number }) {
   return (
-    <motion.div animate={{ y: [0, -30, 0], opacity: [0.45, 0.75, 0.45] }}
-      transition={{ duration: 7 + delay, repeat: Infinity, delay, ease: "easeInOut" }}
+    <div
       className={`absolute rounded-full blur-3xl pointer-events-none ${color}`}
-      style={{ width: size, height: size, left: x, top: y, willChange: "transform, opacity" }} />
+      style={{ width: size, height: size, left: x, top: y }}
+    />
   );
 }
 
@@ -185,7 +183,6 @@ export default function HomePage() {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY       = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
-  const heroScale   = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
 
   // Fetch once on mount (works for unauthenticated users immediately)
   useEffect(() => { fetchProperties(1); }, [fetchProperties]);
@@ -210,7 +207,7 @@ export default function HomePage() {
       {/* ══ HERO ══════════════════════════════════════════════════════════ */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Slideshow */}
-        <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
+        <motion.div style={{ y: heroY }} className="absolute inset-0">
           <AnimatePresence mode="sync">
             <motion.div key={slide} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 1.5 }} className="absolute inset-0">
@@ -228,35 +225,6 @@ export default function HomePage() {
         {/* Grid lines */}
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
-
-        {/* Floating particles — reduced count for performance */}
-        <div className="absolute inset-0 pointer-events-none hidden sm:block">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <motion.div key={i}
-              animate={{ y: [0, -55, 0], opacity: [0, 0.7, 0], scale: [0.7, 1.3, 0.7] }}
-              transition={{ duration: 4 + i * 0.3, repeat: Infinity, delay: i * 0.35, ease: "easeInOut" }}
-              className="absolute rounded-full bg-white"
-              style={{ width: 1.5 + (i % 3), height: 1.5 + (i % 3), left: `${(i * 3.7) % 100}%`, top: `${(i * 6.9) % 100}%` }} />
-          ))}
-        </div>
-
-        {/* 3-D floating property mini-cards on sides */}
-        {[
-          { img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=300&q=80", side: "left",  top: "25%", rot: -6, delay: 0   },
-          { img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=300&q=80", side: "left",  top: "55%", rot: 4,  delay: 1   },
-          { img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&q=80", side: "right", top: "20%", rot: 7,  delay: 0.5 },
-          { img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&q=80", side: "right", top: "58%", rot: -5, delay: 1.5 },
-        ].map((c, i) => (
-          <motion.div key={i}
-            animate={{ y: [0, -18, 0], rotate: [c.rot, c.rot + 2.5, c.rot] }}
-            transition={{ duration: 5 + i * 0.8, repeat: Infinity, delay: c.delay, ease: "easeInOut" }}
-            className={`absolute hidden xl:block w-40 h-28 rounded-2xl overflow-hidden shadow-2xl border border-white/15 backdrop-blur-sm ${c.side === "left" ? "left-6" : "right-6"}`}
-            style={{ top: c.top, position: "absolute" }}>
-            <Image src={c.img} alt="" fill sizes="160px" className="object-cover" loading="lazy" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <div className="absolute bottom-2 left-3 text-white text-xs font-bold">Verified ✓</div>
-          </motion.div>
-        ))}
 
         {/* Hero content */}
         <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-24">
@@ -623,41 +591,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ CTA — immersive with 3-D floating cards ═══════════════════════ */}
+      {/* ══ CTA — immersive ═══════════════════════════════════════════════ */}
       <section className="py-28 relative overflow-hidden bg-gradient-to-br from-zinc-900 via-rose-950 to-zinc-900">
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle at 1px 1px,rgba(255,255,255,0.06) 1px,transparent 0)", backgroundSize: "40px 40px" }} />
         <Orb size={700} x="-15%" y="-20%" color="bg-rose-600/20"   delay={0} />
-        <Orb size={500} x="70%"  y="40%"  color="bg-indigo-600/15" delay={2} />
-
-        {[
-          { img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&q=80", x: "4%",  y: "12%", rot: -8, delay: 0   },
-          { img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=300&q=80", x: "80%", y: "8%",  rot: 6,  delay: 0.5 },
-          { img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=300&q=80", x: "6%",  y: "62%", rot: 5,  delay: 1   },
-          { img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&q=80", x: "78%", y: "58%", rot: -6, delay: 1.5 },
-        ].map((card, i) => (
-          <motion.div key={i}
-            animate={{ y: [0, -22, 0], rotate: [card.rot, card.rot + 3, card.rot] }}
-            transition={{ duration: 5 + i * 0.8, repeat: Infinity, delay: card.delay, ease: "easeInOut" }}
-            className="absolute hidden lg:block w-40 h-28 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-            style={{ left: card.x, top: card.y, position: "absolute" }}>
-            <Image src={card.img} alt="" fill sizes="160px" className="object-cover" loading="lazy" />
-            <div className="absolute inset-0 bg-black/25" />
-            <div className="absolute bottom-2 left-3 text-white text-xs font-bold bg-green-500/80 px-2 py-0.5 rounded-full">Verified ✓</div>
-          </motion.div>
-        ))}
 
         <div className="relative z-10 max-w-3xl mx-auto text-center px-4">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <motion.div
-              animate={{ rotateY: [0, 360] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="inline-block mb-6"
-              style={{ transformStyle: "preserve-3d" }}>
+            <div className="inline-block mb-6">
               <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-rose-500 to-amber-400 flex items-center justify-center mx-auto shadow-2xl shadow-rose-500/40">
                 <MapPin className="w-10 h-10 text-white" />
               </div>
-            </motion.div>
+            </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-5 leading-tight">
               List Your Property<br />
               <span className="gradient-text">Earn Every Month</span>
