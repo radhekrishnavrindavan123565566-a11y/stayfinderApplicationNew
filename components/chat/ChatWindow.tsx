@@ -2,16 +2,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Send, Smile, X, Check, CheckCheck, ImageIcon, Loader2,
+  Send, Smile, X, Check, CheckCheck, Loader2,
   FileText, Video, Download, Paperclip,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { type EmojiClickData } from "emoji-picker-react";
 import { useInView } from "react-intersection-observer";
 import { useChatStore, ChatMessage } from "@/store/chatStore";
-
-// Lazy-load emoji picker — ~500KB, only needed when user clicks emoji button
-const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 import { useAuthStore } from "@/store/authStore";
 import { format, isToday, isYesterday } from "date-fns";
 import { cn } from "@/utils/cn";
@@ -19,6 +15,9 @@ import ChatActionBar from "./ChatActionBar";
 import OfferCard from "./OfferCard";
 import VisitCard from "./VisitCard";
 import axios from "axios";
+
+// Lazy-load emoji picker — ~500KB, only needed when user clicks emoji button
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
 interface Props {
   conversationId: string;
@@ -507,7 +506,7 @@ export default function ChatWindow({ conversationId, otherUser, propertyId, prop
         {showEmoji && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
             className="absolute bottom-[72px] left-0 right-0 z-30 px-2 shadow-xl">
-            <EmojiPicker onEmojiClick={(data: EmojiClickData) => setInput((p) => p + data.emoji)} width="100%" height={280} />
+            <EmojiPicker onEmojiClick={(data: { emoji: string }) => setInput((p) => p + data.emoji)} width="100%" height={280} />
           </motion.div>
         )}
       </AnimatePresence>
