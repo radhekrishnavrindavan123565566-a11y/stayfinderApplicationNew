@@ -4,6 +4,7 @@ import Property from "@/models/Property";
 import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
 import { requireRole } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { getCityStats } from "@/lib/cityStats";
 
 interface FraudSignal {
   signal: string;
@@ -11,8 +12,8 @@ interface FraudSignal {
   detail: string;
 }
 
-// Rule-based fraud scoring (works without OpenAI)
-function ruleBasedScore(property: {
+// Rule-based fraud scoring — uses real DB city averages
+async function ruleBasedScore(property: {
   price: number;
   title: string;
   description: string;
@@ -20,22 +21,19 @@ function ruleBasedScore(property: {
   location: { city: string };
   propertyType: string;
   bedrooms: number;
-}): { score: number; signals: FraudSignal[] } {
+}): Promise<{ score: number; signals: FraudSignal[] }> {
   const signals: FraudSignal[] = [];
   let score = 0;
 
-  // Price anomaly — suspiciously cheap
-  const cityAvgPrices: Record<string, number> = {
-    lucknow: 8000, prayagraj: 6000, kanpur: 5500, varanasi: 5000,
-    noida: 12000, agra: 5000, meerut: 5500,
-  };
-  const cityKey = property.location.city.toLowerCase();
-  const avgPrice = cityAvgPrices[cityKey] || 7000;
+  // Price anomaly — use real DB average for this city
+  const cityStats = await getCityStats(property.location.city);
+  const avgPrice = cityStats.avgPrice;
+
   if (property.price < avgPrice * 0.3) {
-    signals.push({ signal: "price_too_low", severity: "high", detail: `Price ₹${property.price} is unusually low for ${property.location.city}` });
+    signals.push({ signal: "price_too_low", severity: "high", detail: `Price ₹${property.price} is unusually low for ${property.location.city} (avg ₹${avgPrice})` });
     score += 35;
   } else if (property.price < avgPrice * 0.5) {
-    signals.push({ signal: "price_below_market", severity: "medium", detail: `Price is 50% below market average` });
+    signals.push({ signal: "price_below_market", severity: "medium", detail: `Price is ${Math.round((1 - property.price / avgPrice) * 100)}% below market average of ₹${avgPrice}` });
     score += 15;
   }
 
@@ -54,7 +52,7 @@ function ruleBasedScore(property: {
     score += 15;
   }
 
-  // Suspicious keywords in title/description
+  // Suspicious keywords
   const suspiciousWords = ["urgent", "immediate", "abroad", "overseas", "wire transfer", "western union", "advance only", "no visit"];
   const text = `${property.title} ${property.description}`.toLowerCase();
   const found = suspiciousWords.filter(w => text.includes(w));
@@ -84,7 +82,7 @@ export async function POST(req: NextRequest) {
     if (!property) return errorResponse("Property not found", 404);
 
     // Rule-based scoring
-    const { score: ruleScore, signals } = ruleBasedScore(property as Parameters<typeof ruleBasedScore>[0]);
+    const { score: ruleScore, signals } = await ruleBasedScore(property as Parameters<typeof ruleBasedScore>[0]);
 
     let aiAnalysis = "";
     let finalScore = ruleScore;

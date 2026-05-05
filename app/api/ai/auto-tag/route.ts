@@ -4,6 +4,7 @@ import Property from "@/models/Property";
 import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { getCityStats } from "@/lib/cityStats";
 
 // All possible smart tags
 const ALL_TAGS = [
@@ -25,8 +26,8 @@ const ALL_TAGS = [
   "instant-booking", "same-day-move-in", "flexible-lease", "short-term",
 ];
 
-// Rule-based tagger (works without OpenAI)
-function ruleBasedTags(property: {
+// Rule-based tagger (works without OpenAI) — uses real DB city averages
+async function ruleBasedTags(property: {
   title: string;
   description: string;
   amenities: string[];
@@ -35,7 +36,7 @@ function ruleBasedTags(property: {
   propertyType: string;
   bedrooms: number;
   instantBooking: boolean;
-}): string[] {
+}): Promise<string[]> {
   const tags: string[] = [];
   const text = `${property.title} ${property.description} ${property.location.address}`.toLowerCase();
   const amenities = (property.amenities || []).map(a => a.toLowerCase());
@@ -68,18 +69,16 @@ function ruleBasedTags(property: {
   if (amenities.some(a => a.includes("security") || a.includes("guard"))) tags.push("24hr-security");
   if (amenities.some(a => a.includes("power") || a.includes("backup"))) tags.push("power-backup");
 
-  // Price-based
-  const cityBudgetThreshold: Record<string, number> = {
-    lucknow: 8000, prayagraj: 6000, kanpur: 5500, varanasi: 5000, noida: 12000,
-  };
-  const threshold = cityBudgetThreshold[property.location.city.toLowerCase()] || 7000;
+  // Price-based — use real DB average for this city
+  const cityStats = await getCityStats(property.location.city);
+  const threshold = cityStats.avgPrice;
   if (property.price <= threshold * 0.7) tags.push("budget-friendly");
   else if (property.price >= threshold * 1.5) tags.push("premium");
 
   // Booking
   if (property.instantBooking) tags.push("instant-booking");
 
-  return [...new Set(tags)]; // deduplicate
+  return [...new Set(tags)];
 }
 
 export async function POST(req: NextRequest) {
@@ -94,7 +93,7 @@ export async function POST(req: NextRequest) {
     if (!property) return errorResponse("Property not found", 404);
 
     // Rule-based tags first
-    const ruleTags = ruleBasedTags(property as Parameters<typeof ruleBasedTags>[0]);
+    const ruleTags = await ruleBasedTags(property as Parameters<typeof ruleBasedTags>[0]);
     let finalTags = ruleTags;
     let aiTags: string[] = [];
 

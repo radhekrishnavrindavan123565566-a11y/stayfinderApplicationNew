@@ -432,7 +432,7 @@ export default function PropertyDetailPage() {
 
             {/* Price Intelligence */}
             <motion.div variants={fadeUp}>
-              <PriceIntelligence property={property as never} />
+              <PriceIntelligence propertyId={id} stored={(property as never as { priceIntelligence?: unknown }).priceIntelligence as never} />
             </motion.div>
 
             {/* Location Intelligence */}

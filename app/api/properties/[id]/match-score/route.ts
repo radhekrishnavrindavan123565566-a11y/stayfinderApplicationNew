@@ -4,6 +4,7 @@ import Property, { IProperty } from "@/models/Property";
 import UserPreferences, { IUserPreferences } from "@/models/UserPreferences";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { getActiveCities } from "@/lib/cityStats";
 
 interface Breakdown {
   budget: number;
@@ -13,12 +14,10 @@ interface Breakdown {
   tenantType: number;
 }
 
-const METRO_CITIES = ["mumbai", "delhi", "bangalore", "hyderabad", "chennai", "kolkata", "pune", "new york", "london", "paris", "tokyo", "berlin"];
-
-function computeMatchScore(
+async function computeMatchScore(
   property: IProperty,
   preferences: IUserPreferences
-): { score: number; reasons: string[]; tags: string[]; breakdown: Breakdown } {
+): Promise<{ score: number; reasons: string[]; tags: string[]; breakdown: Breakdown }> {
   const breakdown: Breakdown = { budget: 0, bedrooms: 0, amenities: 0, location: 0, tenantType: 0 };
   const reasons: string[] = [];
   const tags: string[] = [];
@@ -89,10 +88,12 @@ function computeMatchScore(
       reasons.push("Partially suitable for families");
     }
   } else if (type === "professional") {
-    const isMetro = METRO_CITIES.includes(propCity);
-    if (isMetro) {
+    // Use real active cities from DB instead of hardcoded list
+    const activeCities = await getActiveCities();
+    const isActivCity = activeCities.map(c => c.toLowerCase()).includes(propCity);
+    if (isActivCity) {
       breakdown.tenantType = 15;
-      reasons.push("Located in a metro city — ideal for professionals");
+      reasons.push(`Active rental market in ${property.location.city} — ideal for professionals`);
       tags.push("💼 Professional Hub");
     }
   } else if (type === "couple") {
@@ -133,7 +134,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       });
     }
 
-    const result = computeMatchScore(property, preferences);
+    const result = await computeMatchScore(property, preferences);
     return successResponse(result);
   } catch (error) {
     return handleApiError(error);
