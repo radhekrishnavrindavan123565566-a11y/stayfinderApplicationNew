@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Input from "@/components/ui/Input";
@@ -21,9 +21,9 @@ const fadeUp: Variants = {
 };
 
 export default function ProfilePage() {
-  const { user, fetchMe } = useAuthStore();
+  const { ready, user } = useRequireAuth();
+  const { fetchMe } = useAuthStore();
   const { authHeaders } = useApi();
-  const router = useRouter();
   const [username, setUsername]           = useState(user?.username || "");
   const [saving, setSaving]               = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || "");
@@ -41,12 +41,12 @@ export default function ProfilePage() {
   const [resendTimer, setResendTimer]     = useState(0);
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready || !user) return;
     setUsername(user.username);
     setAvatarPreview(user.avatar || "");
     setPhoneInput((userAny?.phone || "").replace(/^\+91/, ""));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, router]);
+  }, [ready, user]);
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -141,7 +141,7 @@ export default function ProfilePage() {
     } finally { setPhoneLoading(false); }
   };
 
-  if (!user) return null;
+  if (!ready || !user) return null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isVerified = (user as any).ownerVerified;

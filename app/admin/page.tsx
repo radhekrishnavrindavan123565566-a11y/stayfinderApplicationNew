@@ -40,7 +40,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!user) { router.push("/auth/login"); return; }
-    if (user.role !== "admin") { router.push("/"); return; }
+    if (user.role !== "admin") { router.push("/dashboard"); return; }
     loadData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);

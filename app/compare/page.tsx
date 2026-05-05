@@ -5,6 +5,7 @@ import { X, Star, MapPin, Bed, Bath, Users, Check, Minus, ArrowLeft } from "luci
 import axios from "axios";
 import { useCompareStore } from "@/store/compareStore";
 import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
 import Button from "@/components/ui/Button";
@@ -40,12 +41,14 @@ const fadeUp: Variants = {
 };
 
 export default function ComparePage() {
+  const { ready } = useRequireAuth();
   const { ids, remove, clear } = useCompareStore();
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
+    if (!ready) return;
     if (ids.length === 0) { setIsLoading(false); return; }
     const fetchAll = async () => {
       try {
@@ -58,7 +61,7 @@ export default function ComparePage() {
       }
     };
     fetchAll();
-  }, [ids]);
+  }, [ids, ready]);
 
   if (isLoading) {
     return (

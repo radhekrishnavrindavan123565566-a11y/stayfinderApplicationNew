@@ -95,7 +95,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!mounted) return;
-    if (!user) { router.push("/auth/login"); return; }
+    if (!user) { router.replace("/auth/login"); return; }
     fetchConversations();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, mounted]);

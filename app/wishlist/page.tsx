@@ -2,9 +2,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
-import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import PropertyCard from "@/components/property/PropertyCard";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import { Heart } from "lucide-react";
@@ -22,14 +21,13 @@ const fadeUp: Variants = {
 };
 
 export default function WishlistPage() {
-  const { user } = useAuthStore();
+  const { ready, user } = useRequireAuth();
   const { authHeaders } = useApi();
-  const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready || !user) return;
     const load = async () => {
       try {
         const { data } = await axios.get("/api/auth/me", authHeaders());
@@ -40,7 +38,7 @@ export default function WishlistPage() {
     };
     load();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [ready, user]);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">

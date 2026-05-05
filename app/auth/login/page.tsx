@@ -66,7 +66,7 @@ export default function LoginPage() {
     try {
       await login(data.email, data.password);
       toast.success("Welcome back!");
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       const msg = axios.isAxiosError(err)
         ? err.response?.data?.error || "Login failed"

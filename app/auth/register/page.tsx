@@ -136,7 +136,7 @@ export default function RegisterPage() {
         } catch { /* non-critical */ }
       }
       toast.success("Account created! Welcome to Nestora.");
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Verification failed" : "Something went wrong";
       setServerError(msg); toast.error(msg);
