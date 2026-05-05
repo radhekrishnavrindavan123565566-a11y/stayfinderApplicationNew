@@ -93,12 +93,12 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-xl border border-zinc-100 p-6 sticky top-24"
+      className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-6 sticky top-24"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold text-zinc-900">₹{price.toLocaleString("en-IN")}</span>
-          <span className="text-zinc-500 text-sm">/ {unit}</span>
+          <span className="text-2xl font-bold text-zinc-900 dark:text-white">₹{price.toLocaleString("en-IN")}</span>
+          <span className="text-zinc-500 dark:text-zinc-400 text-sm">/ {unit}</span>
         </div>
         {instantBooking && (
           <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
@@ -111,9 +111,9 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         <input type="hidden" {...register("propertyId")} />
 
         {/* Date picker */}
-        <div className="grid grid-cols-2 gap-0 border border-zinc-200 rounded-xl overflow-hidden">
-          <div className="p-3 border-r border-zinc-200">
-            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Check-in</label>
+        <div className="grid grid-cols-2 gap-0 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
+          <div className="p-3 border-r border-zinc-200 dark:border-zinc-700">
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-in</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
               <input
@@ -121,13 +121,13 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
                 min={today}
                 {...register("startDate")}
                 onChange={(e) => { register("startDate").onChange(e); calcDuration(); }}
-                className="text-sm text-zinc-900 focus:outline-none w-full"
+                className="text-sm text-zinc-900 dark:text-white dark:bg-transparent focus:outline-none w-full"
               />
             </div>
             {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
           </div>
           <div className="p-3">
-            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Check-out</label>
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-out</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
               <input
@@ -135,7 +135,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
                 min={startDate || today}
                 {...register("endDate")}
                 onChange={(e) => { register("endDate").onChange(e); calcDuration(); }}
-                className="text-sm text-zinc-900 focus:outline-none w-full"
+                className="text-sm text-zinc-900 dark:text-white dark:bg-transparent focus:outline-none w-full"
               />
             </div>
             {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate.message}</p>}
@@ -143,24 +143,24 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         </div>
 
         {/* Guests */}
-        <div className="border border-zinc-200 rounded-xl p-3">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Guests</label>
+        <div className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-3">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Guests</label>
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-zinc-400" />
-            <span className="text-sm text-zinc-700">Up to {maxGuests} guests</span>
+            <span className="text-sm text-zinc-700 dark:text-zinc-300">Up to {maxGuests} guests</span>
           </div>
         </div>
 
         {/* Message */}
-        <div className="border border-zinc-200 rounded-xl p-3">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide block mb-1">Message (optional)</label>
+        <div className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-3">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Message (optional)</label>
           <div className="flex items-start gap-2">
             <MessageSquare className="w-4 h-4 text-zinc-400 mt-0.5" />
             <textarea
               {...register("message")}
               placeholder="Tell the owner about your trip..."
               rows={2}
-              className="flex-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none resize-none"
+              className="flex-1 text-sm text-zinc-900 dark:text-white dark:bg-transparent placeholder:text-zinc-400 focus:outline-none resize-none"
             />
           </div>
         </div>
@@ -170,20 +170,20 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="space-y-2 pt-3 border-t border-zinc-100"
+            className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800"
           >
-            <div className="flex justify-between text-sm text-zinc-600">
+            <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
               <span>₹{price.toLocaleString("en-IN")} × {duration} {unit}{duration > 1 ? "s" : ""}</span>
               <span>₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
-            <div className="flex justify-between text-sm text-zinc-500">
+            <div className="flex justify-between text-sm text-zinc-500 dark:text-zinc-400">
               <span className="flex items-center gap-1">
                 Service fee (10%)
                 <Info className="w-3 h-3 text-zinc-400" />
               </span>
               <span>₹{platformFee.toLocaleString("en-IN")}</span>
             </div>
-            <div className="flex justify-between font-bold text-zinc-900 pt-2 border-t border-zinc-100">
+            <div className="flex justify-between font-bold text-zinc-900 dark:text-white pt-2 border-t border-zinc-100 dark:border-zinc-800">
               <span>Total</span>
               <span>₹{total.toLocaleString("en-IN")}</span>
             </div>
@@ -191,11 +191,11 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         )}
 
         {/* Cancellation policy */}
-        <div className="flex items-start gap-2 p-3 bg-zinc-50 rounded-xl">
+        <div className="flex items-start gap-2 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
           <Info className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
           <div>
-            <p className="text-xs font-medium text-zinc-700 capitalize">{cancellationPolicy} cancellation</p>
-            <p className="text-xs text-zinc-500 mt-0.5">{POLICY_LABELS[cancellationPolicy]}</p>
+            <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 capitalize">{cancellationPolicy} cancellation</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{POLICY_LABELS[cancellationPolicy]}</p>
           </div>
         </div>
 

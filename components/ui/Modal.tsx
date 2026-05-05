@@ -36,13 +36,13 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" }:
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`relative w-full ${sizes[size]} bg-white rounded-2xl shadow-2xl overflow-hidden`}
+            className={`relative w-full ${sizes[size]} bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden`}
           >
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-                <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
-                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors">
-                  <X className="w-5 h-5 text-zinc-500" />
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+                <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">{title}</h2>
+                <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                  <X className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
                 </button>
               </div>
             )}

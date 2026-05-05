@@ -17,27 +17,27 @@ const BADGE_CONFIG: Record<
 > = {
   verified_owner: {
     label: "Verified Owner",
-    color: "bg-green-100 text-green-700 border-green-200",
+    color: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800",
     icon: "🛡️",
   },
   verified_tenant: {
     label: "Verified Tenant",
-    color: "bg-blue-100 text-blue-700 border-blue-200",
+    color: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
     icon: "✅",
   },
   safe_deal_guarantee: {
     label: "Safe Deal",
-    color: "bg-amber-100 text-amber-700 border-amber-200",
+    color: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
     icon: "⭐",
   },
   top_rated: {
     label: "Top Rated",
-    color: "bg-purple-100 text-purple-700 border-purple-200",
+    color: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800",
     icon: "🌟",
   },
   quick_responder: {
     label: "Quick Responder",
-    color: "bg-teal-100 text-teal-700 border-teal-200",
+    color: "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800",
     icon: "⚡",
   },
 };
@@ -78,15 +78,15 @@ export default function TrustProfile({ userId }: { userId: string }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 space-y-4"
+      className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm p-5 space-y-4"
     >
       {/* Profile completeness */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-sm font-medium text-zinc-700">Profile Completeness</span>
-          <span className="text-sm font-semibold text-zinc-900">{profileCompleteness}%</span>
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Profile Completeness</span>
+          <span className="text-sm font-semibold text-zinc-900 dark:text-white">{profileCompleteness}%</span>
         </div>
-        <div className="h-2 rounded-full bg-zinc-100 overflow-hidden">
+        <div className="h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
           <motion.div
             className={cn(
               "h-full rounded-full",
@@ -136,8 +136,8 @@ export default function TrustProfile({ userId }: { userId: string }) {
           className={cn(
             "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold",
             level === "high"
-              ? "bg-red-100 text-red-700"
-              : "bg-amber-100 text-amber-700"
+              ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+              : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
           )}
         >
           {level === "high" ? "🚨 High Risk" : "⚠️ Caution"}
