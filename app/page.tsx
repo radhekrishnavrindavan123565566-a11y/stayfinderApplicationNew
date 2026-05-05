@@ -11,6 +11,7 @@ import {
   TrendingUp, Key, Home, Building2,
   CheckCircle, Quote, ChevronLeft, ChevronRight,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import SearchBar from "@/components/property/SearchBar";
 import PropertyCard from "@/components/property/PropertyCard";
 import { usePropertyStore, Property } from "@/store/propertyStore";
@@ -18,9 +19,11 @@ import { useAuthStore } from "@/store/authStore";
 import Button from "@/components/ui/Button";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import axios from "axios";
-import RecentlyViewed from "@/components/home/RecentlyViewed";
 import LiveActivityTicker from "@/components/home/LiveActivityTicker";
-import OwnerCTAStrip from "@/components/home/OwnerCTAStrip";
+
+// Lazy-load below-fold sections — not needed for initial paint
+const RecentlyViewed = dynamic(() => import("@/components/home/RecentlyViewed"), { ssr: false });
+const OwnerCTAStrip  = dynamic(() => import("@/components/home/OwnerCTAStrip"),  { ssr: false });
 
 /* ─── data ──────────────────────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -104,10 +107,10 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
 
 function Orb({ size, x, y, color, delay }: { size: number; x: string; y: string; color: string; delay: number }) {
   return (
-    <motion.div animate={{ y: [0, -30, 0], scale: [1, 1.1, 1], opacity: [0.45, 0.75, 0.45] }}
+    <motion.div animate={{ y: [0, -30, 0], opacity: [0.45, 0.75, 0.45] }}
       transition={{ duration: 7 + delay, repeat: Infinity, delay, ease: "easeInOut" }}
       className={`absolute rounded-full blur-3xl pointer-events-none ${color}`}
-      style={{ width: size, height: size, left: x, top: y }} />
+      style={{ width: size, height: size, left: x, top: y, willChange: "transform, opacity" }} />
   );
 }
 
@@ -226,9 +229,9 @@ export default function HomePage() {
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        {/* Floating particles */}
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 12 }).map((_, i) => (
+        {/* Floating particles — reduced count for performance */}
+        <div className="absolute inset-0 pointer-events-none hidden sm:block">
+          {Array.from({ length: 6 }).map((_, i) => (
             <motion.div key={i}
               animate={{ y: [0, -55, 0], opacity: [0, 0.7, 0], scale: [0.7, 1.3, 0.7] }}
               transition={{ duration: 4 + i * 0.3, repeat: Infinity, delay: i * 0.35, ease: "easeInOut" }}
@@ -528,8 +531,8 @@ export default function HomePage() {
                     className="h-full bg-white dark:bg-zinc-900 rounded-3xl p-7 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden">
                     <div className={`absolute inset-0 bg-gradient-to-br ${item.grad} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-3xl`} />
                     <motion.div
-                      animate={{ rotateY: [0, 360] }}
-                      transition={{ duration: 8, repeat: Infinity, delay: i * 1.2, ease: "linear" }}
+                      whileHover={{ rotateY: 180 }}
+                      transition={{ duration: 0.6 }}
                       className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.grad} flex items-center justify-center text-white mb-5 shadow-lg`}
                       style={{ transformStyle: "preserve-3d" }}>
                       {item.icon}

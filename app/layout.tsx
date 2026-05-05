@@ -4,13 +4,9 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import ChatWidget from "@/components/chat/ChatWidget";
-import AIChatbot from "@/components/ai/AIChatbot";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import SocketProvider from "@/components/providers/SocketProvider";
-import PWAProvider from "@/components/providers/PWAProvider";
+import ClientProviders from "@/components/providers/ClientProviders";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
 
 const BASE_URL = "https://nestora.in";
 const OG_IMAGE = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80";
@@ -65,6 +61,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
+        {/* Preload LCP hero image */}
+        <link
+          rel="preload"
+          as="image"
+          href="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1920&q=80"
+          fetchPriority="high"
+        />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -75,10 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
-        <ChatWidget />
-        <AIChatbot />
-        <SocketProvider />
-        <PWAProvider />
+        <ClientProviders />
         <Toaster
           position="top-right"
           toastOptions={{

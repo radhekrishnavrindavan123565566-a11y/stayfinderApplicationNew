@@ -5,9 +5,13 @@ import {
   Send, Smile, X, Check, CheckCheck, ImageIcon, Loader2,
   FileText, Video, Download, Paperclip,
 } from "lucide-react";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import dynamic from "next/dynamic";
+import { type EmojiClickData } from "emoji-picker-react";
 import { useInView } from "react-intersection-observer";
 import { useChatStore, ChatMessage } from "@/store/chatStore";
+
+// Lazy-load emoji picker — ~500KB, only needed when user clicks emoji button
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 import { useAuthStore } from "@/store/authStore";
 import { format, isToday, isYesterday } from "date-fns";
 import { cn } from "@/utils/cn";
