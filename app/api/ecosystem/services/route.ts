@@ -1,12 +1,13 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import EcosystemService from "@/models/EcosystemService";
-import { requireRole } from "@/lib/auth";
+import { requireRole, requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
+    requireAuth(req); // must be logged in to browse ecosystem services
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city");
     const query: Record<string, unknown> = { isActive: true };

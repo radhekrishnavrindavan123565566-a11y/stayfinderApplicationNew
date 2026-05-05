@@ -275,7 +275,7 @@ export default function PropertyDetailPage() {
 
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <MatchScoreBadge propertyId={id} />
-            <SmartTags tags={[]} />
+            <SmartTags tags={(property as Property & { smartTags?: string[] }).smartTags ?? []} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(property as any).tour360?.length > 0 && (
               // eslint-disable-next-line @typescript-eslint/no-explicit-any

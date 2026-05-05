@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Property from "@/models/Property";
 import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
-import { requireAuth } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 interface FraudSignal {
@@ -75,7 +75,7 @@ function ruleBasedScore(property: {
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    requireAuth(req);
+    requireRole(req, ["owner", "admin"]); // only owners & admins can run fraud checks
 
     const { propertyId } = await req.json();
     if (!propertyId) return errorResponse("propertyId is required");

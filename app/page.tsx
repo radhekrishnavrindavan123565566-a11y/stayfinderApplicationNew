@@ -19,6 +19,8 @@ import Button from "@/components/ui/Button";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import axios from "axios";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
+import LiveActivityTicker from "@/components/home/LiveActivityTicker";
+import OwnerCTAStrip from "@/components/home/OwnerCTAStrip";
 
 /* ─── data ──────────────────────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -70,9 +72,15 @@ const PROCESS_STEPS = [
   { step: "04", title: "Move In",  desc: "Sign digitally and move in the same day.",     icon: "🎉", color: "from-green-500 to-emerald-400" },
 ];
 
+const POPULAR_SEARCHES = [
+  { label: "PG under ₹5K · Prayagraj", city: "Prayagraj", type: "condo"     },
+  { label: "1BHK · Lucknow",           city: "Lucknow",   type: "apartment" },
+  { label: "Rooms near IIT · Kanpur",  city: "Kanpur",    type: "condo"     },
+  { label: "Studio · Varanasi",        city: "Varanasi",  type: "apartment" },
+];
+
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const fadeUp: Variants  = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } } };
-const fadeIn: Variants  = { hidden: { opacity: 0 },        show: { opacity: 1,       transition: { duration: 0.5 } } };
 
 /* ─── reusable components ───────────────────────────────────────────────── */
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -195,7 +203,7 @@ export default function HomePage() {
           <AnimatePresence mode="sync">
             <motion.div key={slide} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 1.5 }} className="absolute inset-0">
-              <Image src={HERO_SLIDES[slide]} alt="hero" fill sizes="100vw" className="object-cover" priority={slide === 0} loading={slide === 0 ? "eager" : "lazy"} fetchPriority={slide === 0 ? "high" : "auto"} />
+              <Image src={HERO_SLIDES[slide]} alt="hero" fill sizes="100vw" className="object-cover" preload={slide === 0} loading={slide === 0 ? "eager" : "lazy"} fetchPriority={slide === 0 ? "high" : "auto"} />
             </motion.div>
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/85" />
@@ -262,7 +270,22 @@ export default function HomePage() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <SearchBar />
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-rose-500/40 via-amber-400/30 to-rose-500/40 blur-lg animate-pulse pointer-events-none" />
+              <SearchBar />
+            </div>
+            {/* Popular search chips */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
+              className="flex flex-wrap justify-center gap-2 mt-4">
+              {POPULAR_SEARCHES.map((s) => (
+                <button key={s.label}
+                  onClick={() => { setFilters({ city: s.city, propertyType: s.type }); fetchProperties(1); }}
+                  className="text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 hover:border-white/30 backdrop-blur-sm px-3 py-1.5 rounded-full transition-all font-medium">
+                  {s.label}
+                </button>
+              ))}
+            </motion.div>
+            <LiveActivityTicker />
           </motion.div>
 
           {/* Add Property CTA */}
@@ -516,6 +539,9 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      {/* ══ OWNER CTA STRIP ══════════════════════════════════════════ */}
+      <OwnerCTAStrip />
 
       {/* ══ TESTIMONIALS — 3-D carousel ══════════════════════════════════ */}
       <section className="py-24 relative overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">

@@ -26,6 +26,7 @@ export interface Property {
   instantBooking: boolean;
   cancellationPolicy: "flexible" | "moderate" | "strict";
   ownerVerified: boolean;
+  smartTags?: string[];
   createdAt: string;
 }
 

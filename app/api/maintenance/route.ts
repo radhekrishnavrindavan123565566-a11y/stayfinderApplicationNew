@@ -10,9 +10,22 @@ export async function GET(req: NextRequest) {
     await connectDB();
     const user = requireAuth(req);
     const { searchParams } = new URL(req.url);
-    const role = searchParams.get("role") || "tenant";
+    const requestedRole = searchParams.get("role") || "tenant";
 
-    const query = role === "owner" ? { ownerId: user.userId } : { tenantId: user.userId };
+    // Enforce: owners can only see their own maintenance, tenants see their own
+    // Admins can query either side
+    const effectiveRole =
+      user.role === "admin"
+        ? requestedRole
+        : user.role === "owner"
+        ? "owner"
+        : "tenant";
+
+    const query =
+      effectiveRole === "owner"
+        ? { ownerId: user.userId }
+        : { tenantId: user.userId };
+
     const requests = await MaintenanceRequest.find(query)
       .populate("propertyId", "title images")
       .populate("tenantId", "username avatar")

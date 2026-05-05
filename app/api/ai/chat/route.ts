@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Property from "@/models/Property";
 import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
+import { authenticateRequest } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 // RAG-based property assistant
@@ -12,6 +13,9 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth is optional for the chat — anonymous users can search,
+    // but we attach user context when available for personalisation
+    const _user = authenticateRequest(req);
     const { message, history = [] } = await req.json();
     if (!message?.trim()) return errorResponse("Message is required");
 

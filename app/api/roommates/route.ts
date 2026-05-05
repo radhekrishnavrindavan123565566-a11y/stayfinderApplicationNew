@@ -33,11 +33,16 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST — create or update own profile
+// POST — create or update own profile (tenants only)
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+
+    if (user.role === "owner") {
+      return errorResponse("Property owners cannot create a roommate profile. Only tenants can look for roommates.", 403);
+    }
+
     const body = await req.json();
 
     if (!body.city || !body.budget?.min || !body.budget?.max || !body.moveInDate || !body.gender) {

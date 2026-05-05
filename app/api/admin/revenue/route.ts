@@ -2,17 +2,13 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Transaction from "@/models/Transaction";
 import Booking from "@/models/Booking";
-import { requireAuth } from "@/lib/auth";
-import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { requireRole } from "@/lib/auth";
+import { successResponse, handleApiError } from "@/lib/apiResponse";
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const user = requireAuth(req);
-    
-    if (user.role !== "admin") {
-      return errorResponse("Admin access required", 403);
-    }
+    requireRole(req, ["admin"]); // admin only
 
     const { searchParams } = new URL(req.url);
     const period = searchParams.get("period") || "all"; // all, month, week, today

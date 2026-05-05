@@ -276,7 +276,7 @@ export default function RoommatesPage() {
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Find compatible roommates across UP cities</p>
             </div>
-            {user && (
+            {user && user.role !== "owner" && (
               <Button onClick={() => setShowCreate(true)} className="gap-2">
                 <Plus className="w-4 h-4" /> Create Profile
               </Button>
@@ -314,7 +314,7 @@ export default function RoommatesPage() {
             <div className="text-6xl mb-4">👥</div>
             <p className="text-zinc-500 dark:text-zinc-400 text-lg mb-2">No roommate profiles found</p>
             <p className="text-zinc-400 text-sm mb-6">Be the first to create a profile in this city!</p>
-            {user && <Button onClick={() => setShowCreate(true)}>Create Profile</Button>}
+            {user && user.role !== "owner" && <Button onClick={() => setShowCreate(true)}>Create Profile</Button>}
           </motion.div>
         ) : (
           <motion.div variants={stagger} initial="hidden" animate="show"

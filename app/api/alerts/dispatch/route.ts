@@ -3,11 +3,23 @@ import { connectDB } from "@/lib/mongodb";
 import UserPreferences from "@/models/UserPreferences";
 import Property from "@/models/Property";
 import Notification from "@/models/Notification";
+import { requireRole } from "@/lib/auth";
 import { successResponse, handleApiError } from "@/lib/apiResponse";
 
 // Called by cron/webhook when new properties are listed
+// Restricted to admin or internal cron calls only
 export async function POST(req: NextRequest) {
   try {
+    // Allow either admin auth OR a valid cron secret header
+    const cronSecret = req.headers.get("x-cron-secret");
+    const validCronSecret =
+      cronSecret && cronSecret === process.env.CRON_SECRET;
+
+    if (!validCronSecret) {
+      // Fall back to admin role check
+      requireRole(req, ["admin"]);
+    }
+
     await connectDB();
     const { propertyId } = await req.json();
     const property = await Property.findById(propertyId);

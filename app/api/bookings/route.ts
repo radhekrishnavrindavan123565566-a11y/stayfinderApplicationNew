@@ -14,9 +14,26 @@ export async function GET(req: NextRequest) {
     await connectDB();
     const user = requireAuth(req);
     const { searchParams } = new URL(req.url);
-    const role = searchParams.get("role") || "tenant";
+    const requestedRole = searchParams.get("role") || "tenant";
 
-    const query = role === "owner" ? { ownerId: user.userId } : { tenantId: user.userId };
+    // Enforce: user can only query their own role — admins can query either
+    const effectiveRole =
+      user.role === "admin"
+        ? requestedRole
+        : user.role === "owner"
+        ? "owner"
+        : "tenant";
+
+    const query =
+      effectiveRole === "owner"
+        ? { ownerId: user.role === "admin" ? undefined : user.userId }
+        : { tenantId: user.userId };
+
+    // Remove undefined keys
+    Object.keys(query).forEach(
+      (k) => (query as Record<string, unknown>)[k] === undefined && delete (query as Record<string, unknown>)[k]
+    );
+
     const bookings = await Booking.find(query)
       .populate("propertyId", "title images location price")
       .populate("tenantId", "username avatar email")

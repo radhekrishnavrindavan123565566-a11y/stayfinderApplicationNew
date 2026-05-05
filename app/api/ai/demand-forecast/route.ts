@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Booking from "@/models/Booking";
 import Property from "@/models/Property";
 import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
+import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 // Seasonal demand multipliers for UP rental market
@@ -24,6 +25,7 @@ const SEASONAL_DEMAND: Record<number, { label: string; multiplier: number; reaso
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
+    requireAuth(req); // must be logged in to access market forecasts
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city") || "Lucknow";
     const propertyType = searchParams.get("type") || "apartment";

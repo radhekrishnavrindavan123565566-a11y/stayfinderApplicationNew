@@ -172,7 +172,7 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
 
           <div className="flex flex-wrap items-center gap-2 pt-2">
             <MatchScoreBadge propertyId={property._id} />
-            <SmartTags tags={[]} />
+            <SmartTags tags={property.smartTags ?? []} />
           </div>
         </div>
       </Link>

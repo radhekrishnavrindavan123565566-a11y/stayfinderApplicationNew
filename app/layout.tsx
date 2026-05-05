@@ -12,12 +12,43 @@ import PWAProvider from "@/components/providers/PWAProvider";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
+const BASE_URL = "https://nestora.in";
+const OG_IMAGE = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80";
+
 export const metadata: Metadata = {
-  title: "Nestora – Find Your Place. Feel At Home.",
-  description: "Find your perfect room or tenant across Uttar Pradesh. Nestora is your trusted mediator for PG, rooms, and rentals.",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Nestora – Find Your Place. Feel At Home.",
+    template: "%s | Nestora",
+  },
+  description: "Find verified PGs, rooms & flats across Uttar Pradesh. Nestora connects tenants and owners — no broker, instant booking, Aadhaar-verified listings.",
+  keywords: ["PG in Lucknow", "rooms for rent UP", "flat in Prayagraj", "PG Kanpur", "rental rooms Varanasi", "Nestora"],
+  authors: [{ name: "Nestora" }],
+  creator: "Nestora",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Nestora" },
   formatDetection: { telephone: false },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: BASE_URL,
+    siteName: "Nestora",
+    title: "Nestora – Find Your Place. Feel At Home.",
+    description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Nestora – Rental Rooms in UP" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nestora – Find Your Place. Feel At Home.",
+    description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
+    images: [OG_IMAGE],
+    creator: "@nestora_in",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export const viewport: Viewport = {

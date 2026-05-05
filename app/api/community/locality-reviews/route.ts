@@ -7,6 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
+    requireAuth(req); // must be logged in to browse locality reviews
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city");
     const locality = searchParams.get("locality");

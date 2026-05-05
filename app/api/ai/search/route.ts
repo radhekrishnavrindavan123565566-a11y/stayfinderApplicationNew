@@ -1,9 +1,11 @@
 import { NextRequest } from "next/server";
 import { getOpenAI } from "@/lib/openai";
+import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 export async function POST(req: NextRequest) {
   try {
+    requireAuth(req); // must be logged in to use AI search parser
     const { query } = await req.json();
     if (!query) return errorResponse("query required");
 
