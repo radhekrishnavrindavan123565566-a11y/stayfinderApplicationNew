@@ -3,14 +3,12 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import { sendOtpEmail } from "@/lib/mailer";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { otpStore, OTP_TTL_MS, MAX_ATTEMPTS } from "@/lib/otpStore";
 
-// In-memory OTP store — use Redis in production
-const otpStore    = new Map<string, { otp: string; expires: number; attempts: number }>();
+// In-memory rate-limit map (separate from OTP store)
 const lastSentMap = new Map<string, number>();
 
-const OTP_TTL_MS    = 10 * 60 * 1000; // 10 min
-const RATE_LIMIT_MS = 60 * 1000;       // 1 min between sends
-const MAX_ATTEMPTS  = 5;
+const RATE_LIMIT_MS = 60 * 1000; // 1 min between sends
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IRentAgreement extends Document {
-  bookingId: mongoose.Types.ObjectId;
+  bookingId?: mongoose.Types.ObjectId;  // optional — GPT-generated agreements may not have a booking
   propertyId: mongoose.Types.ObjectId;
   tenantId: mongoose.Types.ObjectId;
   ownerId: mongoose.Types.ObjectId;
@@ -20,7 +20,7 @@ export interface IRentAgreement extends Document {
 
 const RentAgreementSchema = new Schema<IRentAgreement>(
   {
-    bookingId: { type: Schema.Types.ObjectId, ref: "Booking", required: true },
+    bookingId: { type: Schema.Types.ObjectId, ref: "Booking", required: false },
     propertyId: { type: Schema.Types.ObjectId, ref: "Property", required: true },
     tenantId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true },

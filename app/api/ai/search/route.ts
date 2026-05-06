@@ -5,7 +5,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 
 export async function POST(req: NextRequest) {
   try {
-    requireAuth(req); // must be logged in to use AI search parser
+    // public endpoint — no auth required
     const { query } = await req.json();
     if (!query) return errorResponse("query required");
 
@@ -15,17 +15,20 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "system",
-          content: `You are a rental property search assistant. Parse the user's natural language query and extract structured search filters.
+          content: `You are a rental property search assistant for India.
+Parse the user's natural language query and extract structured search filters.
 Return ONLY a JSON object with these optional fields:
-- city: string
-- minPrice: number (per night)
-- maxPrice: number (per night)
+- city: string (Indian city name)
+- minPrice: number (monthly rent in INR)
+- maxPrice: number (monthly rent in INR)
 - bedrooms: number (minimum)
 - propertyType: "apartment" | "house" | "villa" | "studio" | "condo" | "cabin"
 - amenities: string[] (from: WiFi, Parking, Kitchen, Pool, Gym, AC, TV, Washer)
 - keywords: string (remaining search terms)
+- nearLocation: string (landmark or area name)
 
-Example: {"city": "New York", "maxPrice": 150, "bedrooms": 2, "amenities": ["WiFi", "Parking"]}`,
+Example: {"city": "Allahabad", "maxPrice": 8000, "bedrooms": 2, "amenities": ["WiFi"]}
+Price parsing: "₹8000", "8 thousand", "8k" all map to 8000. "1BHK"→bedrooms:1, "2BHK"→bedrooms:2.`,
         },
         { role: "user", content: query },
       ],
@@ -33,7 +36,12 @@ Example: {"city": "New York", "maxPrice": 150, "bedrooms": 2, "amenities": ["WiF
       max_tokens: 200,
     });
 
-    const filters = JSON.parse(completion.choices[0].message.content || "{}");
+    let filters;
+    try {
+      filters = JSON.parse(completion.choices[0].message.content || "{}");
+    } catch {
+      filters = {};
+    }
     return successResponse({ filters, originalQuery: query });
   } catch (e) { return handleApiError(e); }
 }
