@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import {
-  motion, useScroll, useTransform, AnimatePresence,
+  motion, useTransform, AnimatePresence,
   useMotionValue, useSpring, type Variants,
 } from "framer-motion";
 import Link from "next/link";
@@ -177,12 +177,8 @@ function RecommendationsSection() {
 export default function HomePage() {
   const { properties, isLoading, fetchProperties, setFilters } = usePropertyStore();
   const { _hasHydrated } = useAuthStore();
-  const heroRef = useRef<HTMLDivElement>(null);
   const [slide, setSlide] = useState(0);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY       = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
   // Fetch once on mount (works for unauthenticated users immediately)
   useEffect(() => { fetchProperties(1); }, [fetchProperties]);
@@ -205,33 +201,32 @@ export default function HomePage() {
     <div className="overflow-x-hidden bg-white dark:bg-zinc-950">
 
       {/* ══ HERO ══════════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Slideshow */}
-        <motion.div style={{ y: heroY }} className="absolute inset-0">
+        <div className="absolute inset-0">
           <AnimatePresence mode="sync">
             <motion.div key={slide} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 1.5 }} className="absolute inset-0">
+              transition={{ duration: 1.2 }} className="absolute inset-0">
               <Image src={HERO_SLIDES[slide]} alt="hero" fill sizes="100vw" className="object-cover" preload={slide === 0} loading={slide === 0 ? "eager" : "lazy"} fetchPriority={slide === 0 ? "high" : "auto"} />
             </motion.div>
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/85" />
-        </motion.div>
+        </div>
 
         {/* Colour orbs */}
         <Orb size={600} x="-12%" y="-18%" color="bg-rose-600/35"   delay={0}   />
         <Orb size={450} x="68%"  y="52%"  color="bg-indigo-600/28" delay={1.5} />
-        <Orb size={350} x="32%"  y="72%"  color="bg-amber-500/22"  delay={3}   />
 
         {/* Grid lines */}
         <div className="absolute inset-0 pointer-events-none"
           style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
 
         {/* Hero content */}
-        <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-24">
-          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}>
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-24">
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }}
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium px-5 py-2 rounded-full mb-8 shadow-xl">
-              <motion.span animate={{ rotate: [0, 20, -20, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}>✨</motion.span>
+              <span>✨</span>
               Connecting Dwellings, Linking Hearts
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             </motion.div>
@@ -302,16 +297,14 @@ export default function HomePage() {
                 className={`rounded-full transition-all duration-300 ${i === slide ? "w-8 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`} />
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Scroll indicator */}
-        <motion.div animate={{ y: [0, 12, 0] }} transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
           <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
-            <motion.div animate={{ y: [0, 10, 0], opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-1 h-2 bg-white/70 rounded-full" />
+            <div className="w-1 h-2 bg-white/70 rounded-full mt-1 animate-bounce" />
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ══ ANIMATED COUNTER STRIP ════════════════════════════════════════ */}
