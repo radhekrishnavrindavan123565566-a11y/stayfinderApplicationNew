@@ -2,9 +2,16 @@ import { NextRequest } from "next/server";
 import { getOpenAI } from "@/lib/openai";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 20 requests per minute
+    const { success } = rateLimit(req, 20, 60000);
+    if (!success) {
+      return errorResponse('Too many AI search requests. Please try again later.', 429);
+    }
+
     // public endpoint — no auth required
     const { query } = await req.json();
     if (!query) return errorResponse("query required");

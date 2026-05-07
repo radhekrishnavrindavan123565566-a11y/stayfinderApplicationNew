@@ -4,6 +4,7 @@ import Property from "@/models/Property";
 import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
 import { authenticateRequest } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { rateLimit } from "@/lib/rateLimit";
 
 // RAG-based property assistant
 // 1. Parse user intent with GPT
@@ -13,6 +14,12 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 10 requests per minute
+    const { success } = rateLimit(req, 10, 60000);
+    if (!success) {
+      return errorResponse('Too many AI chat requests. Please try again later.', 429);
+    }
+
     // Auth is optional for the chat — anonymous users can search,
     // but we attach user context when available for personalisation
     const _user = authenticateRequest(req);

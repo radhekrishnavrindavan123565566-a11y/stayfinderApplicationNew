@@ -2,9 +2,16 @@ import { NextRequest } from "next/server";
 import { getOpenAI } from "@/lib/openai";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 10 requests per minute
+    const { success } = rateLimit(req, 10, 60000);
+    if (!success) {
+      return errorResponse('Too many description generation requests. Please try again later.', 429);
+    }
+
     requireAuth(req);
     const { title, propertyType, bedrooms, bathrooms, amenities, city, highlights } = await req.json();
     if (!title || !propertyType) return errorResponse("title and propertyType required");

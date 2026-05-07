@@ -28,6 +28,11 @@ const NotificationSchema = new Schema<INotification>(
   { timestamps: true }
 );
 
+// Indexes for performance
 NotificationSchema.index({ userId: 1, createdAt: -1 });
+NotificationSchema.index({ userId: 1, read: 1, createdAt: -1 }); // For unread notifications query
+NotificationSchema.index({ userId: 1, type: 1, createdAt: -1 }); // For filtering by type
+NotificationSchema.index({ type: 1, createdAt: -1 }); // For admin queries
+NotificationSchema.index({ createdAt: -1 }); // For cleanup/archival
 
 export default mongoose.models.Notification || mongoose.model<INotification>("Notification", NotificationSchema);

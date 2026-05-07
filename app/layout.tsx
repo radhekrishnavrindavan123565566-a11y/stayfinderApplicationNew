@@ -54,6 +54,9 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ScrollProgress from '@/components/ui/ScrollProgress';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
@@ -75,10 +78,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <ClientProviders />
+        <ScrollProgress />
+        <ErrorBoundary>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <ClientProviders />
+        </ErrorBoundary>
         <Toaster
           position="top-right"
           toastOptions={{

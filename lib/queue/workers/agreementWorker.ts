@@ -4,12 +4,13 @@ import { AgreementJob } from '../queues';
 import { connectDB } from '@/lib/mongodb';
 import RentAgreement from '@/models/RentAgreement';
 import { addEmailJob } from '../queues';
+import { logger } from '@/lib/logger';
 
 // Agreement worker processor
 async function processAgreementJob(job: Job<AgreementJob>) {
   const { agreementId, action, userId } = job.data;
 
-  console.log(`[AgreementWorker] Processing job ${job.id}: ${action} for agreement ${agreementId}`);
+  logger.info('[AgreementWorker] Processing job', { jobId: job.id, action, agreementId });
 
   await connectDB();
 
@@ -104,10 +105,10 @@ async function processAgreementJob(job: Job<AgreementJob>) {
         break;
     }
 
-    console.log(`[AgreementWorker] Successfully processed ${action} for agreement ${agreementId}`);
+    logger.info('[AgreementWorker] Successfully processed', { action, agreementId });
     return { success: true, agreementId, action };
   } catch (error) {
-    console.error(`[AgreementWorker] Failed to process agreement ${agreementId}:`, error);
+    logger.error('[AgreementWorker] Failed to process agreement', { agreementId, error });
     throw error;
   }
 }
@@ -124,19 +125,19 @@ export const agreementWorker = new Worker(
 
 // Worker event handlers
 agreementWorker.on('completed', (job) => {
-  console.log(`[AgreementWorker] Job ${job.id} completed`);
+  logger.info('[AgreementWorker] Job completed', { jobId: job.id });
 });
 
 agreementWorker.on('failed', (job, err) => {
-  console.error(`[AgreementWorker] Job ${job?.id} failed:`, err.message);
+  logger.error('[AgreementWorker] Job failed', { jobId: job?.id, error: err.message });
 });
 
 agreementWorker.on('error', (err) => {
-  console.error('[AgreementWorker] Worker error:', err);
+  logger.error('[AgreementWorker] Worker error', err);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('[AgreementWorker] Shutting down gracefully...');
+  logger.info('[AgreementWorker] Shutting down gracefully...');
   await agreementWorker.close();
 });

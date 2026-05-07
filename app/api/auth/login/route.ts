@@ -5,15 +5,27 @@ import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import { loginSchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import bcrypt from "bcryptjs";
+import { rateLimit } from "@/lib/rateLimit";
+import { sanitizeInput } from "@/lib/sanitize";
 
 const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || "admin@nestora.in";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@Nestora2025";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 5 attempts per minute
+    const { success, remaining } = rateLimit(req, 5, 60000);
+    if (!success) {
+      return errorResponse('Too many login attempts. Please try again later.', 429);
+    }
+
     await connectDB();
     const body = await req.json();
-    const parsed = loginSchema.safeParse(body);
+    
+    // Sanitize input to prevent NoSQL injection
+    const sanitized = sanitizeInput(body);
+    
+    const parsed = loginSchema.safeParse(sanitized);
     if (!parsed.success) return errorResponse(parsed.error!.issues[0].message);
 
     const { email, password } = parsed.data;

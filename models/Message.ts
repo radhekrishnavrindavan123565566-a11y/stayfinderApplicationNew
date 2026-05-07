@@ -45,6 +45,13 @@ const MessageSchema = new Schema<IMessage>(
   { timestamps: true }
 );
 
+// Indexes for performance
 MessageSchema.index({ conversationId: 1, createdAt: 1 });
+MessageSchema.index({ conversationId: 1, createdAt: -1 }); // For reverse chronological order
+MessageSchema.index({ senderId: 1, createdAt: -1 }); // For user's sent messages
+MessageSchema.index({ receiverId: 1, createdAt: -1 }); // For user's received messages
+MessageSchema.index({ senderId: 1, receiverId: 1, createdAt: -1 }); // For direct conversations
+MessageSchema.index({ propertyId: 1, createdAt: -1 }); // For property-related messages
+MessageSchema.index({ status: 1, createdAt: -1 }); // For message status queries
 
 export default mongoose.models.Message || mongoose.model<IMessage>("Message", MessageSchema);

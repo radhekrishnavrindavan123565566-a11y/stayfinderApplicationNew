@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { ButtonHTMLAttributes, forwardRef, useState } from "react";
 import { cn } from "@/utils/cn";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface EnhancedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
@@ -34,9 +35,10 @@ const sizes = {
 const EnhancedButton = forwardRef<HTMLButtonElement, EnhancedButtonProps>(
   ({ className, variant = "primary", size = "md", isLoading, ripple = true, children, disabled, onClick, ...props }, ref) => {
     const [ripples, setRipples] = useState<Ripple[]>([]);
+    const prefersReducedMotion = useReducedMotion();
 
     const createRipple = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!ripple || disabled || isLoading) return;
+      if (!ripple || disabled || isLoading || prefersReducedMotion) return;
       
       const button = e.currentTarget;
       const rect = button.getBoundingClientRect();
@@ -58,8 +60,8 @@ const EnhancedButton = forwardRef<HTMLButtonElement, EnhancedButtonProps>(
       <motion.button
         ref={ref}
         suppressHydrationWarning
-        whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
-        whileTap={{ scale: disabled || isLoading ? 1 : 0.97 }}
+        whileHover={prefersReducedMotion ? {} : { scale: disabled || isLoading ? 1 : 1.02 }}
+        whileTap={prefersReducedMotion ? {} : { scale: disabled || isLoading ? 1 : 0.97 }}
         className={cn(
           "relative inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden",
           variants[variant],
@@ -71,7 +73,7 @@ const EnhancedButton = forwardRef<HTMLButtonElement, EnhancedButtonProps>(
         {...(props as React.ComponentProps<typeof motion.button>)}
       >
         {/* Ripple effects */}
-        {ripples.map(ripple => (
+        {!prefersReducedMotion && ripples.map(ripple => (
           <motion.span
             key={ripple.id}
             initial={{ scale: 0, opacity: 0.5 }}
@@ -92,8 +94,8 @@ const EnhancedButton = forwardRef<HTMLButtonElement, EnhancedButtonProps>(
         <span className="relative z-10 flex items-center gap-2">
           {isLoading && (
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              animate={prefersReducedMotion ? {} : { rotate: 360 }}
+              transition={prefersReducedMotion ? {} : { duration: 1, repeat: Infinity, ease: "linear" }}
             >
               <Loader2 className="w-4 h-4" />
             </motion.div>

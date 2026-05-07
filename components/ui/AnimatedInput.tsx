@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, InputHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/utils/cn";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface AnimatedInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -14,12 +15,13 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
   ({ label, error, success, className, value, ...props }, ref) => {
     const [focused, setFocused] = useState(false);
     const hasValue = value !== undefined && value !== "";
+    const prefersReducedMotion = useReducedMotion();
 
     return (
       <div className="relative w-full">
         <motion.div
-          animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
-          transition={{ duration: 0.4 }}
+          animate={error && !prefersReducedMotion ? { x: [-10, 10, -10, 10, 0] } : {}}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
           className="relative"
         >
           <input
@@ -54,7 +56,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                   : "#f43f5e"
                 : "#71717a"
             }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             className="absolute left-4 top-2 pointer-events-none origin-left font-medium"
           >
             {label}
@@ -64,9 +66,9 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
           <AnimatePresence>
             {error && (
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                exit={{ scale: 0, rotate: 180 }}
+                initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, rotate: -180 }}
+                animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, rotate: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { scale: 0, rotate: 180 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
                 <AlertCircle className="w-5 h-5 text-red-500" />
@@ -74,9 +76,9 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             )}
             {success && !error && (
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                exit={{ scale: 0, rotate: 180 }}
+                initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0, rotate: -180 }}
+                animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, rotate: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { scale: 0, rotate: 180 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
                 <CheckCircle className="w-5 h-5 text-green-500" />

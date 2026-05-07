@@ -128,6 +128,11 @@ const PropertySchema = new Schema<IProperty>(
 
 PropertySchema.index({ "location.city": "text", title: "text", description: "text" });
 PropertySchema.index({ isBoosted: -1, isFeatured: -1, createdAt: -1 });
+PropertySchema.index({ 'location.city': 1, price: 1 });
+PropertySchema.index({ propertyType: 1, isAvailable: 1 });
+PropertySchema.index({ ownerId: 1, createdAt: -1 });
+PropertySchema.index({ isAvailable: 1, price: 1 });
+PropertySchema.index({ averageRating: -1, totalReviews: -1 });
 
 // Delete cached model so schema changes (videos field) are always picked up fresh
 delete (mongoose.models as Record<string, unknown>).Property;

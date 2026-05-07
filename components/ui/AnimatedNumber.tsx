@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface AnimatedNumberProps {
   value: number;
@@ -22,9 +23,16 @@ export default function AnimatedNumber({
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!isInView) return;
+
+    // If reduced motion is preferred, set value immediately
+    if (prefersReducedMotion) {
+      setCount(value);
+      return;
+    }
 
     const steps = 60;
     const increment = value / steps;
@@ -42,7 +50,7 @@ export default function AnimatedNumber({
     }, stepDuration);
 
     return () => clearInterval(timer);
-  }, [value, duration, isInView]);
+  }, [value, duration, isInView, prefersReducedMotion]);
 
   const displayValue = decimals > 0
     ? count.toFixed(decimals)
@@ -51,9 +59,9 @@ export default function AnimatedNumber({
   return (
     <motion.span
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5 }}
+      initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+      animate={isInView && !prefersReducedMotion ? { opacity: 1, y: 0 } : isInView ? { opacity: 1 } : {}}
+      transition={prefersReducedMotion ? {} : { duration: 0.5 }}
       className={className}
     >
       {prefix}{displayValue}{suffix}

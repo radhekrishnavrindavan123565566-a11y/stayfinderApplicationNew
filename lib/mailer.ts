@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { logger } from "@/lib/logger";
 
 // Create transporter — uses Gmail SMTP by default (free)
 function createTransporter() {
@@ -82,7 +83,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
 </html>`;
 
   if (!transporter) {
-    console.log(`[MAILER DEV] OTP email to ${to}: ${otp}`);
+    logger.info('[MAILER DEV] OTP email sent', { to, otp });
     return;
   }
 
@@ -94,14 +95,14 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
     text: `Your Nestora OTP is: ${otp}\n\nValid for 10 minutes. Do not share with anyone.`,
   });
 
-  console.log(`[Mailer] OTP email sent to ${to}`);
+  logger.info('[Mailer] OTP email sent', { to });
 }
 
 // ── Generic email ─────────────────────────────────────────────────────────────
 export async function sendEmail(to: string, subject: string, html: string, text?: string): Promise<void> {
   const transporter = createTransporter();
   if (!transporter) {
-    console.log(`[MAILER DEV] Email to ${to}: ${subject}`);
+    logger.info('[MAILER DEV] Email sent', { to, subject });
     return;
   }
   await transporter.sendMail({
@@ -109,5 +110,5 @@ export async function sendEmail(to: string, subject: string, html: string, text?
     to, subject, html,
     text: text || subject,
   });
-  console.log(`[Mailer] Email sent to ${to}: ${subject}`);
+  logger.info('[Mailer] Email sent', { to, subject });
 }

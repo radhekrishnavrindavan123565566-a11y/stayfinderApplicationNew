@@ -62,6 +62,13 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+// Indexes for performance
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ role: 1 });
+UserSchema.index({ refreshToken: 1 });
+UserSchema.index({ resetPasswordToken: 1 });
+UserSchema.index({ phoneVerified: 1, role: 1 });
+
 UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
   return bcrypt.compare(password, this.password);
 };

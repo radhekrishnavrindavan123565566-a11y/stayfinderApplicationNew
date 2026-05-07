@@ -24,6 +24,12 @@ const ReviewSchema = new Schema<IReview>(
   { timestamps: true }
 );
 
+// Indexes for performance
 ReviewSchema.index({ propertyId: 1, userId: 1 }, { unique: true });
+ReviewSchema.index({ propertyId: 1, createdAt: -1 }); // For property reviews
+ReviewSchema.index({ userId: 1, createdAt: -1 }); // For user's reviews
+ReviewSchema.index({ bookingId: 1 }); // For booking-related reviews
+ReviewSchema.index({ rating: -1, createdAt: -1 }); // For top-rated reviews
+ReviewSchema.index({ propertyId: 1, rating: -1 }); // For property rating queries
 
 export default mongoose.models.Review || mongoose.model<IReview>("Review", ReviewSchema);

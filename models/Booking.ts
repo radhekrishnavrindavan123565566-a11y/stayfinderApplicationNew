@@ -71,4 +71,11 @@ const BookingSchema = new Schema<IBooking>(
   { timestamps: true }
 );
 
+// Indexes for performance
+BookingSchema.index({ tenantId: 1, status: 1 });
+BookingSchema.index({ ownerId: 1, status: 1 });
+BookingSchema.index({ propertyId: 1, startDate: 1, endDate: 1 });
+BookingSchema.index({ status: 1, createdAt: -1 });
+BookingSchema.index({ paymentStatus: 1 });
+
 export default mongoose.models.Booking || mongoose.model<IBooking>("Booking", BookingSchema);

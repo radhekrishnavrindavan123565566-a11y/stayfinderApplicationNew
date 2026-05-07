@@ -1,13 +1,19 @@
 "use client";
 import { motion, useScroll, useSpring } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export default function ScrollProgress() {
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
+  const prefersReducedMotion = useReducedMotion();
+  
+  // Use spring animation only if motion is not reduced
+  const scaleX = prefersReducedMotion 
+    ? scrollYProgress 
+    : useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+      });
 
   return (
     <motion.div

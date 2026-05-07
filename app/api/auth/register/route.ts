@@ -5,12 +5,24 @@ import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import { registerSchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import bcrypt from "bcryptjs";
+import { rateLimit } from "@/lib/rateLimit";
+import { sanitizeInput } from "@/lib/sanitize";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 3 registrations per minute per IP
+    const { success } = rateLimit(req, 3, 60000);
+    if (!success) {
+      return errorResponse('Too many registration attempts. Please try again later.', 429);
+    }
+
     await connectDB();
     const body = await req.json();
-    const parsed = registerSchema.safeParse(body);
+    
+    // Sanitize input
+    const sanitized = sanitizeInput(body);
+    
+    const parsed = registerSchema.safeParse(sanitized);
     if (!parsed.success) return errorResponse(parsed.error!.issues[0].message);
 
     const { username, email, password, role } = parsed.data;

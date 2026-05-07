@@ -5,6 +5,7 @@ import { getOpenAI, isOpenAIConfigured } from "@/lib/openai";
 import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { getCityStats } from "@/lib/cityStats";
+import { rateLimit } from "@/lib/rateLimit";
 
 // All possible smart tags
 const ALL_TAGS = [
@@ -83,6 +84,12 @@ async function ruleBasedTags(property: {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 15 requests per minute
+    const { success } = rateLimit(req, 15, 60000);
+    if (!success) {
+      return errorResponse('Too many auto-tag requests. Please try again later.', 429);
+    }
+
     await connectDB();
     requireAuth(req);
 
