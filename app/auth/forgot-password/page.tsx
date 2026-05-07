@@ -72,8 +72,13 @@ export default function ForgotPasswordPage() {
         </div>
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-14 text-white">
           <Link href="/" className="flex items-center gap-3 mb-12 w-fit">
-            <Image src="/logo.png" alt="Nestora" width={40} height={40} className="rounded-2xl" />
-            <span className="text-2xl font-bold">Nest<span className="text-amber-300">ora</span></span>
+            <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <span className="text-2xl font-bold">Stay<span className="text-amber-300">erra</span></span>
           </Link>
           <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Reset your password</h2>
           <p className="text-white/80 text-lg leading-relaxed max-w-sm">
@@ -86,8 +91,13 @@ export default function ForgotPasswordPage() {
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-8 bg-zinc-50 dark:bg-zinc-950 min-h-screen lg:min-h-0">
         <div className="absolute top-6 left-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Nestora" width={32} height={32} className="rounded-xl" />
-            <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center shadow-lg">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <span className="font-bold text-zinc-900 dark:text-white">Stay<span className="text-amber-600">erra</span></span>
           </Link>
         </div>
 

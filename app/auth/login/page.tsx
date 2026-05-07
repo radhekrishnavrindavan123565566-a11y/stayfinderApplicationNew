@@ -88,7 +88,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left decorative panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-rose-500 via-rose-600 to-rose-700 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-emerald-700 to-amber-600 relative overflow-hidden">
         {/* Animated orbs */}
         <div className="absolute inset-0">
           {[
@@ -127,9 +127,12 @@ export default function LoginPage() {
                 transition={{ duration: 0.5 }}
                 className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30"
               >
-                <Home className="w-5 h-5 text-white" />
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
               </motion.div>
-              <span className="text-2xl font-bold group-hover:text-rose-200 transition-colors">Nest<span className="text-amber-300">ora</span></span>
+              <span className="text-2xl font-bold group-hover:text-amber-200 transition-colors">Stay<span className="text-amber-300">erra</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Welcome back!</h2>
             <p className="text-white/80 text-lg leading-relaxed mb-10 max-w-sm">
@@ -189,11 +192,14 @@ export default function LoginPage() {
             <motion.div
               whileHover={{ scale: 1.1, rotate: 360 }}
               transition={{ duration: 0.5 }}
-              className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg"
+              className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center shadow-lg"
             >
-              <Home className="w-4 h-4 text-white" />
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
             </motion.div>
-            <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
+            <span className="font-bold text-zinc-900 dark:text-white">Stay<span className="text-amber-600">erra</span></span>
           </Link>
         </div>
 

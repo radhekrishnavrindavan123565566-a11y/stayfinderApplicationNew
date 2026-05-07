@@ -135,7 +135,7 @@ export default function RegisterPage() {
           await axios.patch("/api/user/profile", { phone: `+91${phoneValue}` });
         } catch { /* non-critical */ }
       }
-      toast.success("Account created! Welcome to Nestora.");
+      toast.success("Account created! Welcome to Stayerra.");
       router.push("/dashboard");
     } catch (err) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Verification failed" : "Something went wrong";
@@ -170,10 +170,13 @@ export default function RegisterPage() {
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-14 text-white">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
             <Link href="/" className="flex items-center gap-3 mb-12 group w-fit">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg">
-                <span className="text-white font-black text-lg">N</span>
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center shadow-lg">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
               </div>
-              <span className="text-2xl font-bold group-hover:text-rose-400 transition-colors">Nest<span className="text-amber-400">ora</span></span>
+              <span className="text-2xl font-bold group-hover:text-amber-200 transition-colors">Stay<span className="text-amber-400">erra</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Join us today</h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-10 max-w-sm">
@@ -215,10 +218,13 @@ export default function RegisterPage() {
 
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-6 lg:hidden">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center">
-              <span className="text-white font-black text-sm">N</span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
             </div>
-            <span className="font-bold text-zinc-900 dark:text-white">Nest<span className="text-amber-500">ora</span></span>
+            <span className="font-bold text-zinc-900 dark:text-white">Stay<span className="text-amber-600">erra</span></span>
           </div>
 
           {/* Mobile step bar */}
