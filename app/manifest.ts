@@ -1,57 +1,24 @@
-import type { MetadataRoute } from "next";
+import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Nestora – Find Your Perfect Room in UP",
-    short_name: "Nestora",
-    description: "Browse verified PGs, rooms & flats across Prayagraj, Lucknow, Kanpur and 120+ cities in Uttar Pradesh.",
-    start_url: "/",
-    id: "/",
-    display: "standalone",
-    orientation: "portrait",
-    background_color: "#ffffff",
-    theme_color: "#f43f5e",
-    categories: ["real estate", "housing", "rental"],
+    name: 'Nestora - Find Your Perfect Rental Home',
+    short_name: 'Nestora',
+    description: 'Find verified PGs, rooms & flats across Uttar Pradesh',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#f43f5e',
     icons: [
       {
-        src: "/logo.png",
-        sizes: "1385x752",
-        type: "image/png",
-        purpose: "any",
+        src: '/logo.png',
+        sizes: '192x192',
+        type: 'image/png',
       },
       {
-        src: "/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
-        purpose: "maskable",
-      },
-      {
-        src: "/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable",
-      },
-    ],
-    screenshots: [
-      {
-        src: "/logo.png",
-        sizes: "1385x752",
-        type: "image/png",
-        form_factor: "wide",
-      },
-    ],
-    shortcuts: [
-      {
-        name: "Browse Properties",
-        short_name: "Explore",
-        url: "/properties",
-        icons: [{ src: "/logo.png", sizes: "1385x752" }],
-      },
-      {
-        name: "My Messages",
-        short_name: "Chat",
-        url: "/chat",
-        icons: [{ src: "/logo.png", sizes: "1385x752" }],
+        src: '/logo.png',
+        sizes: '512x512',
+        type: 'image/png',
       },
     ],
   };
