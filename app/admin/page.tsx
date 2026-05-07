@@ -508,8 +508,8 @@ function RemindersPanel({ authHeaders }: { authHeaders: () => { headers: { Autho
 
 // -- Bulk Marketing Panel ------------------------------------------------------
 function BulkMarketingPanel({ authHeaders }: { authHeaders: () => { headers: { Authorization: string } | { Authorization?: undefined } } }) {
-  const [title, setTitle] = useState("Nestora — Special Offer for Lucknow!");
-  const [message, setMessage] = useState("Namaskar! Nestora par aaj hi apna ghar dhundein ya list karein. Lucknow ke sabse verified listings sirf hamare paas. Visit: nestora.in");
+  const [title, setTitle] = useState("Stayerra — Special Offer for Lucknow!");
+  const [message, setMessage] = useState("Namaskar! Stayerra par aaj hi apna ghar dhundein ya list karein. Lucknow ke sabse verified listings sirf hamare paas. Visit: stayerra.com");
   const [role, setRole] = useState("all");
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);

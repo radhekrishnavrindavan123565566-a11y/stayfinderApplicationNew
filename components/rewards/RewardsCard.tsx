@@ -85,7 +85,7 @@ export default function RewardsCard() {
             >
               Level {rewards.level}
             </motion.h3>
-            <p className="text-white/80 text-sm">Nestora Champion</p>
+            <p className="text-white/80 text-sm">Stayerra Champion</p>
           </div>
           <motion.div
             className="bg-white/20 backdrop-blur-sm rounded-full p-3"

@@ -33,7 +33,7 @@ export default function OwnerCTAStrip() {
             List Free. Earn Every Month.
           </h2>
           <p className="text-white/55 text-sm mt-2 max-w-md">
-            Join 5,000+ owners across UP who trust Nestora to find verified tenants fast.
+            Join 5,000+ owners across UP who trust Stayerra to find verified tenants fast.
           </p>
         </motion.div>
 

@@ -33,7 +33,7 @@ const SUGGESTIONS = [
 export default function AIChatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm Nestora's AI assistant 🏠 I can help you find the perfect property. What are you looking for?" },
+    { role: "assistant", content: "Hi! I'm Stayerra's AI assistant 🏠 I can help you find the perfect property. What are you looking for?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -115,7 +115,7 @@ export default function AIChatbot() {
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-white font-semibold text-sm">Nestora AI</p>
+                  <p className="text-white font-semibold text-sm">Stayerra AI</p>
                   <p className="text-white/70 text-[10px]">Property search assistant</p>
                 </div>
                 <button onClick={() => setOpen(false)}

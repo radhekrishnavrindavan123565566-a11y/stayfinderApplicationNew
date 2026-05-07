@@ -76,9 +76,9 @@ interface OrganizationStructuredDataProps {
 }
 
 export function OrganizationStructuredData({
-  name = 'Nestora',
-  url = 'https://nestora.in',
-  logo = 'https://nestora.in/logo.png',
+  name = 'Stayerra',
+  url = 'https://stayerra.com',
+  logo = 'https://stayerra.com/logo.png',
 }: OrganizationStructuredDataProps = {}) {
   const structuredData = {
     '@context': 'https://schema.org',
@@ -87,9 +87,9 @@ export function OrganizationStructuredData({
     url,
     logo,
     sameAs: [
-      'https://twitter.com/nestora_in',
-      'https://facebook.com/nestora',
-      'https://instagram.com/nestora_in',
+      'https://twitter.com/stayerra_in',
+      'https://facebook.com/stayerra',
+      'https://instagram.com/stayerra_in',
     ],
     contactPoint: {
       '@type': 'ContactPoint',

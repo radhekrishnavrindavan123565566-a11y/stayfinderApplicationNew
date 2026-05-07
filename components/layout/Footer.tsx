@@ -65,15 +65,18 @@ export default function Footer() {
           {/* Brand — full width on mobile, 2 cols on lg */}
           <motion.div variants={fadeUp} className="sm:col-span-2 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4 group w-fit">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg">
-                <Home className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center shadow-lg">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
               </div>
               <span className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors">
-                Nest<span className="text-amber-400">ora</span>
+                Stay<span className="text-amber-400">erra</span>
               </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs mb-5 text-zinc-400">
-              Find Your Place. Feel At Home. Verified PGs, rooms &amp; flats across Uttar Pradesh.
+              Modern Living, Grounded Search. Verified PGs, rooms &amp; flats across Uttar Pradesh.
             </p>
             <div className="flex gap-3">
               {SOCIALS.map(({ Icon, label, href }) => (
@@ -132,7 +135,7 @@ export default function Footer() {
           transition={{ delay: 0.3 }}
           className="border-t border-zinc-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-zinc-500"
         >
-          <p suppressHydrationWarning>© {new Date().getFullYear()} Nestora. All rights reserved.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} Stayerra. All rights reserved.</p>
           <div className="flex gap-4 sm:gap-6">
             <Link href="/terms" className="hover:text-white transition-colors py-1">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors py-1">Terms</Link>

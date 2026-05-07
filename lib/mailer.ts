@@ -21,8 +21,8 @@ function createTransporter() {
   });
 }
 
-const FROM_NAME  = process.env.SMTP_FROM_NAME  || "Nestora";
-const FROM_EMAIL = process.env.SMTP_USER        || "noreply@nestora.in";
+const FROM_NAME  = process.env.SMTP_FROM_NAME  || "Stayerra";
+const FROM_EMAIL = process.env.SMTP_USER        || "noreply@stayerra.com";
 
 // ── OTP email ─────────────────────────────────────────────────────────────────
 export async function sendOtpEmail(to: string, otp: string, purpose = "verification"): Promise<void> {
@@ -34,7 +34,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Nestora OTP</title>
+  <title>Your Stayerra OTP</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
@@ -43,9 +43,9 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#f43f5e,#fb923c);padding:32px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:-0.5px;">Nestora</h1>
-              <p style="margin:6px 0 0;color:rgba(255,255,255,0.85);font-size:13px;">Find Your Place. Feel At Home.</p>
+            <td style="background:linear-gradient(135deg,#059669,#d97706);padding:32px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:-0.5px;">Stayerra</h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.85);font-size:13px;">Modern Living, Grounded Search</p>
             </td>
           </tr>
           <!-- Body -->
@@ -71,7 +71,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
           <tr>
             <td style="background:#f9fafb;padding:20px 40px;border-top:1px solid #f4f4f5;text-align:center;">
               <p style="margin:0;color:#a1a1aa;font-size:12px;">
-                © ${new Date().getFullYear()} Nestora · Uttar Pradesh, India
+                © ${new Date().getFullYear()} Stayerra · Uttar Pradesh, India
               </p>
             </td>
           </tr>
@@ -90,9 +90,9 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to,
-    subject: `${otp} is your Nestora verification code`,
+    subject: `${otp} is your Stayerra verification code`,
     html,
-    text: `Your Nestora OTP is: ${otp}\n\nValid for 10 minutes. Do not share with anyone.`,
+    text: `Your Stayerra OTP is: ${otp}\n\nValid for 10 minutes. Do not share with anyone.`,
   });
 
   logger.info('[Mailer] OTP email sent', { to });

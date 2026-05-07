@@ -91,14 +91,17 @@ export default function Navbar() {
               whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-amber-500 shadow-lg ${
-                scrolled || !isHome ? "shadow-rose-500/20" : "shadow-rose-500/40"
+              className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-600 to-amber-600 shadow-lg ${
+                scrolled || !isHome ? "shadow-emerald-500/20" : "shadow-emerald-500/40"
               }`}
             >
-              <Home className="w-6 h-6 text-white" />
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
             </motion.div>
             <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white"}`}>
-              Nest<span className="text-amber-500">ora</span>
+              Stay<span className="text-amber-600">erra</span>
             </span>
           </Link>
 

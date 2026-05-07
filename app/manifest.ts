@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Nestora - Find Your Perfect Rental Home',
-    short_name: 'Nestora',
+    name: 'Stayerra - Modern Living, Grounded Search',
+    short_name: 'Stayerra',
     description: 'Find verified PGs, rooms & flats across Uttar Pradesh',
     start_url: '/',
     display: 'standalone',

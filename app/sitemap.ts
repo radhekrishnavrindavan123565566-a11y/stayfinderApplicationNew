@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/mongodb';
 import Property from '@/models/Property';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://nestora.in';
+  const baseUrl = 'https://stayerra.com';
 
   try {
     await connectDB();

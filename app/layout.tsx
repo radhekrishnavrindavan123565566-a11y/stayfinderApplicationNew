@@ -8,37 +8,37 @@ import ClientProviders from "@/components/providers/ClientProviders";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
 
-const BASE_URL = "https://nestora.in";
+const BASE_URL = "https://stayerra.com";
 const OG_IMAGE = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Nestora – Find Your Place. Feel At Home.",
-    template: "%s | Nestora",
+    default: "Stayerra – Modern Living, Grounded Search",
+    template: "%s | Stayerra",
   },
-  description: "Find verified PGs, rooms & flats across Uttar Pradesh. Nestora connects tenants and owners — no broker, instant booking, Aadhaar-verified listings.",
-  keywords: ["PG in Lucknow", "rooms for rent UP", "flat in Prayagraj", "PG Kanpur", "rental rooms Varanasi", "Nestora"],
-  authors: [{ name: "Nestora" }],
-  creator: "Nestora",
+  description: "Find verified PGs, rooms & flats across Uttar Pradesh. Stayerra connects tenants and owners — no broker, instant booking, Aadhaar-verified listings.",
+  keywords: ["PG in Lucknow", "rooms for rent UP", "flat in Prayagraj", "PG Kanpur", "rental rooms Varanasi", "Stayerra"],
+  authors: [{ name: "Stayerra" }],
+  creator: "Stayerra",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Nestora" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Stayerra" },
   formatDetection: { telephone: false },
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: BASE_URL,
-    siteName: "Nestora",
-    title: "Nestora – Find Your Place. Feel At Home.",
+    siteName: "Stayerra",
+    title: "Stayerra – Modern Living, Grounded Search",
     description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Nestora – Rental Rooms in UP" }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Stayerra – Rental Rooms in UP" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nestora – Find Your Place. Feel At Home.",
+    title: "Stayerra – Modern Living, Grounded Search",
     description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
     images: [OG_IMAGE],
-    creator: "@nestora_in",
+    creator: "@stayerra_in",
   },
   robots: {
     index: true,
@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Nestora" />
+        <meta name="apple-mobile-web-app-title" content="Stayerra" />
         <link rel="apple-touch-icon" href="/logo.png" />
         
         {/* Accessibility - Skip to main content */}

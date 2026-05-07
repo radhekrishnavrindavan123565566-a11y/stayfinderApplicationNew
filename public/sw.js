@@ -1,4 +1,4 @@
-const CACHE_NAME = "nestora-v1";
+const CACHE_NAME = "stayerra-v1";
 const STATIC_ASSETS = [
   "/",
   "/properties",
@@ -60,7 +60,7 @@ self.addEventListener("push", (event) => {
   if (!event.data) return;
   const data = event.data.json();
   event.waitUntil(
-    self.registration.showNotification(data.title || "Nestora", {
+    self.registration.showNotification(data.title || "Stayerra", {
       body: data.body || "",
       icon: "/logo.png",
       badge: "/logo.png",

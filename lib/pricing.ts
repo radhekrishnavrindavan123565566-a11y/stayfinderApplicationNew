@@ -1,5 +1,5 @@
 /**
- * Nestora — Platform Pricing & Revenue Config
+ * Stayerra — Platform Pricing & Revenue Config
  * Aap yahan se saari fees ek jagah manage kar sakte ho
  */
 
