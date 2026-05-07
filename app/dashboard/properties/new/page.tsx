@@ -165,18 +165,18 @@ export default function NewPropertyPage() {
     setSelectedAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
 
   return (
-    <div className="min-h-screen bg-zinc-50 pt-20 pb-16">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900 mb-1">List Your Property</h1>
-          <p className="text-zinc-500 text-sm">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">List Your Property</h1>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
         </motion.div>
 
         {/* Progress Bar */}
         <div className="flex gap-1.5 mb-8">
           {STEPS.map((s, i) => (
-            <div key={s} className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-200">
+            <div key={s} className="flex-1 h-1.5 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800">
               <motion.div
                 className="h-full bg-rose-500 rounded-full"
                 initial={{ width: 0 }}
@@ -192,13 +192,13 @@ export default function NewPropertyPage() {
             {/* STEP 0: Basics */}
             {step === 0 && (
               <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 space-y-5">
-                <h2 className="font-semibold text-zinc-900 text-lg">Basic Information</h2>
+                className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 space-y-5">
+                <h2 className="font-semibold text-zinc-900 dark:text-white text-lg">Basic Information</h2>
                 <Input label="Property Title" placeholder="Cozy apartment in downtown..." error={errors.title?.message} {...register("title")} />
                 <div>
                   <label className="text-sm font-medium text-zinc-700 block mb-1.5">Description</label>
                   <textarea {...register("description")} rows={4} placeholder="Describe your property..."
-                    className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none transition-all ${errors.description ? "border-red-400" : "border-zinc-200"}`} />
+                    className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${errors.description ? "border-red-400" : "border-zinc-200 dark:border-zinc-700"}`} />
                   {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
                   <div className="mt-2">
                     <AIDescriptionGenerator
@@ -214,8 +214,8 @@ export default function NewPropertyPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-zinc-700 block mb-1.5">Property Type</label>
-                    <select {...register("propertyType")} className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white capitalize">
+                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">Property Type</label>
+                    <select {...register("propertyType")} className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white capitalize">
                       {PROPERTY_TYPES.map((t) => <option key={t} value={t} className="capitalize">{t}</option>)}
                     </select>
                   </div>
@@ -241,8 +241,8 @@ export default function NewPropertyPage() {
             {/* STEP 1: Location */}
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 space-y-4">
-                <h2 className="font-semibold text-zinc-900 text-lg">Location</h2>
+                className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 space-y-4">
+                <h2 className="font-semibold text-zinc-900 dark:text-white text-lg">Location</h2>
                 <Input label="Street Address" placeholder="123 Main Street" error={errors.location?.address?.message} {...register("location.address")} />
                 <div className="grid grid-cols-2 gap-4">
                   <Input label="City" placeholder="Mumbai" error={errors.location?.city?.message}
@@ -266,9 +266,9 @@ export default function NewPropertyPage() {
             {/* STEP 2: Photos & Videos */}
             {step === 2 && (
               <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 space-y-6">
+                className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 space-y-6">
                 <div>
-                  <h2 className="font-semibold text-zinc-900 text-lg mb-1">Photos</h2>
+                  <h2 className="font-semibold text-zinc-900 dark:text-white text-lg mb-1">Photos</h2>
                   <p className="text-sm text-zinc-500 mb-4">Upload up to 10 photos. The first image will be the main cover photo.</p>
                   <ImageUploader images={images} onChange={setImages} maxImages={10} />
                   {images.length === 0 && (
@@ -288,9 +288,9 @@ export default function NewPropertyPage() {
             {/* STEP 3: Amenities */}
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-                <h2 className="font-semibold text-zinc-900 text-lg mb-1">Amenities</h2>
-                <p className="text-xs text-zinc-400 mb-4">{selectedAmenities.length} selected</p>
+                className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800">
+                <h2 className="font-semibold text-zinc-900 dark:text-white text-lg mb-1">Amenities</h2>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4">{selectedAmenities.length} selected</p>
 
                 {[
                   { label: "Essentials", items: ["WiFi", "AC", "Heating", "TV", "Washer", "Dryer"] },
@@ -330,8 +330,8 @@ export default function NewPropertyPage() {
             {/* STEP 4: Settings */}
             {step === 4 && (
               <motion.div key="step4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 space-y-5">
-                <h2 className="font-semibold text-zinc-900 text-lg">Booking Settings</h2>
+                className="bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 space-y-5">
+                <h2 className="font-semibold text-zinc-900 dark:text-white text-lg">Booking Settings</h2>
 
                 {/* Availability */}
                 <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-200">

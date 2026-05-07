@@ -120,23 +120,26 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        animate={{ borderColor: dragging ? "#f43f5e" : "#e4e4e7", backgroundColor: dragging ? "#fff1f2" : "#fafafa" }}
-        className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-2xl cursor-pointer transition-colors"
+        className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-2xl cursor-pointer transition-colors ${
+          dragging 
+            ? "border-rose-500 bg-rose-50 dark:bg-rose-950/20" 
+            : "border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900"
+        }`}
       >
         <motion.div animate={{ scale: dragging ? 1.15 : 1 }} transition={{ type: "spring", stiffness: 300 }}>
-          <Upload className={`w-7 h-7 mb-2 mx-auto ${dragging ? "text-rose-500" : "text-zinc-400"}`} />
+          <Upload className={`w-7 h-7 mb-2 mx-auto ${dragging ? "text-rose-500" : "text-zinc-400 dark:text-zinc-500"}`} />
         </motion.div>
-        <p className="text-sm text-zinc-500">
+        <p className={`text-sm ${dragging ? "text-rose-600 dark:text-rose-400" : "text-zinc-500 dark:text-zinc-400"}`}>
           {dragging ? "Drop images here" : "Drag & drop or click to upload"}
         </p>
-        <p className="text-xs text-zinc-400 mt-1">{images.length}/{maxImages} images • JPG, PNG, WEBP</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{images.length}/{maxImages} images • JPG, PNG, WEBP</p>
         <input type="file" multiple accept="image/*" className="hidden"
           onChange={(e) => handleFiles(e.target.files)} />
       </motion.label>
 
       {/* Category hint */}
       {images.length > 0 && (
-        <p className="text-xs text-zinc-400 flex items-center gap-1">
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1">
           <Tag className="w-3 h-3" /> Click the tag icon on any image to set its category (e.g. Road Side View)
         </p>
       )}
@@ -223,9 +226,9 @@ export default function ImageUploader({ images, onChange, maxImages = 10 }: Imag
 
             {/* Uploading slots */}
             {uploading.map((idx) => (
-              <div key={`uploading-${idx}`} className="aspect-square rounded-xl bg-zinc-100 flex items-center justify-center border-2 border-dashed border-zinc-200">
+              <div key={`uploading-${idx}`} className="aspect-square rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border-2 border-dashed border-zinc-200 dark:border-zinc-700">
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-                  <ImageIcon className="w-5 h-5 text-zinc-400" />
+                  <ImageIcon className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
                 </motion.div>
               </div>
             ))}

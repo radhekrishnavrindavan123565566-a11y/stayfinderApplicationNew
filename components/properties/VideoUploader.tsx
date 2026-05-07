@@ -85,11 +85,11 @@ export default function VideoUploader({ videos, onChange }: VideoUploaderProps) 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-1">
-        <Video className="w-4 h-4 text-zinc-500" />
+        <Video className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
         <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Property Videos <span className="text-zinc-400 text-xs font-normal">(optional)</span>
+          Property Videos <span className="text-zinc-400 dark:text-zinc-500 text-xs font-normal">(optional)</span>
         </p>
-        <span className="text-xs text-zinc-400">max {MAX_MB}MB · any format</span>
+        <span className="text-xs text-zinc-400 dark:text-zinc-500">max {MAX_MB}MB · any format</span>
       </div>
 
       {SLOTS.map((slot) => {
@@ -128,7 +128,7 @@ export default function VideoUploader({ videos, onChange }: VideoUploaderProps) 
                         <motion.div className={`h-full bg-gradient-to-r ${slot.color} rounded-full`}
                           animate={{ width: `${pct}%` }} transition={{ ease: "linear" }} />
                       </div>
-                      <p className="text-xs text-zinc-500">Uploading… {pct}%</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Uploading… {pct}%</p>
                     </motion.div>
                   )}
                   {!done && !isUploading && (

@@ -14,6 +14,9 @@
     "test:unit": "vitest run __tests__/unit",
     "test:integration": "vitest run __tests__/integration",
     "test:e2e": "vitest run __tests__/e2e",
+    "test:daily": "tsx tests/run-automated-tests.ts",
+    "test:auto": "tsx tests/run-automated-tests.ts",
+    "test:setup": "tsx tests/setup-test-users.ts",
     "workers": "tsx workers.ts",
     "workers:dev": "tsx watch workers.ts"
   },
