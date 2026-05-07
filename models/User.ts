@@ -27,6 +27,9 @@ export interface IUser extends Document {
   plan?: "free" | "basic" | "pro" | "enterprise";
   planExpiresAt?: Date;
   walletBalance?: number;
+  upiId?: string;
+  digitalSignature?: string;
+  documentStorageUsed?: number;
   createdAt: Date;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -58,6 +61,9 @@ const UserSchema = new Schema<IUser>(
     plan: { type: String, enum: ["free", "basic", "pro", "enterprise"], default: "free" },
     planExpiresAt: { type: Date },
     walletBalance: { type: Number, default: 0 },
+    upiId: { type: String },
+    digitalSignature: { type: String },
+    documentStorageUsed: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

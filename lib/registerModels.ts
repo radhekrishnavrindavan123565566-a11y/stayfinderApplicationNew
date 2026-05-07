@@ -20,3 +20,7 @@ import "@/models/ServiceBooking";
 import "@/models/TypingEvent";
 import "@/models/UserPreferences";
 import "@/models/MaintenanceRequest";
+import "@/models/RentalDocument";
+import "@/models/DocumentShare";
+import "@/models/SharedExpense";
+import "@/models/ExpenseSettlement";
