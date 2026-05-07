@@ -61,7 +61,54 @@ export function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  return NextResponse.next();
+  // Continue with response and add security headers for Lighthouse
+  const response = NextResponse.next();
+
+  // Security Headers for Lighthouse Best Practices
+  const securityHeaders = {
+    // DNS Prefetch Control
+    'X-DNS-Prefetch-Control': 'on',
+    
+    // Strict Transport Security (HSTS) - only in production
+    ...(process.env.NODE_ENV === 'production' && {
+      'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+    }),
+    
+    // Frame Options
+    'X-Frame-Options': 'SAMEORIGIN',
+    
+    // Content Type Options
+    'X-Content-Type-Options': 'nosniff',
+    
+    // XSS Protection
+    'X-XSS-Protection': '1; mode=block',
+    
+    // Referrer Policy
+    'Referrer-Policy': 'origin-when-cross-origin',
+    
+    // Permissions Policy
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)',
+  };
+
+  // Apply security headers
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    if (value) {
+      response.headers.set(key, value);
+    }
+  });
+
+  // Cache Control for static assets
+  if (
+    pathname.startsWith('/_next/static') ||
+    pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|avif|ico|woff|woff2)$/)
+  ) {
+    response.headers.set(
+      'Cache-Control',
+      'public, max-age=31536000, immutable'
+    );
+  }
+
+  return response;
 }
 
 export const config = {

@@ -61,9 +61,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        
         {/* Preload LCP hero image */}
         <link
           rel="preload"
@@ -71,17 +74,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1920&q=80"
           fetchPriority="high"
         />
+        
+        {/* PWA Meta Tags */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Nestora" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        
+        {/* Accessibility - Skip to main content */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .skip-link {
+              position: absolute;
+              top: -40px;
+              left: 0;
+              background: #000;
+              color: #fff;
+              padding: 8px 16px;
+              text-decoration: none;
+              z-index: 100;
+              border-radius: 0 0 4px 0;
+            }
+            .skip-link:focus {
+              top: 0;
+            }
+          `
+        }} />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+        {/* Skip to main content link for accessibility */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        
         <ScrollProgress />
         <ErrorBoundary>
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1">{children}</main>
           <Footer />
           <ClientProviders />
         </ErrorBoundary>
