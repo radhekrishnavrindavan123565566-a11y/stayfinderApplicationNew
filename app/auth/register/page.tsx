@@ -78,7 +78,11 @@ export default function RegisterPage() {
   const { register: registerUser, user } = useAuthStore();
   const router = useRouter();
 
-  useEffect(() => { if (user) router.replace("/"); }, [user, router]);
+  // Redirect if already logged in (check once on mount)
+  useEffect(() => {
+    if (user) router.replace("/dashboard");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (resendTimer <= 0) return;
