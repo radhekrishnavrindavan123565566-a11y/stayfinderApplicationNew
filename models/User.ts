@@ -9,6 +9,7 @@ export interface IUser extends Document {
   avatar?: string;
   phone?: string;
   phoneVerified: boolean;
+  isActive: boolean;
   wishlist: mongoose.Types.ObjectId[];
   refreshToken?: string;
   resetPasswordToken?: string;
@@ -43,6 +44,7 @@ const UserSchema = new Schema<IUser>(
     avatar: { type: String, default: "" },
     phone: { type: String, default: "" },
     phoneVerified: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Property" }],
     refreshToken: { type: String },
     resetPasswordToken: { type: String },

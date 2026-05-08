@@ -16,7 +16,7 @@ import Badge from "@/components/ui/Badge";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
-type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing";
+type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing" | "add-user";
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const fadeUp: Variants = {
@@ -67,6 +67,14 @@ export default function AdminPage() {
     }
   };
 
+  const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
+    try {
+      await axios.patch(`/api/admin/users/${userId}`, { isActive: !currentStatus }, authHeaders());
+      setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: !currentStatus } : u)));
+      toast.success(!currentStatus ? "User activated" : "User deactivated");
+    } catch { toast.error("Failed to update user status"); }
+  };
+
   const deleteUser = async (id: string) => {
     if (!confirm("Delete this user?")) return;
     try {
@@ -115,6 +123,7 @@ export default function AdminPage() {
   const tabs: { key: Tab; label: string; badge?: number }[] = [
     { key: "overview", label: "Overview" },
     { key: "users", label: "Users" },
+    { key: "add-user", label: "Add User" },
     { key: "verifications", label: "Verifications", badge: pendingVerifications.length },
     { key: "disputes", label: "Disputes", badge: disputes.filter((d) => d.status === "open").length },
     { key: "reminders", label: "Reminders" },
@@ -344,6 +353,18 @@ export default function AdminPage() {
                         <Badge variant={u.role === "admin" ? "danger" : u.role === "owner" ? "info" : "default"} className="capitalize text-xs">
                           {u.role}
                         </Badge>
+                        {u.isActive !== undefined && (
+                          <button
+                            onClick={() => toggleUserStatus(u._id, u.isActive)}
+                            className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+                              u.isActive 
+                                ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400 hover:bg-green-200" 
+                                : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 hover:bg-red-200"
+                            }`}
+                          >
+                            {u.isActive ? "Active" : "Inactive"}
+                          </button>
+                        )}
                         {u._id !== user._id && (
                           <Button size="sm" variant="ghost" onClick={() => deleteUser(u._id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 p-1.5">
                             <Trash2 className="w-4 h-4" />
@@ -353,6 +374,13 @@ export default function AdminPage() {
                     </motion.div>
                   ))}
                 </motion.div>
+              </motion.div>
+            )}
+
+            {/* Add User */}
+            {tab === "add-user" && (
+              <motion.div key="add-user" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <AddUserPanel authHeaders={authHeaders} onUserAdded={loadData} />
               </motion.div>
             )}
 
@@ -506,6 +534,157 @@ export default function AdminPage() {
           </AnimatePresence>
         )}
       </div>
+    </div>
+  );
+}
+
+// -- Add User Panel ------------------------------------------------------------
+function AddUserPanel({ authHeaders, onUserAdded }: { 
+  authHeaders: () => { headers: { Authorization: string } | { Authorization?: undefined } };
+  onUserAdded: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "tenant" as "tenant" | "owner" | "admin",
+    phone: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.username || !formData.email || !formData.password) {
+      toast.error("Username, email and password are required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post("/api/auth/register", formData, authHeaders());
+      toast.success(`${formData.role} added successfully!`);
+      setFormData({ username: "", email: "", password: "", role: "tenant", phone: "" });
+      onUserAdded();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.error || "Failed to add user");
+      } else {
+        toast.error("Failed to add user");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-6 max-w-2xl mx-auto">
+      <div className="flex items-center gap-2 mb-6">
+        <Users className="w-5 h-5 text-rose-500" />
+        <h2 className="font-semibold text-zinc-900 dark:text-white">Add New User</h2>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Username */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">
+            Username *
+          </label>
+          <input
+            type="text"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400"
+            placeholder="Enter username"
+            required
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">
+            Email *
+          </label>
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400"
+            placeholder="user@example.com"
+            required
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">
+            Password *
+          </label>
+          <input
+            type="password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400"
+            placeholder="Minimum 6 characters"
+            required
+            minLength={6}
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">
+            Phone (Optional)
+          </label>
+          <input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-400"
+            placeholder="+91 9876543210"
+          />
+        </div>
+
+        {/* Role */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-1.5">
+            User Role *
+          </label>
+          <div className="grid grid-cols-3 gap-3">
+            {(["tenant", "owner", "admin"] as const).map((role) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => setFormData({ ...formData, role })}
+                className={`px-4 py-3 rounded-xl border-2 font-medium text-sm capitalize transition-all ${
+                  formData.role === role
+                    ? "border-rose-500 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400"
+                    : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-600"
+                }`}
+              >
+                {role}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Role Description */}
+        <div className="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4 text-sm text-zinc-600 dark:text-zinc-400">
+          {formData.role === "tenant" && "🏠 Tenant: Can search properties, book rooms, and manage rentals"}
+          {formData.role === "owner" && "🏢 Owner: Can list properties, manage bookings, and track income"}
+          {formData.role === "admin" && "👨‍💼 Admin: Full system access, can manage users and content"}
+        </div>
+
+        {/* Submit */}
+        <Button
+          type="submit"
+          isLoading={loading}
+          className="w-full"
+          size="lg"
+        >
+          Add {formData.role.charAt(0).toUpperCase() + formData.role.slice(1)}
+        </Button>
+      </form>
     </div>
   );
 }

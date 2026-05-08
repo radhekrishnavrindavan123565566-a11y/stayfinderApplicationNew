@@ -110,9 +110,11 @@ export default function Navbar() {
             <Link href="/properties" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
               Explore
             </Link>
-            <Link href="/roommates" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
-              Roommates
-            </Link>
+            {(!user || user.role !== "owner") && (
+              <Link href="/roommates" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
+                Roommates
+              </Link>
+            )}
             <Link href="/compare" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
               Compare
             </Link>
@@ -169,10 +171,12 @@ export default function Navbar() {
                       <div className="py-1">
                         <DropItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/rewards" icon={<TrendingUp className="w-4 h-4" />} label="Rewards" onClick={() => setDropdownOpen(false)} />
-                        <DropItem href="/dashboard/bookings" icon={<Calendar className="w-4 h-4" />} label="My Bookings" onClick={() => setDropdownOpen(false)} />
-                        <DropItem href="/dashboard/rent-split" icon={<IndianRupee className="w-4 h-4" />} label="Rent Split" onClick={() => setDropdownOpen(false)} />
-                        <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label="Rent Tracker" onClick={() => setDropdownOpen(false)} />
-                        <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label="Maintenance" onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/bookings" icon={<Calendar className="w-4 h-4" />} label={user.role === "owner" ? "Property Bookings" : "My Bookings"} onClick={() => setDropdownOpen(false)} />
+                        {user.role === "tenant" && (
+                          <DropItem href="/dashboard/rent-split" icon={<IndianRupee className="w-4 h-4" />} label="Rent Split" onClick={() => setDropdownOpen(false)} />
+                        )}
+                        <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label={user.role === "owner" ? "Rent Collection" : "Rent Tracker"} onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label={user.role === "owner" ? "Maintenance Requests" : "My Requests"} onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/wishlist" icon={<Heart className="w-4 h-4" />} label="Wishlist" onClick={() => setDropdownOpen(false)} />
                         {user.role === "owner" && (
                           <>
@@ -246,9 +250,12 @@ export default function Navbar() {
                 <>
                   <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Dashboard</Link>
                   <Link href="/dashboard/rewards" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rewards</Link>
-                  <Link href="/dashboard/bookings" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Bookings</Link>
-                  <Link href="/dashboard/rent-split" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rent Split</Link>
-                  <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Maintenance</Link>
+                  <Link href="/dashboard/bookings" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Property Bookings" : "My Bookings"}</Link>
+                  {user.role === "tenant" && (
+                    <Link href="/dashboard/rent-split" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rent Split</Link>
+                  )}
+                  <Link href="/dashboard/rent-tracker" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Rent Collection" : "Rent Tracker"}</Link>
+                  <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Maintenance Requests" : "My Requests"}</Link>
                   <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Wishlist</Link>
                   <Link href="/chat" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">
                     <span>Messages</span>
@@ -260,6 +267,9 @@ export default function Navbar() {
                       <Link href="/dashboard/properties/new" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors touch-target">+ Add Property</Link>
                       <Link href="/dashboard/analytics" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Analytics</Link>
                     </>
+                  )}
+                  {(!user || user.role !== "owner") && (
+                    <Link href="/roommates" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Roommates</Link>
                   )}
                   <Link href="/compare" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Compare</Link>
                   <div className="pt-2 mt-2 border-t border-zinc-100 dark:border-zinc-800">
