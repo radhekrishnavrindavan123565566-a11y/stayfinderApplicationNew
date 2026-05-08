@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp, Home } from "lucide-react";
+import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp, Home, Users } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
@@ -187,7 +187,10 @@ export default function Navbar() {
                           </>
                         )}
                         {user.role === "admin" && (
-                          <DropItem href="/admin" icon={<Settings className="w-4 h-4" />} label="Admin Panel" onClick={() => setDropdownOpen(false)} />
+                          <>
+                            <DropItem href="/admin" icon={<Settings className="w-4 h-4" />} label="Admin Panel" onClick={() => setDropdownOpen(false)} />
+                            <DropItem href="/admin?tab=users" icon={<Users className="w-4 h-4" />} label="Manage Users" onClick={() => setDropdownOpen(false)} />
+                          </>
                         )}
                         <DropItem href="/profile" icon={<User className="w-4 h-4" />} label="Profile" onClick={() => setDropdownOpen(false)} />
                       </div>
@@ -272,6 +275,12 @@ export default function Navbar() {
                     <Link href="/roommates" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Roommates</Link>
                   )}
                   <Link href="/compare" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Compare</Link>
+                  {user.role === "admin" && (
+                    <>
+                      <Link href="/admin" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors touch-target">Admin Panel</Link>
+                      <Link href="/admin?tab=users" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors touch-target">Manage Users</Link>
+                    </>
+                  )}
                   <div className="pt-2 mt-2 border-t border-zinc-100 dark:border-zinc-800">
                     <button onClick={handleLogout} className="block w-full text-left py-3 px-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors touch-target">Logout</button>
                   </div>

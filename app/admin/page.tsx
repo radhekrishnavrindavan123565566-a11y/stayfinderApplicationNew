@@ -30,6 +30,9 @@ export default function AdminPage() {
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const tabParam = searchParams.get('tab') as Tab | null;
+  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [stats, setStats] = useState<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +42,7 @@ export default function AdminPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [disputes, setDisputes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(tabParam || "overview");
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | "tenant" | "owner" | "admin">("all");
 
   useEffect(() => {
