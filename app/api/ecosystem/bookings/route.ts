@@ -7,6 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const bookings = await ServiceBooking.find({ tenantId: user.userId })
       .populate("serviceId")
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { bookingId, serviceId, scheduledDate, notes } = await req.json();
     if (!bookingId || !serviceId || !scheduledDate) return errorResponse("Missing required fields");

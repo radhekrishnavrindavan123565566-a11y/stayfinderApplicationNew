@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { city, locality, ratings, comment } = await req.json();
     if (!city || !locality || !ratings) return errorResponse("Missing required fields");

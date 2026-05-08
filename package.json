@@ -18,7 +18,11 @@
     "test:auto": "tsx tests/run-automated-tests.ts",
     "test:setup": "tsx tests/setup-test-users.ts",
     "workers": "tsx workers.ts",
-    "workers:dev": "tsx watch workers.ts"
+    "workers:dev": "tsx watch workers.ts",
+    "pre-deploy": "tsx scripts/pre-production-check.ts",
+    "verify": "tsx scripts/pre-production-check.ts",
+    "check:auth": "tsx scripts/check-auth-routes.ts",
+    "check:all": "npm run lint && npm run pre-deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

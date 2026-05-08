@@ -1,0 +1,73 @@
+name: Pre-Deploy Verification
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint
+      run: npm run lint
+      continue-on-error: false
+    
+    - name: Check TypeScript
+      run: npx tsc --noEmit
+      continue-on-error: false
+    
+    - name: Check Authentication Routes
+      run: npm run check:auth
+      continue-on-error: false
+    
+    - name: Run Pre-Production Checks
+      run: npm run verify
+      continue-on-error: false
+    
+    - name: Build Application
+      run: npm run build
+      env:
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+    
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: build-artifacts
+        path: .next/
+        retention-days: 7
+    
+    - name: Notify on Failure
+      if: failure()
+      run: |
+        echo "❌ Pre-deploy checks failed!"
+        echo "Please fix the issues before deploying to production."
+        exit 1
+    
+    - name: Notify on Success
+      if: success()
+      run: |
+        echo "✅ All pre-deploy checks passed!"
+        echo "Ready for deployment."

@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { city, locality, question, answerId, answer } = await req.json();
 

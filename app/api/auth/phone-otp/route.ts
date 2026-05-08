@@ -126,6 +126,7 @@ export async function PUT(req: NextRequest) {
 
     try {
       const authUser = requireAuth(req);
+      if (!authUser) return errorResponse("Unauthorized", 401);
       await User.updateOne({ _id: authUser.userId }, { $set: { phone: normalized, phoneVerified: true } });
     } catch {
       // Not authenticated during registration — fine

@@ -116,29 +116,35 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         {/* Date picker */}
         <div className="grid grid-cols-2 gap-0 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
           <div className="p-3 border-r border-zinc-200 dark:border-zinc-700">
-            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-in</label>
+            <label htmlFor="startDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-in</label>
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
+              <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
               <input
+                id="startDate"
                 type="date"
                 min={today}
                 {...register("startDate")}
                 onChange={(e) => { register("startDate").onChange(e); calcDuration(); }}
-                className="text-sm text-zinc-900 dark:text-white dark:bg-transparent focus:outline-none w-full"
+                placeholder="dd-mm-yyyy"
+                className="text-sm text-zinc-900 dark:text-white bg-transparent focus:outline-none w-full cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
+                style={{ colorScheme: 'auto' }}
               />
             </div>
             {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
           </div>
           <div className="p-3">
-            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-out</label>
+            <label htmlFor="endDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-out</label>
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-zinc-400 shrink-0" />
+              <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
               <input
+                id="endDate"
                 type="date"
                 min={startDate || today}
                 {...register("endDate")}
                 onChange={(e) => { register("endDate").onChange(e); calcDuration(); }}
-                className="text-sm text-zinc-900 dark:text-white dark:bg-transparent focus:outline-none w-full"
+                placeholder="dd-mm-yyyy"
+                className="text-sm text-zinc-900 dark:text-white bg-transparent focus:outline-none w-full cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
+                style={{ colorScheme: 'auto' }}
               />
             </div>
             {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate.message}</p>}

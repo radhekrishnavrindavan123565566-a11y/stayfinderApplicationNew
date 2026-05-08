@@ -7,6 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { searchParams } = new URL(req.url);
     const conversationId = searchParams.get("conversationId");
@@ -22,6 +23,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const body = await req.json();
     const { conversationId, receiverId, type, payload } = body;
