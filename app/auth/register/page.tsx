@@ -81,10 +81,9 @@ export default function RegisterPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, router]);
 
   useEffect(() => {
     if (resendTimer <= 0) return;

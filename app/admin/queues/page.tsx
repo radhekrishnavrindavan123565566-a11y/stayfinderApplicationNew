@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import Link from 'next/link';
 import axios from 'axios';
-import { Loader2, RefreshCw, AlertCircle, CheckCircle, Clock, Activity } from 'lucide-react';
+import { Loader2, RefreshCw, AlertCircle, CheckCircle, Clock, Activity, ArrowLeft } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 
@@ -77,6 +78,10 @@ export default function QueuesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
+            <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-rose-500 mb-3">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Admin Panel
+            </Link>
             <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
               Queue Management
             </h1>

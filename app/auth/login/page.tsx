@@ -49,10 +49,9 @@ export default function LoginPage() {
     if (user) {
       const searchParams = new URLSearchParams(window.location.search);
       const redirect = searchParams.get('redirect') || '/dashboard';
-      window.location.href = redirect;
+      router.push(redirect);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, router]);
 
   const {
     register,

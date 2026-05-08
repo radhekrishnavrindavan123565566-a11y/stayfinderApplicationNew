@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function RevenuePage() {
   const { ready, user } = useRequireAuth(["admin"]);
@@ -36,6 +38,11 @@ export default function RevenuePage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
+      <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-rose-500 mb-6">
+        <ArrowLeft className="w-4 h-4" />
+        Back to Admin Panel
+      </Link>
+      
       <h1 className="text-3xl font-bold mb-6">Platform Revenue</h1>
 
       <div className="mb-6 flex gap-2">

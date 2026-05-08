@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import Link from "next/link";
 import {
   Users, Home, Calendar, DollarSign, Trash2, Shield, TrendingUp, Zap,
   CheckCircle, XCircle, FileText, ExternalLink, AlertOctagon,
@@ -39,6 +40,7 @@ export default function AdminPage() {
   const [disputes, setDisputes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
+  const [userRoleFilter, setUserRoleFilter] = useState<"all" | "tenant" | "owner" | "admin">("all");
 
   useEffect(() => {
     if (!ready || !authUser) return;
@@ -122,7 +124,7 @@ export default function AdminPage() {
 
   const tabs: { key: Tab; label: string; badge?: number }[] = [
     { key: "overview", label: "Overview" },
-    { key: "users", label: "Users" },
+    { key: "users", label: "Users", badge: users.length },
     { key: "add-user", label: "Add User" },
     { key: "verifications", label: "Verifications", badge: pendingVerifications.length },
     { key: "disputes", label: "Disputes", badge: disputes.filter((d) => d.status === "open").length },
@@ -141,16 +143,36 @@ export default function AdminPage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-3">
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 4 }}
-            >
-              <Shield className="w-7 h-7 text-rose-500" />
-            </motion.div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Admin Panel</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 4 }}
+                >
+                  <Shield className="w-7 h-7 text-rose-500" />
+                </motion.div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Admin Panel</h1>
+              </div>
+              <p className="text-zinc-500 dark:text-zinc-400 mt-1">Manage your platform</p>
+            </div>
+            
+            {/* Quick Links */}
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="/admin/queues">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Zap className="w-4 h-4" />
+                  Queues
+                </Button>
+              </Link>
+              <Link href="/admin/revenue">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Revenue
+                </Button>
+              </Link>
+            </div>
           </div>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1">Manage your platform</p>
         </motion.div>
 
         {/* Tab bar — scrollable on mobile */}
@@ -227,6 +249,46 @@ export default function AdminPage() {
                       <div className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{s.label}</div>
                     </motion.div>
                   ))}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
+                >
+                  {/* Quick Access Cards */}
+                  <Link href="/admin/queues">
+                    <motion.div
+                      whileHover={{ y: -3, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
+                      className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20 rounded-2xl p-5 border border-purple-200 dark:border-purple-800 cursor-pointer transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center">
+                          <Zap className="w-5 h-5 text-white" />
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Queue Management</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">Monitor background jobs and system health</p>
+                    </motion.div>
+                  </Link>
+
+                  <Link href="/admin/revenue">
+                    <motion.div
+                      whileHover={{ y: -3, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
+                      className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 rounded-2xl p-5 border border-green-200 dark:border-green-800 cursor-pointer transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center">
+                          <DollarSign className="w-5 h-5 text-white" />
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">Revenue Dashboard</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">View financial metrics and earnings</p>
+                    </motion.div>
+                  </Link>
                 </motion.div>
 
                 <motion.div
@@ -320,60 +382,141 @@ export default function AdminPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 overflow-hidden"
+                className="space-y-4"
               >
-                <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-                  <h2 className="font-semibold text-zinc-900 dark:text-white">All Users ({users.length})</h2>
+                {/* Filter Bar */}
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-zinc-900 dark:text-white text-sm">Filter Users</h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Select user type to view</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {(["all", "tenant", "owner", "admin"] as const).map((filterRole) => (
+                        <motion.button
+                          key={filterRole}
+                          onClick={() => setUserRoleFilter(filterRole)}
+                          whileTap={{ scale: 0.95 }}
+                          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${
+                            userRoleFilter === filterRole
+                              ? "bg-rose-500 text-white shadow-md"
+                              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                          }`}
+                        >
+                          {filterRole === "all" ? "All Users" : filterRole + "s"}
+                          <span className="ml-2 opacity-75 font-bold">
+                            ({filterRole === "all" 
+                              ? users.length 
+                              : users.filter(u => u.role === filterRole).length})
+                          </span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <motion.div
-                  variants={stagger}
-                  initial="hidden"
-                  animate="show"
-                  className="divide-y divide-zinc-50 dark:divide-zinc-800"
-                >
-                  {users.map((u) => (
-                    <motion.div
-                      key={u._id}
-                      variants={fadeUp}
-                      className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-950/30 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-bold text-rose-500">{u.username[0].toUpperCase()}</span>
+
+                {/* Users List */}
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 overflow-hidden">
+                  <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+                    <h2 className="font-semibold text-zinc-900 dark:text-white">
+                      {userRoleFilter === "all" ? "All Users" : 
+                       userRoleFilter === "tenant" ? "Tenants" :
+                       userRoleFilter === "owner" ? "Owners" : "Admins"}
+                      <span className="ml-2 text-zinc-500 dark:text-zinc-400 font-normal">
+                        ({users.filter(u => userRoleFilter === "all" || u.role === userRoleFilter).length})
+                      </span>
+                    </h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      {userRoleFilter === "all" && "All registered users on the platform"}
+                      {userRoleFilter === "tenant" && "Users looking for properties to rent"}
+                      {userRoleFilter === "owner" && "Property owners and landlords"}
+                      {userRoleFilter === "admin" && "Platform administrators"}
+                    </p>
+                  </div>
+                  <motion.div
+                    variants={stagger}
+                    initial="hidden"
+                    animate="show"
+                    className="divide-y divide-zinc-50 dark:divide-zinc-800"
+                  >
+                    {users
+                      .filter(u => userRoleFilter === "all" || u.role === userRoleFilter)
+                      .map((u) => (
+                      <motion.div
+                        key={u._id}
+                        variants={fadeUp}
+                        className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            u.role === "admin" ? "bg-rose-100 dark:bg-rose-950/30" :
+                            u.role === "owner" ? "bg-indigo-100 dark:bg-indigo-950/30" :
+                            "bg-cyan-100 dark:bg-cyan-950/30"
+                          }`}>
+                            <span className={`text-sm font-bold ${
+                              u.role === "admin" ? "text-rose-600 dark:text-rose-400" :
+                              u.role === "owner" ? "text-indigo-600 dark:text-indigo-400" :
+                              "text-cyan-600 dark:text-cyan-400"
+                            }`}>
+                              {u.username[0].toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-zinc-900 dark:text-white text-sm flex items-center gap-1.5 truncate">
+                              {u.username}
+                              {u.ownerVerified && u.role === "owner" && (
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                              )}
+                            </p>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{u.email}</p>
+                            {u.phone && <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">{u.phone}</p>}
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-zinc-900 dark:text-white text-sm flex items-center gap-1.5 truncate">
-                            {u.username}
-                            {u.ownerVerified && <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />}
-                          </p>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{u.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
-                        <Badge variant={u.role === "admin" ? "danger" : u.role === "owner" ? "info" : "default"} className="capitalize text-xs">
-                          {u.role}
-                        </Badge>
-                        {u.isActive !== undefined && (
-                          <button
-                            onClick={() => toggleUserStatus(u._id, u.isActive)}
-                            className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
-                              u.isActive 
-                                ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400 hover:bg-green-200" 
-                                : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 hover:bg-red-200"
-                            }`}
+                        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
+                          <Badge 
+                            variant={u.role === "admin" ? "danger" : u.role === "owner" ? "info" : "default"} 
+                            className="capitalize text-xs"
                           >
-                            {u.isActive ? "Active" : "Inactive"}
-                          </button>
-                        )}
-                        {u._id !== user._id && (
-                          <Button size="sm" variant="ghost" onClick={() => deleteUser(u._id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 p-1.5">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
+                            {u.role}
+                          </Badge>
+                          {u.role === "owner" && !u.ownerVerified && u.verificationDoc && (
+                            <Badge variant="warning" className="text-xs">Pending</Badge>
+                          )}
+                          {u.isActive !== undefined && (
+                            <button
+                              onClick={() => toggleUserStatus(u._id, u.isActive)}
+                              className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                u.isActive 
+                                  ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400 hover:bg-green-200" 
+                                  : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 hover:bg-red-200"
+                              }`}
+                            >
+                              {u.isActive ? "Active" : "Inactive"}
+                            </button>
+                          )}
+                          {u._id !== user._id && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={() => deleteUser(u._id)} 
+                              className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 p-1.5"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                    {users.filter(u => userRoleFilter === "all" || u.role === userRoleFilter).length === 0 && (
+                      <div className="px-4 sm:px-6 py-12 text-center">
+                        <Users className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                          No {userRoleFilter !== "all" ? userRoleFilter + "s" : "users"} found
+                        </p>
                       </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
+                    )}
+                  </motion.div>
+                </div>
               </motion.div>
             )}
 
