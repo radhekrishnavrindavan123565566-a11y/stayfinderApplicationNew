@@ -16,7 +16,7 @@ const DocumentShareSchema = new Schema<IDocumentShare>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     documentIds: [{ type: Schema.Types.ObjectId, ref: "RentalDocument", required: true }],
-    shareToken: { type: String, required: true, unique: true },
+    shareToken: { type: String, required: true },
     expiresAt: { type: Date, required: true },
     viewCount: { type: Number, default: 0 },
     lastAccessedAt: { type: Date },
@@ -26,7 +26,7 @@ const DocumentShareSchema = new Schema<IDocumentShare>(
 );
 
 // Indexes for performance
-DocumentShareSchema.index({ shareToken: 1 });
+DocumentShareSchema.index({ shareToken: 1 }, { unique: true });
 DocumentShareSchema.index({ userId: 1, createdAt: -1 });
 DocumentShareSchema.index({ expiresAt: 1 });
 
