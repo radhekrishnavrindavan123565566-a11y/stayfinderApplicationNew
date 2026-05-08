@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import PropertyActivity from "@/models/PropertyActivity";
 import Property from "@/models/Property";
 import { authenticateRequest } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 export async function GET(req: NextRequest) {
   try {

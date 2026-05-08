@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { heartbeat, getOnlineUsers } from "@/lib/chatEvents";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 // POST — client heartbeat to mark self as online
 export async function POST(req: NextRequest) {

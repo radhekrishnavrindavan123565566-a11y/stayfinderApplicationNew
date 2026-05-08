@@ -46,7 +46,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
   // Block owner from seeing booking form
   if (user && ownerId && user._id === ownerId) {
     return (
-      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 text-center">
+      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 sm:p-5 text-center">
         <p className="text-amber-700 dark:text-amber-400 text-sm font-medium">This is your property — you cannot book it.</p>
       </div>
     );
@@ -96,26 +96,26 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-6 sticky top-24"
+      className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-4 sm:p-6 lg:sticky lg:top-24"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold text-zinc-900 dark:text-white">₹{price.toLocaleString("en-IN")}</span>
-          <span className="text-zinc-500 dark:text-zinc-400 text-sm">/ {unit}</span>
+          <span className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">₹{price.toLocaleString("en-IN")}</span>
+          <span className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm">/ {unit}</span>
         </div>
         {instantBooking && (
-          <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-50 dark:bg-orange-950/20 px-2 py-1 rounded-full">
             <Zap className="w-3 h-3" /> Instant
           </span>
         )}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
         <input type="hidden" {...register("propertyId")} />
 
-        {/* Date picker */}
-        <div className="grid grid-cols-2 gap-0 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
-          <div className="p-3 border-r border-zinc-200 dark:border-zinc-700">
+        {/* Date picker - Stack on mobile, side by side on desktop */}
+        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 sm:gap-0 sm:border sm:border-zinc-200 sm:dark:border-zinc-700 sm:rounded-xl sm:overflow-hidden">
+          <div className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-xl sm:border-0 sm:border-r sm:border-zinc-200 sm:dark:border-zinc-700 sm:rounded-none">
             <label htmlFor="startDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-in</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
@@ -132,7 +132,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
             </div>
             {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
           </div>
-          <div className="p-3">
+          <div className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-xl sm:border-0 sm:rounded-none">
             <label htmlFor="endDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-out</label>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
@@ -155,7 +155,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         <div className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-3">
           <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Guests</label>
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-zinc-400" />
+            <Users className="w-4 h-4 text-zinc-400 shrink-0" />
             <span className="text-sm text-zinc-700 dark:text-zinc-300">Up to {maxGuests} guests</span>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
         <div className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-3">
           <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Message (optional)</label>
           <div className="flex items-start gap-2">
-            <MessageSquare className="w-4 h-4 text-zinc-400 mt-0.5" />
+            <MessageSquare className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
             <textarea
               {...register("message")}
               placeholder="Tell the owner about your trip..."
@@ -182,19 +182,19 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
             className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800"
           >
             <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
-              <span>₹{price.toLocaleString("en-IN")} × {duration} {unit}{duration > 1 ? "s" : ""}</span>
-              <span>₹{subtotal.toLocaleString("en-IN")}</span>
+              <span className="text-xs sm:text-sm">₹{price.toLocaleString("en-IN")} × {duration} {unit}{duration > 1 ? "s" : ""}</span>
+              <span className="text-xs sm:text-sm">₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between text-sm text-zinc-500 dark:text-zinc-400">
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 text-xs sm:text-sm">
                 Service fee (10%)
                 <Info className="w-3 h-3 text-zinc-400" />
               </span>
-              <span>₹{platformFee.toLocaleString("en-IN")}</span>
+              <span className="text-xs sm:text-sm">₹{platformFee.toLocaleString("en-IN")}</span>
             </div>
             <div className="flex justify-between font-bold text-zinc-900 dark:text-white pt-2 border-t border-zinc-100 dark:border-zinc-800">
-              <span>Total</span>
-              <span>₹{total.toLocaleString("en-IN")}</span>
+              <span className="text-sm sm:text-base">Total</span>
+              <span className="text-sm sm:text-base">₹{total.toLocaleString("en-IN")}</span>
             </div>
           </motion.div>
         )}

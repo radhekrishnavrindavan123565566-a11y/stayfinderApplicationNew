@@ -9,7 +9,7 @@ import Booking from "@/models/Booking";
 import RentPayment from "@/models/RentPayment";
 import Notification from "@/models/Notification";
 import { requireRole } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { emit } from "@/lib/chatEvents";
 import { format, startOfMonth } from "date-fns";
 

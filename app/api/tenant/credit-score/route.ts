@@ -4,7 +4,7 @@ import User from "@/models/User";
 import Booking from "@/models/Booking";
 import Review from "@/models/Review";
 import { requireAuth } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import mongoose from "mongoose";
 
 /**

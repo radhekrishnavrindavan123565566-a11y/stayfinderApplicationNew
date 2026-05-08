@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Message from "@/models/Message";
 import User from "@/models/User";
 import { requireAuth } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {

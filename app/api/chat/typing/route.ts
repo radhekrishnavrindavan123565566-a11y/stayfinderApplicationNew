@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import TypingEvent from "@/models/TypingEvent";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 export async function POST(req: NextRequest) {
   try {

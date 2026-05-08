@@ -4,7 +4,7 @@ import UserPreferences from "@/models/UserPreferences";
 import Property from "@/models/Property";
 import Notification from "@/models/Notification";
 import { requireRole } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 // Called by cron/webhook when new properties are listed
 // Restricted to admin or internal cron calls only

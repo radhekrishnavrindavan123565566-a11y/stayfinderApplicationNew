@@ -12,7 +12,7 @@ import Property from "@/models/Property";
 import Notification from "@/models/Notification";
 import User from "@/models/User";
 import { requireRole } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { emit } from "@/lib/chatEvents";
 import { addDays, format } from "date-fns";
 

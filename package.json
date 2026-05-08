@@ -22,7 +22,8 @@
     "pre-deploy": "tsx scripts/pre-production-check.ts",
     "verify": "tsx scripts/pre-production-check.ts",
     "check:auth": "tsx scripts/check-auth-routes.ts",
-    "check:all": "npm run lint && npm run pre-deploy"
+    "check:responsive": "tsx scripts/check-responsive.ts",
+    "check:all": "npm run lint && npm run check:auth && npm run check:responsive && npm run pre-deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

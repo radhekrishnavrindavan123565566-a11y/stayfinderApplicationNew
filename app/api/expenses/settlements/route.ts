@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import ExpenseSettlement from "@/models/ExpenseSettlement";
 import { requireAuth } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 // GET /api/expenses/settlements - Get settlements for user
 export async function GET(req: NextRequest) {

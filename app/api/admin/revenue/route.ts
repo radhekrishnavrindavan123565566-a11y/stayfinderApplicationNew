@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Transaction from "@/models/Transaction";
 import Booking from "@/models/Booking";
 import { requireRole } from "@/lib/auth";
-import { successResponse, handleApiError } from "@/lib/apiResponse";
+import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
 export async function GET(req: NextRequest) {
   try {
