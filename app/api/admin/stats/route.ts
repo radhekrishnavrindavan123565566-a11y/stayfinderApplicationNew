@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
       .populate("tenantId", "username")
       .sort({ createdAt: -1 })
       .limit(5)
+      .select("propertyId tenantId totalPrice status escrowStatus paymentStatus createdAt")
       .lean();
 
     const recentUsers = await User.find()

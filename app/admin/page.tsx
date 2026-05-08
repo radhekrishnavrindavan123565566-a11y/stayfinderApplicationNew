@@ -228,25 +228,76 @@ export default function AdminPage() {
                 >
                   <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
                     <h2 className="font-semibold text-zinc-900 dark:text-white">Recent Bookings</h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Latest booking activity on the platform</p>
                   </div>
                   <div className="divide-y divide-zinc-50 dark:divide-zinc-800">
-                    {stats?.recentBookings?.map((b: { _id: string; propertyId?: { title?: string }; tenantId?: { username?: string }; totalPrice: number; createdAt: string }, i: number) => (
-                      <motion.div
-                        key={b._id}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.35 + i * 0.04 }}
-                        className="flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                      >
-                        <div className="min-w-0">
-                          <p className="font-medium text-zinc-900 dark:text-white text-sm truncate">{b.propertyId?.title || "Property"}</p>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            by {b.tenantId?.username || "User"} • {format(new Date(b.createdAt), "MMM d, yyyy")}
-                          </p>
-                        </div>
-                        <span className="font-semibold text-zinc-900 dark:text-white ml-4 flex-shrink-0">?{b.totalPrice?.toLocaleString("en-IN")}</span>
-                      </motion.div>
-                    ))}
+                    {stats?.recentBookings && stats.recentBookings.length > 0 ? (
+                      stats.recentBookings.map((b: { 
+                        _id: string; 
+                        propertyId?: { title?: string }; 
+                        tenantId?: { username?: string }; 
+                        totalPrice: number; 
+                        status: string;
+                        escrowStatus?: string;
+                        paymentStatus?: string;
+                        createdAt: string 
+                      }, i: number) => (
+                        <motion.div
+                          key={b._id}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.35 + i * 0.04 }}
+                          className="flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium text-zinc-900 dark:text-white text-sm truncate">
+                                {b.propertyId?.title || "Property"}
+                              </p>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${
+                                b.status === "approved" ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" :
+                                b.status === "pending" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400" :
+                                b.status === "completed" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" :
+                                b.status === "rejected" || b.status === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" :
+                                "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                              }`}>
+                                {b.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              by {b.tenantId?.username || "User"} • {format(new Date(b.createdAt), "MMM d, yyyy")}
+                            </p>
+                            {(b.escrowStatus || b.paymentStatus) && (
+                              <div className="flex items-center gap-2 mt-1">
+                                {b.escrowStatus && b.escrowStatus !== "none" && (
+                                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                                    b.escrowStatus === "holding" ? "bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400" :
+                                    b.escrowStatus === "released" ? "bg-green-50 text-green-600 dark:bg-green-950/20 dark:text-green-400" :
+                                    "bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400"
+                                  }`}>
+                                    Escrow: {b.escrowStatus}
+                                  </span>
+                                )}
+                                {b.paymentStatus && (
+                                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                                    b.paymentStatus === "paid" ? "bg-green-50 text-green-600 dark:bg-green-950/20 dark:text-green-400" :
+                                    b.paymentStatus === "refunded" ? "bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400" :
+                                    "bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                                  }`}>
+                                    Payment: {b.paymentStatus}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <span className="font-semibold text-zinc-900 dark:text-white ml-4 flex-shrink-0">₹{b.totalPrice?.toLocaleString("en-IN")}</span>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="px-4 sm:px-6 py-8 text-center text-zinc-400 dark:text-zinc-500 text-sm">
+                        No bookings yet
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               </motion.div>

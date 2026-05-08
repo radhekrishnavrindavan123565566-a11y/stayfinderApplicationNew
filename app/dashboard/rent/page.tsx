@@ -17,6 +17,16 @@ import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
+import dynamic from "next/dynamic";
+
+// Dynamically import PDF components (client-side only)
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+  { ssr: false }
+);
+const RentReceipt = dynamic(() => import("@/components/receipts/RentReceipt"), {
+  ssr: false,
+});
 
 interface RentPayment {
   _id: string;
@@ -388,13 +398,20 @@ export default function RentRemindersPage() {
                         {payment.status}
                       </p>
                       {payment.status === "paid" && payment.transactionId && (
-                        <button
-                          onClick={() => toast.success("Receipt download coming soon!")}
-                          className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                        <PDFDownloadLink
+                          document={<RentReceipt payment={payment} />}
+                          fileName={`rent-receipt-${payment.month}-${payment.year}.pdf`}
                         >
-                          <Download className="w-3 h-3" />
-                          Receipt
-                        </button>
+                          {({ loading }) => (
+                            <button
+                              disabled={loading}
+                              className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1 disabled:opacity-50"
+                            >
+                              <Download className="w-3 h-3" />
+                              {loading ? "Generating..." : "Receipt"}
+                            </button>
+                          )}
+                        </PDFDownloadLink>
                       )}
                     </div>
                   </div>

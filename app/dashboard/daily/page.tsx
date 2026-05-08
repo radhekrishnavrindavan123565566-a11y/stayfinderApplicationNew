@@ -18,6 +18,11 @@ import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import dynamic from "next/dynamic";
+
+const OnboardingTour = dynamic(() => import("@/components/onboarding/OnboardingTour"), {
+  ssr: false,
+});
 
 interface DashboardStats {
   documents: number;
@@ -36,6 +41,7 @@ export default function DailyEngagementDashboard() {
     maintenanceRequests: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     if (!ready || !authUser || !accessToken) return;
@@ -67,6 +73,18 @@ export default function DailyEngagementDashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, authUser, accessToken]);
 
+  // Check if user should see onboarding tour
+  useEffect(() => {
+    if (!ready || !authUser) return;
+    
+    const hasSeenTour = localStorage.getItem("stayerra-daily-tour-completed");
+    if (!hasSeenTour) {
+      // Show tour after a short delay to let the page render
+      const timer = setTimeout(() => setShowTour(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [ready, authUser]);
+
   const features = [
     {
       title: "Document Vault",
@@ -75,6 +93,7 @@ export default function DailyEngagementDashboard() {
       href: "/dashboard/documents",
       color: "from-blue-500 to-cyan-400",
       stat: `${stats.documents} documents`,
+      tourId: "feature-documents",
     },
     {
       title: "Bill Splitter",
@@ -83,6 +102,7 @@ export default function DailyEngagementDashboard() {
       href: "/dashboard/expenses",
       color: "from-green-500 to-emerald-400",
       stat: `${stats.expenses} expenses`,
+      tourId: "feature-expenses",
     },
     {
       title: "Rent Reminders",
@@ -91,6 +111,7 @@ export default function DailyEngagementDashboard() {
       href: "/dashboard/rent",
       color: "from-purple-500 to-violet-400",
       stat: "Auto-reminders",
+      tourId: "feature-rent",
     },
     {
       title: "Maintenance",
@@ -99,6 +120,7 @@ export default function DailyEngagementDashboard() {
       href: "/dashboard/maintenance",
       color: "from-orange-500 to-amber-400",
       stat: `${stats.maintenanceRequests} requests`,
+      tourId: "feature-maintenance",
     },
     {
       title: "Community",
@@ -107,6 +129,57 @@ export default function DailyEngagementDashboard() {
       href: "/community",
       color: "from-rose-500 to-pink-400",
       stat: "Explore areas",
+      tourId: "feature-community",
+    },
+  ];
+
+  const handleTourComplete = () => {
+    localStorage.setItem("stayerra-daily-tour-completed", "true");
+    setShowTour(false);
+  };
+
+  const tourSteps = [
+    {
+      target: ".daily-header",
+      title: "Welcome to Daily Essentials! 👋",
+      content: "This is your hub for managing all aspects of your rental life. Let me show you around!",
+      placement: "bottom" as const,
+    },
+    {
+      target: ".feature-documents",
+      title: "Document Vault 📄",
+      content: "Store all your rental documents securely - Aadhaar, PAN, rent agreements, and more. Share them with time-limited links!",
+      placement: "bottom" as const,
+    },
+    {
+      target: ".feature-expenses",
+      title: "Bill Splitter 💰",
+      content: "Split bills with roommates easily. Track who owes what, and settle payments with just a few clicks.",
+      placement: "bottom" as const,
+    },
+    {
+      target: ".feature-rent",
+      title: "Rent Reminders ⏰",
+      content: "Never miss a rent payment! Get smart reminders and track your payment history with streak badges.",
+      placement: "bottom" as const,
+    },
+    {
+      target: ".feature-maintenance",
+      title: "Maintenance Tracker 🔧",
+      content: "Report issues with photos, track status, and communicate with your owner - all in one place.",
+      placement: "bottom" as const,
+    },
+    {
+      target: ".feature-community",
+      title: "Community Reviews 🏘️",
+      content: "Read reviews about localities, ask questions, and learn from others' experiences before making decisions.",
+      placement: "bottom" as const,
+    },
+    {
+      target: ".quick-actions",
+      title: "Quick Actions ⚡",
+      content: "Jump right in! Upload your first document or create an expense to get started.",
+      placement: "top" as const,
     },
   ];
 
@@ -133,7 +206,7 @@ export default function DailyEngagementDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 daily-header"
         >
           <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
             Daily Essentials
@@ -203,6 +276,7 @@ export default function DailyEngagementDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 * (index + 1) }}
+              className={feature.tourId}
             >
               <Link href={feature.href}>
                 <div className="group relative bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200 dark:border-zinc-800 hover:shadow-xl transition-all cursor-pointer overflow-hidden">
@@ -244,7 +318,7 @@ export default function DailyEngagementDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mt-8 bg-gradient-to-br from-emerald-500 to-teal-400 rounded-3xl p-8 text-white"
+          className="mt-8 bg-gradient-to-br from-emerald-500 to-teal-400 rounded-3xl p-8 text-white quick-actions"
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
@@ -270,6 +344,13 @@ export default function DailyEngagementDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        steps={tourSteps}
+        onComplete={handleTourComplete}
+        show={showTour}
+      />
     </div>
   );
 }

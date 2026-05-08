@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
   Star,
@@ -11,7 +11,11 @@ import {
   Zap,
   Home,
   ThumbsUp,
+  Plus,
+  X,
+  Send,
 } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
@@ -51,11 +55,33 @@ interface LocalityQA {
 const CITIES = ["Prayagraj", "Lucknow", "Kanpur", "Varanasi", "Noida", "Agra"];
 
 export default function CommunityPage() {
+  const { user, accessToken } = useAuthStore();
   const [selectedCity, setSelectedCity] = useState("Prayagraj");
   const [reviews, setReviews] = useState<LocalityReview[]>([]);
   const [questions, setQuestions] = useState<LocalityQA[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"reviews" | "qa">("reviews");
+  
+  // Modals
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+  
+  // Review form
+  const [locality, setLocality] = useState("");
+  const [ratings, setRatings] = useState({
+    safety: 0,
+    connectivity: 0,
+    amenities: 0,
+    cleanliness: 0,
+  });
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  
+  // Q&A form
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
 
   const fetchCommunityData = useCallback(async () => {
     setLoading(true);
@@ -76,6 +102,115 @@ export default function CommunityPage() {
   useEffect(() => {
     fetchCommunityData();
   }, [fetchCommunityData]);
+
+  const handleSubmitReview = async () => {
+    if (!locality || !comment || !accessToken) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    const overall = (ratings.safety + ratings.connectivity + ratings.amenities + ratings.cleanliness) / 4;
+    if (overall === 0) {
+      toast.error("Please provide ratings");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await axios.post(
+        "/api/community/locality-reviews",
+        {
+          locality,
+          city: selectedCity,
+          ratings: { ...ratings, overall },
+          comment,
+        },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      toast.success("Review submitted successfully!");
+      setShowReviewModal(false);
+      setLocality("");
+      setRatings({ safety: 0, connectivity: 0, amenities: 0, cleanliness: 0 });
+      setComment("");
+      fetchCommunityData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to submit review");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmitQuestion = async () => {
+    if (!locality || !question || !accessToken) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await axios.post(
+        "/api/community/locality-qa",
+        {
+          locality,
+          city: selectedCity,
+          question,
+        },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      toast.success("Question posted successfully!");
+      setShowQuestionModal(false);
+      setLocality("");
+      setQuestion("");
+      fetchCommunityData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to post question");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmitAnswer = async () => {
+    if (!answer || !selectedQuestion || !accessToken) {
+      toast.error("Please write an answer");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await axios.post(
+        `/api/community/locality-qa/${selectedQuestion}/answer`,
+        { answer },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      toast.success("Answer posted successfully!");
+      setShowAnswerModal(false);
+      setAnswer("");
+      setSelectedQuestion(null);
+      fetchCommunityData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to post answer");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpvote = async (questionId: string, answerId: string) => {
+    if (!accessToken) {
+      toast.error("Please login to upvote");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `/api/community/locality-qa/${questionId}/answer/${answerId}/upvote`,
+        {},
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      fetchCommunityData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to upvote");
+    }
+  };
 
   const renderStars = (rating: number) => {
     return (
@@ -150,41 +285,52 @@ export default function CommunityPage() {
           transition={{ delay: 0.2 }}
           className="mb-6"
         >
-          <div className="flex gap-2 border-b border-zinc-200 dark:border-zinc-800">
-            <button
-              onClick={() => setActiveTab("reviews")}
-              className={`px-4 py-3 font-semibold text-sm transition-all relative ${
-                activeTab === "reviews"
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
-              }`}
-            >
-              <Star className="w-4 h-4 inline mr-2" />
-              Reviews
-              {activeTab === "reviews" && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500"
-                />
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("qa")}
-              className={`px-4 py-3 font-semibold text-sm transition-all relative ${
-                activeTab === "qa"
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
-              }`}
-            >
-              <MessageSquare className="w-4 h-4 inline mr-2" />
-              Q&A
-              {activeTab === "qa" && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500"
-                />
-              )}
-            </button>
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab("reviews")}
+                className={`px-4 py-3 font-semibold text-sm transition-all relative ${
+                  activeTab === "reviews"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                }`}
+              >
+                <Star className="w-4 h-4 inline mr-2" />
+                Reviews
+                {activeTab === "reviews" && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500"
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("qa")}
+                className={`px-4 py-3 font-semibold text-sm transition-all relative ${
+                  activeTab === "qa"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4 inline mr-2" />
+                Q&A
+                {activeTab === "qa" && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500"
+                  />
+                )}
+              </button>
+            </div>
+            {user && (
+              <Button
+                onClick={() => activeTab === "reviews" ? setShowReviewModal(true) : setShowQuestionModal(true)}
+                size="sm"
+              >
+                <Plus className="w-4 h-4" />
+                {activeTab === "reviews" ? "Write Review" : "Ask Question"}
+              </Button>
+            )}
           </div>
         </motion.div>
 
@@ -328,7 +474,10 @@ export default function CommunityPage() {
                               by {answer.author.username} •{" "}
                               {formatDate(answer.createdAt)}
                             </p>
-                            <button className="flex items-center gap-1 text-xs text-zinc-500 hover:text-emerald-600 transition-colors">
+                            <button
+                              onClick={() => handleUpvote(qa._id, answer._id)}
+                              className="flex items-center gap-1 text-xs text-zinc-500 hover:text-emerald-600 transition-colors"
+                            >
                               <ThumbsUp className="w-3 h-3" />
                               {answer.upvotes}
                             </button>
@@ -343,12 +492,290 @@ export default function CommunityPage() {
                       No answers yet. Be the first to answer!
                     </p>
                   )}
+
+                  {user && (
+                    <div className="mt-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedQuestion(qa._id);
+                          setShowAnswerModal(true);
+                        }}
+                      >
+                        <Send className="w-3 h-3" />
+                        Answer
+                      </Button>
+                    </div>
+                  )}
                 </motion.div>
               ))
             )}
           </div>
         )}
       </div>
+
+      {/* Review Modal */}
+      <AnimatePresence>
+        {showReviewModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowReviewModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-lg w-full border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  Write a Review
+                </h2>
+                <button
+                  onClick={() => setShowReviewModal(false)}
+                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    Locality Name
+                  </label>
+                  <input
+                    type="text"
+                    value={locality}
+                    onChange={(e) => setLocality(e.target.value)}
+                    placeholder="e.g., Civil Lines, Katra"
+                    className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+                    Ratings
+                  </label>
+                  <div className="space-y-3">
+                    {[
+                      { key: "safety", label: "Safety", icon: Shield },
+                      { key: "connectivity", label: "Connectivity", icon: Zap },
+                      { key: "amenities", label: "Amenities", icon: Home },
+                      { key: "cleanliness", label: "Cleanliness", icon: TrendingUp },
+                    ].map(({ key, label, icon: Icon }) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-zinc-500" />
+                          <span className="text-sm text-zinc-700 dark:text-zinc-300">{label}</span>
+                        </div>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              onClick={() => setRatings({ ...ratings, [key]: star })}
+                              className="p-1"
+                            >
+                              <Star
+                                className={`w-5 h-5 ${
+                                  star <= ratings[key as keyof typeof ratings]
+                                    ? "fill-amber-400 text-amber-400"
+                                    : "text-zinc-300 dark:text-zinc-600"
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    Your Review
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Share your experience living in this locality..."
+                    rows={4}
+                    className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowReviewModal(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmitReview}
+                    disabled={submitting}
+                    isLoading={submitting}
+                    className="flex-1"
+                  >
+                    Submit Review
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Question Modal */}
+      <AnimatePresence>
+        {showQuestionModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowQuestionModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-lg w-full border border-zinc-200 dark:border-zinc-800"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  Ask a Question
+                </h2>
+                <button
+                  onClick={() => setShowQuestionModal(false)}
+                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    Locality Name
+                  </label>
+                  <input
+                    type="text"
+                    value={locality}
+                    onChange={(e) => setLocality(e.target.value)}
+                    placeholder="e.g., Civil Lines, Katra"
+                    className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    Your Question
+                  </label>
+                  <textarea
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ask about safety, transport, amenities, etc..."
+                    rows={4}
+                    className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowQuestionModal(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmitQuestion}
+                    disabled={submitting}
+                    isLoading={submitting}
+                    className="flex-1"
+                  >
+                    Post Question
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Answer Modal */}
+      <AnimatePresence>
+        {showAnswerModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowAnswerModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-lg w-full border border-zinc-200 dark:border-zinc-800"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  Write an Answer
+                </h2>
+                <button
+                  onClick={() => setShowAnswerModal(false)}
+                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                    Your Answer
+                  </label>
+                  <textarea
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="Share your knowledge about this locality..."
+                    rows={5}
+                    className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAnswerModal(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmitAnswer}
+                    disabled={submitting}
+                    isLoading={submitting}
+                    className="flex-1"
+                  >
+                    Post Answer
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

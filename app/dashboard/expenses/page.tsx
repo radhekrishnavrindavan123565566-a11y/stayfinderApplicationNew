@@ -14,12 +14,15 @@ import {
   X,
   Send,
   Filter,
+  BarChart3,
+  Repeat,
 } from "lucide-react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
 
 interface SharedExpense {
   _id: string;
@@ -78,6 +81,12 @@ export default function ExpensesPage() {
   const [splitMethod, setSplitMethod] = useState("equal");
   const [participants, setParticipants] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
+  
+  // Recurring expense fields
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState<"weekly" | "monthly" | "quarterly">("monthly");
+  const [recurringDayOfMonth, setRecurringDayOfMonth] = useState(1);
+  const [recurringEndDate, setRecurringEndDate] = useState("");
 
   const fetchExpenses = useCallback(async () => {
     if (!accessToken) return;
@@ -124,26 +133,45 @@ export default function ExpensesPage() {
 
     setCreating(true);
     try {
-      await axios.post(
-        "/api/expenses",
-        {
-          amount: amountNum,
-          description,
-          category,
-          paidBy: user._id,
-          splitMethod,
-          participants: participants.length > 0 ? participants : [user._id],
-        },
-        { headers: { Authorization: `Bearer ${accessToken}` } }
-      );
+      const payload: any = {
+        amount: amountNum,
+        description,
+        category,
+        paidBy: user._id,
+        splitMethod,
+        participants: participants.length > 0 
+          ? participants.map(id => ({ userId: id, shareAmount: amountNum / (participants.length || 1) }))
+          : [{ userId: user._id, shareAmount: amountNum }],
+      };
 
-      toast.success("Expense created successfully");
+      // Add recurring fields if enabled
+      if (isRecurring) {
+        payload.isRecurring = true;
+        payload.recurringFrequency = recurringFrequency;
+        payload.recurringStartDate = new Date().toISOString();
+        if (recurringEndDate) {
+          payload.recurringEndDate = new Date(recurringEndDate).toISOString();
+        }
+        if (recurringFrequency === "monthly" || recurringFrequency === "quarterly") {
+          payload.recurringDayOfMonth = recurringDayOfMonth;
+        }
+      }
+
+      await axios.post("/api/expenses", payload, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      toast.success(isRecurring ? "Recurring expense created successfully" : "Expense created successfully");
       setShowCreateModal(false);
       setAmount("");
       setDescription("");
       setCategory("electricity");
       setSplitMethod("equal");
       setParticipants([]);
+      setIsRecurring(false);
+      setRecurringFrequency("monthly");
+      setRecurringDayOfMonth(1);
+      setRecurringEndDate("");
       fetchExpenses();
       fetchSettlements();
     } catch (error: any) {
@@ -225,6 +253,12 @@ export default function ExpensesPage() {
             </p>
           </div>
           <div className="flex gap-3">
+            <Link href="/dashboard/expenses/analytics">
+              <Button variant="outline">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </Button>
+            </Link>
             <Button
               onClick={() => setShowSettlementsModal(true)}
               variant="outline"
@@ -454,6 +488,89 @@ export default function ExpensesPage() {
                     ))}
                   </select>
                 </div>
+
+                {/* Recurring Expense Toggle */}
+                <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4">
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div>
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        Make Recurring
+                      </span>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Auto-create this expense regularly
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={isRecurring}
+                      onChange={(e) => setIsRecurring(e.target.checked)}
+                      className="w-5 h-5 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-300"
+                    />
+                  </label>
+                </div>
+
+                {/* Recurring Options */}
+                {isRecurring && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-900"
+                  >
+                    {/* Frequency */}
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Frequency
+                      </label>
+                      <select
+                        value={recurringFrequency}
+                        onChange={(e) => setRecurringFrequency(e.target.value as any)}
+                        className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white"
+                      >
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly (Every 3 months)</option>
+                      </select>
+                    </div>
+
+                    {/* Day of Month (for monthly/quarterly) */}
+                    {(recurringFrequency === "monthly" || recurringFrequency === "quarterly") && (
+                      <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                          Day of Month
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="31"
+                          value={recurringDayOfMonth}
+                          onChange={(e) => setRecurringDayOfMonth(parseInt(e.target.value) || 1)}
+                          className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white"
+                        />
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                          Expense will be created on day {recurringDayOfMonth} of each {recurringFrequency === "monthly" ? "month" : "quarter"}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* End Date (Optional) */}
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        End Date (Optional)
+                      </label>
+                      <input
+                        type="date"
+                        value={recurringEndDate}
+                        onChange={(e) => setRecurringEndDate(e.target.value)}
+                        min={new Date().toISOString().split("T")[0]}
+                        className="w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white dark:bg-zinc-800 dark:text-white"
+                      />
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                        Leave empty for no end date
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-4">

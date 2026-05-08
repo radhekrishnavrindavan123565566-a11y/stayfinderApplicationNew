@@ -91,7 +91,9 @@ export default function EditPropertyPage() {
         const p = data.data.property;
         const ownerId = typeof p.ownerId === "object" ? p.ownerId._id : p.ownerId;
         if (ownerId !== user._id && user.role !== "admin") {
-          toast.error("Not authorised"); router.push("/dashboard/properties"); return;
+          toast.error("Not authorised");
+          router.push("/dashboard/properties");
+          return;
         }
         reset({
           title: p.title,
@@ -111,7 +113,10 @@ export default function EditPropertyPage() {
         setIsAvailable(p.isAvailable ?? true);
         setCancellationPolicy(p.cancellationPolicy || "moderate");
       })
-      .catch(() => { toast.error("Failed to load property"); router.push("/dashboard/properties"); })
+      .catch(() => {
+        toast.error("Failed to load property");
+        router.push("/dashboard/properties");
+      })
       .finally(() => setFetching(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, ready, user]);

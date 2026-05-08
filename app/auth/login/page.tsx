@@ -46,9 +46,11 @@ export default function LoginPage() {
 
   // Redirect if already logged in (check once on mount)
   useEffect(() => {
-    if (user) router.replace("/dashboard");
+    if (user) {
+      router.replace("/dashboard");
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const {
     register,

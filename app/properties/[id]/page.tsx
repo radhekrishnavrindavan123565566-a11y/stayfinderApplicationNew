@@ -152,7 +152,10 @@ export default function PropertyDetailPage() {
   const router = useRouter();
 
   const handleMessageOwner = () => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
     if (!property?.ownerId?._id) return;
     const ids = [user._id, property.ownerId._id].sort();
     openChat(ids.join("_"));

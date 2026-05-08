@@ -168,7 +168,10 @@ function ChecklistPageContent() {
   useEffect(() => {
     if (!ready) return;
     if (!user) return; // useRequireAuth handles redirect
-    if (!bookingId) { router.push("/dashboard/bookings"); return; }
+    if (!bookingId) {
+      router.push("/dashboard/bookings");
+      return;
+    }
     load();
   }, [ready, user, bookingId, load, router]);
 

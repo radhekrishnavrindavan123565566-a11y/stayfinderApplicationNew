@@ -69,6 +69,13 @@ export async function POST(req: NextRequest) {
       roommateGroupId,
       receiptImages,
       expenseDate,
+      // Recurring fields
+      isRecurring,
+      recurringFrequency,
+      recurringStartDate,
+      recurringEndDate,
+      recurringDayOfMonth,
+      recurringDayOfWeek,
     } = body;
 
     if (!amount || !description || !category || !paidBy || !participants) {
@@ -84,6 +91,31 @@ export async function POST(req: NextRequest) {
       return errorResponse("Split amounts must sum to total amount");
     }
 
+    // Calculate next recurring date if recurring
+    let nextRecurringDate = null;
+    if (isRecurring && recurringFrequency) {
+      const startDate = recurringStartDate ? new Date(recurringStartDate) : new Date();
+      nextRecurringDate = new Date(startDate);
+      
+      switch (recurringFrequency) {
+        case "weekly":
+          nextRecurringDate.setDate(nextRecurringDate.getDate() + 7);
+          break;
+        case "monthly":
+          nextRecurringDate.setMonth(nextRecurringDate.getMonth() + 1);
+          if (recurringDayOfMonth) {
+            nextRecurringDate.setDate(recurringDayOfMonth);
+          }
+          break;
+        case "quarterly":
+          nextRecurringDate.setMonth(nextRecurringDate.getMonth() + 3);
+          if (recurringDayOfMonth) {
+            nextRecurringDate.setDate(recurringDayOfMonth);
+          }
+          break;
+      }
+    }
+
     // Create expense
     const expense = await SharedExpense.create({
       roommateGroupId,
@@ -96,6 +128,15 @@ export async function POST(req: NextRequest) {
       splitMethod: splitMethod || "equal",
       participants,
       receiptImages: receiptImages || [],
+      // Recurring fields
+      isRecurring: isRecurring || false,
+      recurringFrequency,
+      recurringStartDate: recurringStartDate ? new Date(recurringStartDate) : null,
+      recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
+      recurringDayOfMonth,
+      recurringDayOfWeek,
+      nextRecurringDate,
+      recurringStatus: isRecurring ? "active" : undefined,
     });
 
     // Create settlements for participants who owe money

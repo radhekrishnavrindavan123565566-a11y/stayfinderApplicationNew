@@ -1,35 +1,104 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
+import { ServiceCategory } from './ServiceProvider';
 
 export interface IServiceBooking extends Document {
-  bookingId: mongoose.Types.ObjectId;
-  serviceId: mongoose.Types.ObjectId;
-  tenantId: mongoose.Types.ObjectId;
-  scheduledDate: Date;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
-  totalPrice: number;
-  paymentStatus: "unpaid" | "paid";
-  notes?: string;
+  userId: mongoose.Types.ObjectId;
+  providerId: mongoose.Types.ObjectId;
+  maintenanceRequestId?: mongoose.Types.ObjectId;
+  serviceType: ServiceCategory;
+  description: string;
+  preferredDate: Date;
+  preferredTime: string;
+  actualDate?: Date;
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  estimatedCost: number;
+  actualCost?: number;
+  paymentId?: mongoose.Types.ObjectId;
+  completionNotes?: string;
+  photos?: string[];
+  cancelReason?: string;
+  cancelledBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const ServiceBookingSchema = new Schema<IServiceBooking>(
   {
-    bookingId: { type: Schema.Types.ObjectId, ref: "Booking", required: true },
-    serviceId: { type: Schema.Types.ObjectId, ref: "EcosystemService", required: true },
-    tenantId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    scheduledDate: { type: Date, required: true },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
+    providerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'ServiceProvider',
+      required: true,
+      index: true,
+    },
+    maintenanceRequestId: {
+      type: Schema.Types.ObjectId,
+      ref: 'MaintenanceRequest',
+      index: true,
+    },
+    serviceType: {
+      type: String,
+      enum: ['plumbing', 'electrical', 'appliance', 'structural', 'cleaning', 'pest_control', 'other'],
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    preferredDate: {
+      type: Date,
+      required: true,
+    },
+    preferredTime: {
+      type: String,
+      required: true,
+    },
+    actualDate: {
+      type: Date,
+    },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "cancelled"],
-      default: "pending",
+      enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'],
+      default: 'pending',
+      index: true,
     },
-    totalPrice: { type: Number, required: true, min: 0 },
-    paymentStatus: { type: String, enum: ["unpaid", "paid"], default: "unpaid" },
-    notes: { type: String },
+    estimatedCost: {
+      type: Number,
+      required: true,
+    },
+    actualCost: {
+      type: Number,
+    },
+    paymentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Payment',
+    },
+    completionNotes: {
+      type: String,
+    },
+    photos: {
+      type: [String],
+      default: [],
+    },
+    cancelReason: {
+      type: String,
+    },
+    cancelledBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.models.ServiceBooking ||
-  mongoose.model<IServiceBooking>("ServiceBooking", ServiceBookingSchema);
+// Indexes
+ServiceBookingSchema.index({ status: 1, preferredDate: 1 });
+
+export default mongoose.models.ServiceBooking || mongoose.model<IServiceBooking>('ServiceBooking', ServiceBookingSchema);

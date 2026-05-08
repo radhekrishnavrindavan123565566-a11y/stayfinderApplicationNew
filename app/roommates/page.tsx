@@ -270,7 +270,10 @@ export default function RoommatesPage() {
   }
 
   const handleMessage = (userId: string) => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
     const ids = [user._id, userId].sort();
     openChat(ids.join("_"));
     router.push("/chat");

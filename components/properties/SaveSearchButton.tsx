@@ -34,8 +34,14 @@ export default function SaveSearchButton({ filters }: Props) {
   if (!hasFilters) return null;
 
   const save = async () => {
-    if (!user) { router.push("/auth/login"); return; }
-    if (!name.trim()) { toast.error("Give this search a name"); return; }
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+    if (!name.trim()) {
+      toast.error("Give this search a name");
+      return;
+    }
     setSaving(true);
     try {
       // Convert string filters to typed

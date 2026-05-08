@@ -77,7 +77,10 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
   const total = subtotal + platformFee;
 
   const onSubmit = async (data: BookingInput) => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
     try {
       await axios.post("/api/bookings", data, authHeaders());
       toast.success(instantBooking ? "Booking confirmed instantly!" : "Booking request sent!");

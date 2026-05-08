@@ -1,35 +1,73 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IReview extends Document {
-  propertyId: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
   bookingId: mongoose.Types.ObjectId;
+  providerId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   rating: number;
-  comment: string;
-  ownerReply?: string;
-  ownerRepliedAt?: Date;
+  review: string;
+  photos: string[];
+  wouldRecommend: boolean;
+  helpful: number;
+  reported: boolean;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const ReviewSchema = new Schema<IReview>(
   {
-    propertyId: { type: Schema.Types.ObjectId, ref: "Property", required: true },
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    bookingId: { type: Schema.Types.ObjectId, ref: "Booking", required: true },
-    rating: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, required: true, trim: true },
-    ownerReply: { type: String, trim: true },
-    ownerRepliedAt: { type: Date },
+    bookingId: {
+      type: Schema.Types.ObjectId,
+      ref: 'ServiceBooking',
+      required: true,
+      unique: true,
+      index: true,
+    },
+    providerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'ServiceProvider',
+      required: true,
+      index: true,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    review: {
+      type: String,
+      required: true,
+    },
+    photos: {
+      type: [String],
+      default: [],
+    },
+    wouldRecommend: {
+      type: Boolean,
+      default: true,
+    },
+    helpful: {
+      type: Number,
+      default: 0,
+    },
+    reported: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// Indexes for performance
-ReviewSchema.index({ propertyId: 1, userId: 1 }, { unique: true });
-ReviewSchema.index({ propertyId: 1, createdAt: -1 }); // For property reviews
-ReviewSchema.index({ userId: 1, createdAt: -1 }); // For user's reviews
-ReviewSchema.index({ bookingId: 1 }); // For booking-related reviews
-ReviewSchema.index({ rating: -1, createdAt: -1 }); // For top-rated reviews
-ReviewSchema.index({ propertyId: 1, rating: -1 }); // For property rating queries
+// Indexes
+ReviewSchema.index({ rating: 1, helpful: -1 });
 
-export default mongoose.models.Review || mongoose.model<IReview>("Review", ReviewSchema);
+export default mongoose.models.Review || mongoose.model<IReview>('Review', ReviewSchema);
