@@ -6,6 +6,7 @@ import { Trophy, Gift, Users, Share2, CheckCircle, Zap } from "lucide-react";
 import RewardsCard from "@/components/rewards/RewardsCard";
 import BadgeShowcase from "@/components/rewards/BadgeShowcase";
 import { cn } from "@/utils/cn";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface Achievement {
   id: string;
@@ -18,13 +19,16 @@ interface Achievement {
 }
 
 export default function RewardsPage() {
+  const { ready, user } = useRequireAuth();
   const [rewards, setRewards] = useState<any>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!ready || !user) return;
     fetchData();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, user]);
 
   const fetchData = async () => {
     try {
@@ -116,9 +120,17 @@ export default function RewardsPage() {
     },
   ];
 
+  if (!ready || !user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-48 bg-zinc-200 dark:bg-zinc-800 rounded-2xl" />
@@ -130,7 +142,7 @@ export default function RewardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <motion.div

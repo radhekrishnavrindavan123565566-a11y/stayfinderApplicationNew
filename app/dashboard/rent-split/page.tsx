@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Users, Calendar, IndianRupee, CheckCircle, Clock, AlertCircle, Plus, X, Home, TrendingUp, ArrowRight } from "lucide-react";
 import RentSplitManager from "@/components/rent/RentSplitManager";
 import { cn } from "@/utils/cn";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface RentSplit {
   _id: string;
@@ -46,13 +47,18 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function RentSplitPage() {
+  const { ready, user } = useRequireAuth();
   const [rentSplits, setRentSplits] = useState<RentSplit[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    if (!ready || !user) return;
+    fetchData(); 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, user]);
 
   const fetchData = async () => {
     try {
@@ -74,6 +80,14 @@ export default function RentSplitPage() {
   const totalRent = rentSplits.reduce((s, r) => s + r.totalRent, 0);
   const paidCount = rentSplits.filter(r => r.status === "complete").length;
   const pendingCount = rentSplits.filter(r => r.status === "partial").length;
+
+  if (!ready || !user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   if (loading) {
     return (

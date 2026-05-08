@@ -8,6 +8,7 @@ import { Bell, BellOff, Plus, Trash2, Search, SlidersHorizontal } from "lucide-r
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import Button from "@/components/ui/Button";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const AMENITY_OPTIONS = ["WiFi", "AC", "Parking", "Kitchen", "Gym", "Pool", "Laundry", "Security"];
 const TENANT_TYPES = [
@@ -34,6 +35,7 @@ const sectionVariants: Variants = {
 const inputCls = "w-full border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 bg-white dark:bg-zinc-800 dark:text-white transition-colors";
 
 export default function PreferencesPage() {
+  const { ready, user: authUser } = useRequireAuth();
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const { preferences, isLoading, fetchPreferences, updatePreferences } = usePreferencesStore();
@@ -124,6 +126,14 @@ export default function PreferencesPage() {
       toast.success("Search removed");
     } catch { toast.error("Failed to remove search"); }
   };
+
+  if (!ready || !authUser) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!user) return (
     <div className="min-h-screen pt-20 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">

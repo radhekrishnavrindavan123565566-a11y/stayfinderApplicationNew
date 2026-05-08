@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((m) => m.PDFDownloadLink),
@@ -26,6 +27,7 @@ const fadeUp: Variants = {
 };
 
 export default function AgreementPage() {
+  const { ready, user: authUser } = useRequireAuth();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
@@ -38,13 +40,13 @@ export default function AgreementPage() {
   const [showSignForm, setShowSignForm] = useState(false);
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
+    if (!ready || !authUser) return;
     axios.get(`/api/agreements/${id}`, authHeaders())
       .then(({ data }) => setAgreement(data.data.agreement))
       .catch(() => toast.error("Failed to load agreement"))
       .finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, user]);
+  }, [id, ready, authUser]);
 
   const sign = async () => {
     if (!signatureInput.trim()) { toast.error("Enter your full name as signature"); return; }
@@ -58,6 +60,14 @@ export default function AgreementPage() {
       toast.error("Failed to sign");
     } finally { setSigning(false); }
   };
+
+  if (!ready || !authUser) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">

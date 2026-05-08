@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface DashboardStats {
   documents: number;
@@ -26,6 +27,7 @@ interface DashboardStats {
 }
 
 export default function DailyEngagementDashboard() {
+  const { ready, user: authUser } = useRequireAuth();
   const { user, accessToken } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats>({
     documents: 0,
@@ -36,7 +38,7 @@ export default function DailyEngagementDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!accessToken) return;
+    if (!ready || !authUser || !accessToken) return;
 
     const fetchStats = async () => {
       try {
@@ -62,7 +64,8 @@ export default function DailyEngagementDashboard() {
     };
 
     fetchStats();
-  }, [accessToken]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, authUser, accessToken]);
 
   const features = [
     {
@@ -107,6 +110,14 @@ export default function DailyEngagementDashboard() {
     },
   ];
 
+  if (!ready || !authUser) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -116,7 +127,7 @@ export default function DailyEngagementDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-8 px-4">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

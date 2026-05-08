@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
 import { format } from "date-fns";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const UP_CITIES = ["Lucknow","Prayagraj","Kanpur","Varanasi","Agra","Meerut","Noida","Ghaziabad","Mathura","Aligarh","Bareilly","Moradabad","Gorakhpur","Jhansi","Firozabad"];
 
@@ -233,6 +234,7 @@ function CreateProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved
 }
 
 export default function RoommatesPage() {
+  const { ready, user: authUser } = useRequireAuth();
   const { user, accessToken } = useAuthStore();
   const { openChat } = useChatStore();
   const router = useRouter();
@@ -254,7 +256,18 @@ export default function RoommatesPage() {
     finally { setLoading(false); }
   }, [filters]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { 
+    if (!ready || !authUser) return;
+    load(); 
+  }, [ready, authUser, load]);
+
+  if (!ready || !authUser) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   const handleMessage = (userId: string) => {
     if (!user) { router.push("/auth/login"); return; }

@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
   Users, Home, Calendar, DollarSign, Trash2, Shield, TrendingUp, Zap,
   CheckCircle, XCircle, FileText, ExternalLink, AlertOctagon,
@@ -24,6 +25,7 @@ const fadeUp: Variants = {
 };
 
 export default function AdminPage() {
+  const { ready, user: authUser } = useRequireAuth(["admin"]);
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
   const router = useRouter();
@@ -39,11 +41,10 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("overview");
 
   useEffect(() => {
-    if (!user) { router.push("/auth/login"); return; }
-    if (user.role !== "admin") { router.push("/dashboard"); return; }
+    if (!ready || !authUser) return;
     loadData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [ready, authUser]);
 
   const loadData = async () => {
     try {
@@ -92,7 +93,13 @@ export default function AdminPage() {
     } catch { toast.error("Failed to update dispute"); }
   };
 
-  if (!user || user.role !== "admin") return null;
+  if (!ready || !authUser || !user || user.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   const statCards = [
     { icon: <Users className="w-5 h-5" />, label: "Total Users", value: stats?.totalUsers, color: "bg-blue-50 text-blue-500 dark:bg-blue-950/30 dark:text-blue-400" },

@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function RevenuePage() {
+  const { ready, user } = useRequireAuth(["admin"]);
   const [data, setData] = useState<any>(null);
   const [period, setPeriod] = useState("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!ready || !user) return;
     fetchRevenue();
-  }, [period]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, ready, user]);
 
   const fetchRevenue = async () => {
     setLoading(true);
@@ -18,6 +22,14 @@ export default function RevenuePage() {
     if (json.success) setData(json.data);
     setLoading(false);
   };
+
+  if (!ready || !user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   if (loading) return <div className="p-8">Loading...</div>;
   if (!data) return <div className="p-8">No data available</div>;

@@ -8,6 +8,7 @@ import ChatWindow from "@/components/chat/ChatWindow";
 import { useRouter } from "next/navigation";
 import { format, isToday, isYesterday } from "date-fns";
 import { cn } from "@/utils/cn";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 function ConversationItem({
   convo,
@@ -85,6 +86,7 @@ function ConversationItem({
 }
 
 export default function ChatPage() {
+  const { ready, user: authUser } = useRequireAuth();
   const { user } = useAuthStore();
   const { conversations, fetchConversations, activeConversationId, setActiveConversation, isLoading } = useChatStore();
   const router = useRouter();
@@ -94,11 +96,10 @@ export default function ChatPage() {
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if (!mounted) return;
-    if (!user) { router.replace("/auth/login"); return; }
+    if (!mounted || !ready || !authUser) return;
     fetchConversations();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, mounted]);
+  }, [ready, authUser, mounted]);
 
   // Auto-open conversation from URL param (?conversation=xxx_yyy)
   useEffect(() => {
@@ -115,7 +116,7 @@ export default function ChatPage() {
     // removed debug logs
   }, [activeConversationId, activeConvo]);
 
-  if (!mounted) return (
+  if (!mounted || !ready || !authUser) return (
     <div className="h-[calc(100vh-64px)] flex items-center justify-center bg-white dark:bg-zinc-900">
       <motion.div
         animate={{ rotate: 360 }}

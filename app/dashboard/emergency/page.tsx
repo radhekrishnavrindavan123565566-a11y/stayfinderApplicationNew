@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { AlertTriangle, Plus, Trash2, Shield, Phone, User } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function EmergencyContactsPage() {
+  const { ready, user } = useRequireAuth();
   const [contacts, setContacts] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [newContact, setNewContact] = useState({
@@ -17,8 +19,10 @@ export default function EmergencyContactsPage() {
   });
 
   useEffect(() => {
+    if (!ready || !user) return;
     fetchContacts();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, user]);
 
   const fetchContacts = async () => {
     try {
@@ -75,9 +79,17 @@ export default function EmergencyContactsPage() {
     }
   };
 
+  if (!ready || !user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-32 bg-zinc-200 dark:bg-zinc-800 rounded-2xl" />
@@ -89,7 +101,7 @@ export default function EmergencyContactsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-6">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <motion.div
