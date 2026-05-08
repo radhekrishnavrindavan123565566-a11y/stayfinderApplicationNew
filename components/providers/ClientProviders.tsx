@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import AxiosInterceptor from "./AxiosInterceptor";
 
 // Lazy-load heavy client-only components — not needed for initial paint
 // This wrapper is a Client Component so ssr:false is allowed here
@@ -11,6 +12,7 @@ const PWAProvider    = dynamic(() => import("@/components/providers/PWAProvider"
 export default function ClientProviders() {
   return (
     <>
+      <AxiosInterceptor />
       <ChatWidget />
       <AIChatbot />
       <SocketProvider />

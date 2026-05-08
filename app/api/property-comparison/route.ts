@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     const comparisons = await PropertyComparison.find({ userId: user.userId })
       .populate("properties")
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { name, properties, notes } = await req.json();
 
     if (!properties || properties.length < 2) {

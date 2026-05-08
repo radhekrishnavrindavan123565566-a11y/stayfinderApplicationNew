@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
     if (!authHeader && cronSecret !== process.env.CRON_SECRET) {
       return new Response("Unauthorized", { status: 401 });
     }
-    if (authHeader) requireRole(req, ["admin"]);
+    if (authHeader) {
+      const user = requireRole(req, ["admin"]);
+      if (!user) return errorResponse("Forbidden", 403);
+    }
 
     const now = new Date();
     const currentMonth = format(startOfMonth(now), "yyyy-MM");

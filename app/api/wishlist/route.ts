@@ -7,7 +7,9 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    const { userId } = requireAuth(req);
+    const authResult = requireAuth(req);
+    if (!authResult) return errorResponse("Unauthorized", 401);
+    const { userId } = authResult;
     const { propertyId } = await req.json();
     if (!propertyId) return errorResponse("propertyId is required");
 

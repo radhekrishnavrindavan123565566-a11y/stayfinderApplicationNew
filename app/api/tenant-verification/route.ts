@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     let verification = await TenantVerification.findOne({ userId: user.userId });
 
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { documentType, fileUrl } = await req.json();
 
     const verification = await TenantVerification.findOneAndUpdate(

@@ -24,7 +24,8 @@ async function sendNotif(userId: string, type: "booking" | "payment" | "system",
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
 
     const { type } = await req.json(); // "tenant_rent" | "owner_agreement" | "admin_verification" | "all"
     const now = new Date();

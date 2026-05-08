@@ -10,7 +10,8 @@ import { successResponse, handleApiError } from "@/lib/apiResponse";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
 
     const [totalUsers, ownerCount, tenantCount, totalProperties, totalBookings, revenueAgg, userGrowth] = await Promise.all([
       User.countDocuments(),

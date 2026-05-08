@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     const searches = await SavedSearch.find({ userId: user.userId, isActive: true })
       .sort({ createdAt: -1 })
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { name, filters, alertEnabled, alertFrequency } = await req.json();
 
     const search = await SavedSearch.create({

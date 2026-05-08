@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
 
     if (!validCronSecret) {
       // Fall back to admin role check
-      requireRole(req, ["admin"]);
+      const user = requireRole(req, ["admin"]);
+      if (!user) return errorResponse("Forbidden", 403);
     }
 
     await connectDB();

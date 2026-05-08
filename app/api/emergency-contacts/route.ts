@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     let contact = await EmergencyContact.findOne({ userId: user.userId });
 
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const body = await req.json();
 
     const contact = await EmergencyContact.findOneAndUpdate(

@@ -10,6 +10,7 @@ import { format } from "date-fns";
 export async function GET(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const agreements = await RentAgreement.find({
       $or: [{ tenantId: user.userId }, { ownerId: user.userId }],
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { bookingId } = await req.json();
     if (!bookingId) return errorResponse("bookingId required");

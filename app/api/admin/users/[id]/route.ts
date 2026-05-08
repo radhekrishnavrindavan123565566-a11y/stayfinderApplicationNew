@@ -7,7 +7,8 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]);
+    const authUser = requireRole(req, ["admin"]);
+    if (!authUser) return errorResponse("Forbidden", 403);
     const { id } = await params;
     const user = await User.findByIdAndDelete(id);
     if (!user) return errorResponse("User not found", 404);
@@ -20,7 +21,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]);
+    const authUser = requireRole(req, ["admin"]);
+    if (!authUser) return errorResponse("Forbidden", 403);
     const { id } = await params;
     const body = await req.json();
     const user = await User.findByIdAndUpdate(id, body, { new: true });

@@ -89,6 +89,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const result = await calculateScore(user.userId);
 
     // Cache score on user document

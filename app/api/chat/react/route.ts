@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { messageId, emoji } = await req.json();
     if (!messageId || !emoji) return errorResponse("messageId and emoji are required");
 

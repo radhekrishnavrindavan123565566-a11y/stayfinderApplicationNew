@@ -13,6 +13,7 @@ export async function GET(
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { id } = await params;
 
     const document = await RentalDocument.findOne({
@@ -36,6 +37,7 @@ export async function DELETE(
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { id } = await params;
 
     const document = await RentalDocument.findOne({
@@ -71,6 +73,7 @@ export async function PATCH(
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { id } = await params;
 
     const body = await req.json();

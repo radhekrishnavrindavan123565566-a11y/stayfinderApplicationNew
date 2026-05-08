@@ -7,6 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     // Admin sees all disputes, users see their own
     const query = user.role === "admin" ? {} : { raisedBy: user.userId };
@@ -21,6 +22,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { bookingId, reason, description, evidence } = await req.json();
     if (!bookingId || !reason || !description) return errorResponse("Missing required fields");

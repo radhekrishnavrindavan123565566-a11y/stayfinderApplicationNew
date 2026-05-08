@@ -20,14 +20,14 @@ export function authenticateRequest(req: NextRequest): JWTPayload | null {
   }
 }
 
-export function requireAuth(req: NextRequest): JWTPayload {
+export function requireAuth(req: NextRequest): JWTPayload | null {
   const user = authenticateRequest(req);
-  if (!user) throw new Error("Unauthorized");
   return user;
 }
 
-export function requireRole(req: NextRequest, roles: string[]): JWTPayload {
+export function requireRole(req: NextRequest, roles: string[]): JWTPayload | null {
   const user = requireAuth(req);
-  if (!roles.includes(user.role)) throw new Error("Forbidden");
+  if (!user) return null;
+  if (!roles.includes(user.role)) return null;
   return user;
 }

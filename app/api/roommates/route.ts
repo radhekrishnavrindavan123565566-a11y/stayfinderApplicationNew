@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     if (user.role === "owner") {
       return errorResponse("Property owners cannot create a roommate profile. Only tenants can look for roommates.", 403);
@@ -66,6 +67,7 @@ export async function DELETE(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await RoommateProfile.findOneAndUpdate({ userId: user.userId }, { isActive: false });
     return successResponse({ message: "Profile deactivated" });
   } catch (error) {

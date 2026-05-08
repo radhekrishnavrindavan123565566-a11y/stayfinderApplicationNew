@@ -8,6 +8,7 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { username, avatar, verificationDoc, phone } = await req.json();
 
     const updates: Record<string, unknown> = {};

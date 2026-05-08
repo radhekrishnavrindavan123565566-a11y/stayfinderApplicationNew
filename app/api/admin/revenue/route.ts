@@ -8,7 +8,8 @@ import { successResponse, handleApiError } from "@/lib/apiResponse";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]); // admin only
+    const user = requireRole(req, ["admin"]); // admin only
+    if (!user) return errorResponse("Forbidden", 403);
 
     const { searchParams } = new URL(req.url);
     const period = searchParams.get("period") || "all"; // all, month, week, today

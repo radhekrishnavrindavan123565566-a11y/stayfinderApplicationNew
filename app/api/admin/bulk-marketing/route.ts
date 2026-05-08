@@ -14,7 +14,8 @@ import { emit } from "@/lib/chatEvents";
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
 
     const contentType = req.headers.get("content-type") || "";
 

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     let reward = await UserReward.findOne({ userId: user.userId });
     

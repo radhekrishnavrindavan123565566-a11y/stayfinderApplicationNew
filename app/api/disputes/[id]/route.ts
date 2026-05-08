@@ -7,6 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { id } = await params;
     const dispute = await Dispute.findById(id).populate("bookingId").populate("raisedBy", "username email");
@@ -18,7 +19,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     await connectDB();
     const { id } = await params;
     const { status, adminNotes, resolution } = await req.json();

@@ -7,6 +7,7 @@ import { successResponse, handleApiError } from "@/lib/apiResponse";
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     heartbeat(user.userId);
     return successResponse({ online: true });
   } catch (e) {
@@ -17,7 +18,8 @@ export async function POST(req: NextRequest) {
 // GET — check online status of a list of users
 export async function GET(req: NextRequest) {
   try {
-    requireAuth(req);
+    const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const ids = req.nextUrl.searchParams.get("ids")?.split(",") || [];
     return successResponse({ status: getOnlineUsers(ids) });
   } catch (e) {

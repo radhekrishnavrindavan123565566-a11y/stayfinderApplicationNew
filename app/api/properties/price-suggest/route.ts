@@ -7,7 +7,8 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireAuth(req);
+    const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city");
     const propertyType = searchParams.get("type");

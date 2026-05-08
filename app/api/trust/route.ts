@@ -8,6 +8,7 @@ import { IUser } from "@/models/User";
 export async function GET(req: NextRequest) {
   try {
     const caller = requireAuth(req);
+    if (!caller) return errorResponse("Unauthorized", 401);
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
 

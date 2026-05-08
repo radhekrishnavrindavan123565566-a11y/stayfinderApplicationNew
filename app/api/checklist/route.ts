@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { searchParams } = new URL(req.url);
     const bookingId = searchParams.get("bookingId");
     if (!bookingId) return errorResponse("bookingId required");
@@ -87,6 +88,7 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { bookingId, items, action } = await req.json();
     if (!bookingId) return errorResponse("bookingId required");
 

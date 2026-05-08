@@ -7,6 +7,7 @@ import { successResponse, handleApiError } from "@/lib/apiResponse";
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     await connectDB();
     const { receiverId, conversationId, isTyping } = await req.json();
 

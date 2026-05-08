@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     let prefs = await UserPreferences.findOne({ userId: user.userId });
     if (!prefs) {
       prefs = await UserPreferences.create({
@@ -29,6 +30,7 @@ export async function PUT(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const body = await req.json();
     const { budget, preferredBedrooms, preferredAmenities, preferredCities, tenantType } = body;
 
@@ -54,6 +56,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { savedSearch } = await req.json();
     if (!savedSearch) return successResponse({});
     const prefs = await UserPreferences.findOneAndUpdate(
@@ -71,6 +74,7 @@ export async function PATCH(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const body = await req.json();
     const update: Record<string, unknown> = {};
     if (body.savedSearches !== undefined) update.savedSearches = body.savedSearches;

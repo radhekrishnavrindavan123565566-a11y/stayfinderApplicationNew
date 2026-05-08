@@ -73,7 +73,8 @@ async function ruleBasedScore(property: {
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    requireRole(req, ["owner", "admin"]); // only owners & admins can run fraud checks
+    const user = requireRole(req, ["owner", "admin"]); // only owners & admins can run fraud checks
+    if (!user) return errorResponse("Forbidden", 403);
 
     const { propertyId } = await req.json();
     if (!propertyId) return errorResponse("propertyId is required");

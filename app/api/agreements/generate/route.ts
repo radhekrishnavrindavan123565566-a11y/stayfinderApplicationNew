@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
   try {
     // Authenticate and get user
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     
     await connectDB();
     

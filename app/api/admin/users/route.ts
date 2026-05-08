@@ -7,7 +7,8 @@ import { successResponse, handleApiError } from "@/lib/apiResponse";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const users = await User.find().sort({ createdAt: -1 });
     return successResponse({ users });
   } catch (error) {

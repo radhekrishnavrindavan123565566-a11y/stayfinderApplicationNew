@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireRole(req, ["owner", "admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const { propertyId, message, channel = "in-app" } = await req.json();
 
     if (!message?.trim()) return errorResponse("Message is required");
@@ -93,6 +94,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireRole(req, ["owner", "admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("propertyId");
 

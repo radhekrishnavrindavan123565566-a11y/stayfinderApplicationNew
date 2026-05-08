@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { bookingId, splits, month, dueDate } = await req.json();
 
     const booking = await Booking.findById(bookingId);
@@ -51,6 +52,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { searchParams } = new URL(req.url);
     const bookingId = searchParams.get("bookingId");
 

@@ -60,7 +60,8 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    requireAuth(req);
+    const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const contentType = req.headers.get("content-type") || "";
 
     let buffer: Buffer;

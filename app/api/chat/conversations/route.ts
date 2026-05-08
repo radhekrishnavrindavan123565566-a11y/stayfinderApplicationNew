@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const userId = new mongoose.Types.ObjectId(user.userId);
 
     // Get latest message per conversation

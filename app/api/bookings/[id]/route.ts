@@ -10,6 +10,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     await connectDB();
     const { id } = await params;
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const booking = await Booking.findById(id)
       .populate("propertyId", "title images price location cancellationPolicy")
       .populate("tenantId", "username avatar email")
@@ -29,6 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     await connectDB();
     const { id } = await params;
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { status } = await req.json();
     const booking = await Booking.findById(id).populate("propertyId", "title");
     if (!booking) return errorResponse("Booking not found", 404);

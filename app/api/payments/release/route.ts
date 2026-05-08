@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { bookingId } = await req.json();
     if (!bookingId) return errorResponse("bookingId is required");
 

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireRole(req, ["owner", "admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const properties = await Property.find({ ownerId: user.userId }).sort({ createdAt: -1 });
     return successResponse({ properties });
   } catch (error) {

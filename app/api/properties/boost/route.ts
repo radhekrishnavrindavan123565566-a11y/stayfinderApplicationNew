@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const { propertyId } = await req.json();
     if (!propertyId) return errorResponse("propertyId is required");
 

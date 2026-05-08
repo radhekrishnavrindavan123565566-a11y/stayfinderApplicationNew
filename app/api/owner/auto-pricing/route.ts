@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireRole(req, ["owner", "admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const ownerId = new mongoose.Types.ObjectId(user.userId);
 
     const properties = await Property.find({ ownerId, isAvailable: true }).lean();
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireRole(req, ["owner", "admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const { propertyIds, dropPercent = 10 } = await req.json();
 
     const ownerId = new mongoose.Types.ObjectId(user.userId);

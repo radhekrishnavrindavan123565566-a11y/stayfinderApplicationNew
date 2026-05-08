@@ -7,7 +7,8 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireAuth(req); // must be logged in to browse ecosystem services
+    const user = requireAuth(req); // must be logged in to browse ecosystem services
+    if (!user) return errorResponse("Unauthorized", 401);
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city");
     const query: Record<string, unknown> = { isActive: true };
@@ -19,7 +20,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     await connectDB();
     const body = await req.json();
     const service = await EcosystemService.create(body);

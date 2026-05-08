@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     const body = await req.json();
     const { documentIds, expiryHours } = body;
@@ -58,6 +59,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     const shares = await DocumentShare.find({
       userId: user.userId,

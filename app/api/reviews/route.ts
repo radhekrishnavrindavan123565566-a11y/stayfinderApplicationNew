@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const body = await req.json();
     const parsed = reviewSchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error!.issues[0].message);

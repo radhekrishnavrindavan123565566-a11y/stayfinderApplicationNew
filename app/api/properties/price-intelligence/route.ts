@@ -7,7 +7,8 @@ import { format } from "date-fns";
 
 export async function POST(req: NextRequest) {
   try {
-    requireRole(req, ["admin"]);
+    const user = requireRole(req, ["admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     await connectDB();
 
     const body = await req.json().catch(() => ({}));

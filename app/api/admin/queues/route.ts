@@ -13,6 +13,7 @@ import {
 export async function GET(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     // Only admins can view queue stats
     if (user.role !== 'admin') {
@@ -59,6 +60,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     // Only admins can retry jobs
     if (user.role !== 'admin') {

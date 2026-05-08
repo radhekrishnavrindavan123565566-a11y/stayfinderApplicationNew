@@ -21,6 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     await connectDB();
     const { id } = await params;
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const property = await Property.findById(id);
     if (!property) return errorResponse("Property not found", 404);
     if (property.ownerId.toString() !== user.userId && user.role !== "admin") {
@@ -56,6 +57,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     await connectDB();
     const { id } = await params;
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     const property = await Property.findById(id);
     if (!property) return errorResponse("Property not found", 404);
     if (property.ownerId.toString() !== user.userId && user.role !== "admin") {

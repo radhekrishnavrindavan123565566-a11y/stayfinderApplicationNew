@@ -7,6 +7,8 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
+    
     await connectDB();
     const { id } = await params;
     const { confirmed, issues } = await req.json();

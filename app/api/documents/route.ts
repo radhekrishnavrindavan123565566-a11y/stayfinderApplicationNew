@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     const documents = await RentalDocument.find({ userId: user.userId })
       .sort({ createdAt: -1 })
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
 
     const body = await req.json();
     const { documentType, fileName, fileUrl, fileSize, expiryDate } = body;

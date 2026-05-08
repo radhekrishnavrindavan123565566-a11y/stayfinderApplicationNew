@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
     if (user.role !== "owner" && user.role !== "admin") return errorResponse("Forbidden", 403);
 
     const ownerId = new mongoose.Types.ObjectId(user.userId);

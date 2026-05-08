@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = requireRole(req, ["owner", "admin"]);
+    if (!user) return errorResponse("Forbidden", 403);
     const body = await req.json();
     const parsed = propertySchema.safeParse(body);
     if (!parsed.success) return errorResponse(parsed.error!.issues[0].message);
