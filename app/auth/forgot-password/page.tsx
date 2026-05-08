@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Password Reset!</h2>
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6">Your password has been updated successfully.</p>
-                <Button onClick={() => router.push("/auth/login")} className="w-full">
+                <Button onClick={() => window.location.href = "/auth/login"} className="w-full">
                   Sign In <ArrowRight className="w-4 h-4" />
                 </Button>
               </motion.div>

@@ -37,12 +37,12 @@ export function useRequireAuth(
     }
 
     if (!resolvedUser) {
-      router.replace(redirectTo);
+      window.location.href = redirectTo;
       return;
     }
 
     if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(resolvedUser.role)) {
-      router.replace("/dashboard");
+      window.location.href = "/dashboard";
       return;
     }
 
@@ -56,7 +56,7 @@ export function useRequireAuth(
   useEffect(() => {
     if (!ready) return;
     if (!liveUser) {
-      router.replace(redirectTo);
+      window.location.href = redirectTo;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveUser]);

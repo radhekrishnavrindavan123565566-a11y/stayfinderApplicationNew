@@ -92,7 +92,7 @@ export default function EditPropertyPage() {
         const ownerId = typeof p.ownerId === "object" ? p.ownerId._id : p.ownerId;
         if (ownerId !== user._id && user.role !== "admin") {
           toast.error("Not authorised");
-          router.push("/dashboard/properties");
+          window.location.href = "/dashboard/properties";
           return;
         }
         reset({
@@ -115,7 +115,7 @@ export default function EditPropertyPage() {
       })
       .catch(() => {
         toast.error("Failed to load property");
-        router.push("/dashboard/properties");
+        window.location.href = "/dashboard/properties";
       })
       .finally(() => setFetching(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,7 +143,7 @@ export default function EditPropertyPage() {
         cancellationPolicy,
       }, authHeaders());
       toast.success("Property updated!");
-      router.push("/dashboard/properties");
+      window.location.href = "/dashboard/properties";
     } catch (err) {
       if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || "Update failed");
     }

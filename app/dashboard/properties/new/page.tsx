@@ -140,7 +140,7 @@ export default function NewPropertyPage() {
       };
       await axios.post("/api/properties", payload, authHeaders());
       toast.success("Property listed successfully!");
-      router.push("/dashboard/properties");
+      window.location.href = "/dashboard/properties";
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const msg = err.response?.data?.error || "Failed to create property";

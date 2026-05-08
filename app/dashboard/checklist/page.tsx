@@ -169,7 +169,7 @@ function ChecklistPageContent() {
     if (!ready) return;
     if (!user) return; // useRequireAuth handles redirect
     if (!bookingId) {
-      router.push("/dashboard/bookings");
+      window.location.href = "/dashboard/bookings";
       return;
     }
     load();

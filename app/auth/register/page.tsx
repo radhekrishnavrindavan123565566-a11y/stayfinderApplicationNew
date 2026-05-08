@@ -78,13 +78,13 @@ export default function RegisterPage() {
   const { register: registerUser, user } = useAuthStore();
   const router = useRouter();
 
-  // Redirect if already logged in (check once on mount)
+  // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.replace("/dashboard");
+      window.location.href = "/dashboard";
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -141,8 +141,8 @@ export default function RegisterPage() {
           await axios.patch("/api/user/profile", { phone: `+91${phoneValue}` });
         } catch { /* non-critical */ }
       }
-      toast.success("Account created! Welcome to Stayerra.");
-      router.push("/dashboard");
+      // Immediate redirect
+      window.location.href = "/dashboard";
     } catch (err) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Verification failed" : "Something went wrong";
       setServerError(msg); toast.error(msg);

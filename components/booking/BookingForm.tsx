@@ -78,13 +78,13 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
 
   const onSubmit = async (data: BookingInput) => {
     if (!user) {
-      router.push("/auth/login");
+      window.location.href = "/auth/login";
       return;
     }
     try {
       await axios.post("/api/bookings", data, authHeaders());
       toast.success(instantBooking ? "Booking confirmed instantly!" : "Booking request sent!");
-      router.push("/dashboard/bookings");
+      window.location.href = "/dashboard/bookings";
     } catch (err) {
       if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || "Booking failed");
     }

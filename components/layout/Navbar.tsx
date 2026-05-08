@@ -64,7 +64,7 @@ export default function Navbar() {
     try {
       await logout();
       toast.success("Logged out");
-      router.push("/");
+      window.location.href = "/";
     } catch {
       toast.error("Logout failed");
     } finally {

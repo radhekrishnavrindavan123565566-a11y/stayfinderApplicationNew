@@ -44,13 +44,15 @@ export default function LoginPage() {
   const { login, user } = useAuthStore();
   const router = useRouter();
 
-  // Redirect if already logged in (check once on mount)
+  // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.replace("/dashboard");
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirect = searchParams.get('redirect') || '/dashboard';
+      window.location.href = redirect;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, []);
 
   const {
     register,
@@ -68,9 +70,15 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginInput) => {
     setServerError("");
     try {
+      // Get redirect destination before login
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirect = searchParams.get('redirect') || '/dashboard';
+      
+      // Perform login
       await login(data.email, data.password);
-      toast.success("Welcome back!");
-      router.push("/dashboard");
+      
+      // Immediate redirect without waiting for toast
+      window.location.href = redirect;
     } catch (err) {
       const msg = axios.isAxiosError(err)
         ? err.response?.data?.error || "Login failed"

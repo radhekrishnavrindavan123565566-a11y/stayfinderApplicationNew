@@ -153,7 +153,7 @@ export default function PropertyDetailPage() {
 
   const handleMessageOwner = () => {
     if (!user) {
-      router.push("/auth/login");
+      window.location.href = "/auth/login";
       return;
     }
     if (!property?.ownerId?._id) return;

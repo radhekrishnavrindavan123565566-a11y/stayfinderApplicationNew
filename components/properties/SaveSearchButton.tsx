@@ -35,7 +35,7 @@ export default function SaveSearchButton({ filters }: Props) {
 
   const save = async () => {
     if (!user) {
-      router.push("/auth/login");
+      window.location.href = "/auth/login";
       return;
     }
     if (!name.trim()) {

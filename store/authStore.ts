@@ -79,7 +79,13 @@ axios.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
         if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+          // Clear auth state
           useAuthStore.setState({ user: null, accessToken: null, refreshToken: null });
+          // Redirect to login with current path as redirect parameter (avoid loop)
+          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/')) {
+            const currentPath = window.location.pathname + window.location.search;
+            window.location.href = `/auth/login?redirect=${encodeURIComponent(currentPath)}`;
+          }
         }
         return Promise.reject(err);
       } finally {
@@ -133,8 +139,41 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        try { await axios.post("/api/auth/logout"); } catch { /* silent */ }
+        try { 
+          await axios.post("/api/auth/logout"); 
+        } catch { 
+          /* silent */ 
+        }
+        
+        // Clear Zustand state
         set({ user: null, accessToken: null, refreshToken: null });
+        
+        // Clear all localStorage items
+        if (typeof window !== 'undefined') {
+          try {
+            // Clear auth storage
+            localStorage.removeItem('auth-storage');
+            
+            // Clear any other app-related storage
+            const keysToRemove: string[] = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key) {
+                keysToRemove.push(key);
+              }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            
+            // Clear all cookies
+            document.cookie.split(";").forEach((c) => {
+              document.cookie = c
+                .replace(/^ +/, "")
+                .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+            });
+          } catch (e) {
+            console.error('Error clearing storage:', e);
+          }
+        }
       },
 
       fetchMe: async () => {

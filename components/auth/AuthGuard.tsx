@@ -40,7 +40,7 @@ export default function AuthGuard({ children, requiredRoles, redirectTo = "/auth
           // Check role
           if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(user.role)) {
             setStatus("redirecting");
-            router.replace("/dashboard");
+            window.location.href = "/dashboard";
             return;
           }
           // All good — also ensure Zustand is hydrated
@@ -55,7 +55,7 @@ export default function AuthGuard({ children, requiredRoles, redirectTo = "/auth
 
     // No user in storage → redirect
     setStatus("redirecting");
-    router.replace(redirectTo);
+    window.location.href = redirectTo;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,7 +66,7 @@ export default function AuthGuard({ children, requiredRoles, redirectTo = "/auth
   useEffect(() => {
     if (!hydrated || status !== "allowed") return;
     if (!user) {
-      router.replace(redirectTo);
+      window.location.href = redirectTo;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, hydrated]);
