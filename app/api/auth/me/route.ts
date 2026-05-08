@@ -7,8 +7,9 @@ import { successResponse, handleApiError } from "@/lib/apiResponse";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const { userId } = requireAuth(req);
-    const user = await User.findById(userId).populate("wishlist", "title images price location");
+    const auth = requireAuth(req);
+    if (!auth) throw new Error("Unauthorized");
+    const user = await User.findById(auth.userId).populate("wishlist", "title images price location");
     if (!user) throw new Error("Not Found");
     return successResponse({ user });
   } catch (error) {
