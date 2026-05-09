@@ -55,8 +55,20 @@ export async function POST(req: NextRequest) {
       await User.updateOne({ _id: adminUser._id }, { $set: { refreshToken } });
 
       const response = successResponse({ user: adminUser, accessToken, refreshToken });
-      response.cookies.set("accessToken",  accessToken,  { httpOnly: true, maxAge: 900 });
-      response.cookies.set("refreshToken", refreshToken, { httpOnly: true, maxAge: 604800 });
+      response.cookies.set("accessToken",  accessToken,  { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 900, // 15 minutes
+        path: '/'
+      });
+      response.cookies.set("refreshToken", refreshToken, { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 604800, // 7 days
+        path: '/'
+      });
       return response;
     }
     // ────────────────────────────────────────────────────────────────
@@ -75,8 +87,20 @@ export async function POST(req: NextRequest) {
     await User.updateOne({ _id: user._id }, { $set: { refreshToken } });
 
     const response = successResponse({ user, accessToken, refreshToken });
-    response.cookies.set("accessToken",  accessToken,  { httpOnly: true, maxAge: 900 });
-    response.cookies.set("refreshToken", refreshToken, { httpOnly: true, maxAge: 604800 });
+    response.cookies.set("accessToken",  accessToken,  { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 900, // 15 minutes
+      path: '/'
+    });
+    response.cookies.set("refreshToken", refreshToken, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 604800, // 7 days
+      path: '/'
+    });
     return response;
   } catch (error) {
     return handleApiError(error);

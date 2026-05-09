@@ -50,8 +50,10 @@ export default function RevenuePage() {
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`px-4 py-2 rounded ${
-              period === p ? "bg-blue-600 text-white" : "bg-gray-200"
+            className={`px-4 py-2 rounded font-medium transition-colors ${
+              period === p 
+                ? "bg-blue-600 text-white" 
+                : "bg-gray-200 dark:bg-zinc-700 text-zinc-900 dark:text-white hover:bg-gray-300 dark:hover:bg-zinc-600"
             }`}
           >
             {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -118,10 +120,10 @@ function StatCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={`p-6 rounded-lg shadow ${highlight ? "bg-yellow-50 border-2 border-yellow-400" : "bg-white"}`}>
-      <h3 className="text-sm text-gray-600 mb-2">{title}</h3>
-      <div className="text-2xl font-bold mb-1">{value}</div>
-      <p className="text-xs text-gray-500">{subtitle}</p>
+    <div className={`p-6 rounded-lg shadow ${highlight ? "bg-yellow-50 dark:bg-yellow-950/20 border-2 border-yellow-400 dark:border-yellow-600" : "bg-white dark:bg-zinc-900"}`}>
+      <h3 className="text-sm text-gray-600 dark:text-zinc-400 mb-2">{title}</h3>
+      <div className="text-2xl font-bold mb-1 text-zinc-900 dark:text-white">{value}</div>
+      <p className="text-xs text-gray-500 dark:text-zinc-500">{subtitle}</p>
     </div>
   );
 }

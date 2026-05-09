@@ -40,8 +40,20 @@ export async function POST(req: NextRequest) {
     await User.updateOne({ _id: user._id }, { $set: { refreshToken } });
 
     const response = successResponse({ accessToken, refreshToken });
-    response.cookies.set("accessToken",  accessToken,  { httpOnly: true, maxAge: 7200,   sameSite: "lax", path: "/" });
-    response.cookies.set("refreshToken", refreshToken, { httpOnly: true, maxAge: 2592000, sameSite: "lax", path: "/" });
+    response.cookies.set("accessToken",  accessToken,  { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7200, // 2 hours
+      sameSite: "lax", 
+      path: "/" 
+    });
+    response.cookies.set("refreshToken", refreshToken, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 2592000, // 30 days
+      sameSite: "lax", 
+      path: "/" 
+    });
     return response;
   } catch (error) {
     return handleApiError(error);

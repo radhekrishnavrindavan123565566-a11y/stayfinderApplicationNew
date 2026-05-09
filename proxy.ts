@@ -30,11 +30,17 @@ function getTokenPayload(token: string): { userId?: string; role?: string } | nu
 }
 
 function getToken(req: NextRequest): string | null {
-  // Check Authorization header
+  // Check Authorization header first (from localStorage via axios interceptor)
   const auth = req.headers.get("authorization");
   if (auth?.startsWith("Bearer ")) return auth.slice(7);
-  // Check cookie
-  return req.cookies.get("accessToken")?.value ?? null;
+  
+  // Check cookie as fallback
+  const cookieToken = req.cookies.get("accessToken")?.value;
+  if (cookieToken) return cookieToken;
+  
+  // For client-side navigation, check if there's a token in the request
+  // This handles cases where localStorage has the token but cookie expired
+  return null;
 }
 
 export function proxy(req: NextRequest) {
