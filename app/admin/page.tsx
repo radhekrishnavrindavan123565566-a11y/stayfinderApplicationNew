@@ -12,12 +12,14 @@ import {
   CheckCircle, XCircle, FileText, ExternalLink, AlertOctagon,
   Bell, Megaphone, Upload, Send,
 } from "lucide-react";
+import OccupancyChart from "@/components/admin/OccupancyChart";
+import LateFeeCalculator from "@/components/admin/LateFeeCalculator";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
-type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing" | "add-user";
+type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing" | "add-user" | "late-fee";
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const fadeUp: Variants = {
@@ -131,6 +133,7 @@ export default function AdminPage() {
     { key: "add-user", label: "Add User" },
     { key: "verifications", label: "Verifications", badge: pendingVerifications.length },
     { key: "disputes", label: "Disputes", badge: disputes.filter((d) => d.status === "open").length },
+    { key: "late-fee", label: "Late Fee Calc" },
     { key: "reminders", label: "Reminders" },
     { key: "marketing", label: "Bulk Marketing" },
   ];
@@ -294,10 +297,19 @@ export default function AdminPage() {
                   </Link>
                 </motion.div>
 
+                {/* Occupancy Chart */}
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <OccupancyChart />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
                   className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 overflow-hidden"
                 >
                   <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
@@ -674,6 +686,13 @@ export default function AdminPage() {
             {tab === "marketing" && (
               <motion.div key="marketing" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
                 <BulkMarketingPanel authHeaders={authHeaders} />
+              </motion.div>
+            )}
+
+            {/* Late Fee Calculator */}
+            {tab === "late-fee" && (
+              <motion.div key="late-fee" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <LateFeeCalculator />
               </motion.div>
             )}
 

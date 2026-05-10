@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterInput } from "@/lib/validations";
@@ -64,7 +64,7 @@ const STATS = [
   { v: "120+", l: "Cities" },    { v: "4.9★", l: "Rating" },
 ];
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [showPass, setShowPass]       = useState(false);
   const [serverError, setServerError] = useState("");
   const [regStep, setRegStep]         = useState<RegStep>("form");
@@ -75,15 +75,22 @@ export default function RegisterPage() {
   const [termsError, setTermsError]   = useState(false);
   const [pendingData, setPendingData] = useState<RegisterInput | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
+  const [mounted, setMounted]         = useState(false);
   const { register: registerUser, user } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
+    if (mounted && user) {
       router.push("/dashboard");
     }
-  }, [user, router]);
+  }, [user, router, mounted]);
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -443,5 +450,17 @@ export default function RegisterPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 }

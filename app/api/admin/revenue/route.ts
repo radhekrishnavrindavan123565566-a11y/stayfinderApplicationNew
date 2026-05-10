@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Transaction from "@/models/Transaction";
 import Booking from "@/models/Booking";
+import RentPayment from "@/models/RentPayment";
+import Property from "@/models/Property";
 import { requireRole } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 
@@ -87,6 +89,87 @@ export async function GET(req: NextRequest) {
       count: 0,
     };
 
+    // Pending Rent
+    const currentDate = new Date();
+    const pendingRents = await RentPayment.aggregate([
+      { 
+        $match: { 
+          status: { $in: ["pending", "late"] },
+          dueDate: { $lte: currentDate }
+        } 
+      },
+      {
+        $group: {
+          _id: null,
+          totalPending: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const pendingRentStats = pendingRents[0] || {
+      totalPending: 0,
+      count: 0,
+    };
+
+    // Calculate late fees for overdue payments
+    const overduePayments = await RentPayment.find({
+      status: { $in: ["pending", "late"] },
+      dueDate: { $lt: currentDate }
+    });
+
+    let totalLateFees = 0;
+    overduePayments.forEach(payment => {
+      const daysLate = Math.floor((currentDate.getTime() - new Date(payment.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+      if (daysLate > 0) {
+        // 2% per day, max 20%
+        const lateFeePercent = Math.min(daysLate * 2, 20);
+        totalLateFees += (payment.amount * lateFeePercent) / 100;
+      }
+    });
+
+    // Property Performance by Location
+    const propertyPerformance = await Booking.aggregate([
+      { 
+        $match: { 
+          status: { $in: ["approved", "completed"] },
+          paymentStatus: "paid"
+        } 
+      },
+      {
+        $lookup: {
+          from: "properties",
+          localField: "propertyId",
+          foreignField: "_id",
+          as: "property"
+        }
+      },
+      { $unwind: "$property" },
+      {
+        $group: {
+          _id: "$property.location.city",
+          totalRevenue: { $sum: "$totalPrice" },
+          platformFees: { $sum: "$platformFee" },
+          bookings: { $sum: 1 },
+          properties: { $addToSet: "$propertyId" }
+        }
+      },
+      {
+        $project: {
+          city: "$_id",
+          totalRevenue: 1,
+          platformFees: 1,
+          bookings: 1,
+          propertyCount: { $size: "$properties" },
+          avgRevenuePerProperty: { 
+            $divide: ["$totalRevenue", { $size: "$properties" }] 
+          }
+        }
+      },
+      { $sort: { totalRevenue: -1 } },
+      { $limit: 10 }
+    ]);
+
     return successResponse({
       period,
       revenue: {
@@ -103,6 +186,13 @@ export async function GET(req: NextRequest) {
         platformFeeHeld: escrowStats.platformFeeHeld,
         pendingBookings: escrowStats.count,
       },
+      pendingRent: {
+        total: pendingRentStats.totalPending,
+        count: pendingRentStats.count,
+        lateFees: totalLateFees,
+        overdueCount: overduePayments.length,
+      },
+      propertyPerformance,
       monthlyRevenue,
     });
   } catch (error) {

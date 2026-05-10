@@ -30,16 +30,14 @@ function getTokenPayload(token: string): { userId?: string; role?: string } | nu
 }
 
 function getToken(req: NextRequest): string | null {
-  // Check Authorization header first (from localStorage via axios interceptor)
-  const auth = req.headers.get("authorization");
-  if (auth?.startsWith("Bearer ")) return auth.slice(7);
-  
-  // Check cookie as fallback
+  // Check cookie first (set by API routes)
   const cookieToken = req.cookies.get("accessToken")?.value;
   if (cookieToken) return cookieToken;
   
-  // For client-side navigation, check if there's a token in the request
-  // This handles cases where localStorage has the token but cookie expired
+  // Check Authorization header (from localStorage via axios interceptor)
+  const auth = req.headers.get("authorization");
+  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  
   return null;
 }
 
@@ -50,13 +48,27 @@ export function proxy(req: NextRequest) {
   const payload = token ? getTokenPayload(token) : null;
   const isLoggedIn = !!payload?.userId;
 
+  // For client-side navigation, check if this is a navigation request
+  // If there's no cookie but it's a client-side navigation, let it through
+  // The client-side auth check will handle it
+  const isClientNavigation = req.headers.get("sec-fetch-dest") === "document" && 
+                             req.headers.get("sec-fetch-mode") === "navigate";
+
   // Logged-in users trying to access login/register → redirect to home
   if (isLoggedIn && AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Guests trying to access protected routes → redirect to login
+  // Guests trying to access protected routes
+  // Skip redirect for client-side navigation (let client handle it)
   if (!isLoggedIn && PROTECTED_ROUTES.some((r) => pathname.startsWith(r))) {
+    // If it's a client-side navigation, let it through
+    // The page will check localStorage and redirect if needed
+    if (isClientNavigation) {
+      return NextResponse.next();
+    }
+    
+    // For direct access (no cookie), redirect to login
     const loginUrl = new URL("/auth/login", req.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
@@ -64,6 +76,10 @@ export function proxy(req: NextRequest) {
 
   // Admin-only routes
   if (pathname.startsWith("/admin") && payload?.role !== "admin") {
+    // If it's a client-side navigation and no cookie, let client handle it
+    if (isClientNavigation && !token) {
+      return NextResponse.next();
+    }
     return NextResponse.redirect(new URL("/", req.url));
   }
 

@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
@@ -38,20 +38,26 @@ const FEATURES = [
   { text: "Secure escrow payments", icon: CreditCard },
 ];
 
-export default function LoginPage() {
+function LoginForm() {
   const [showPass, setShowPass] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [mounted, setMounted] = useState(false);
   const { login, user } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
-      const searchParams = new URLSearchParams(window.location.search);
+    if (mounted && user) {
       const redirect = searchParams.get('redirect') || '/dashboard';
       router.push(redirect);
     }
-  }, [user, router]);
+  }, [user, router, searchParams, mounted]);
 
   const {
     register,
@@ -70,7 +76,6 @@ export default function LoginPage() {
     setServerError("");
     try {
       // Get redirect destination before login
-      const searchParams = new URLSearchParams(window.location.search);
       const redirect = searchParams.get('redirect') || '/dashboard';
       
       // Perform login
@@ -385,5 +390,17 @@ export default function LoginPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
