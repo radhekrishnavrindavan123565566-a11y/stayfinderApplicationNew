@@ -4,13 +4,12 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import Link from "next/link";
 import {
   Users, Home, Calendar, DollarSign, Trash2, Shield, TrendingUp, Zap,
   CheckCircle, XCircle, FileText, ExternalLink, AlertOctagon,
-  Bell, Megaphone, Upload, Send,
+  Bell, Megaphone, Upload, Send, Download,
 } from "lucide-react";
 import OccupancyChart from "@/components/admin/OccupancyChart";
 import LateFeeCalculator from "@/components/admin/LateFeeCalculator";
@@ -28,12 +27,10 @@ const fadeUp: Variants = {
 };
 
 export default function AdminPage() {
+  // All hooks MUST be called at the top, before any conditional returns
   const { ready, user: authUser } = useRequireAuth(["admin"]);
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
-  const router = useRouter();
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const tabParam = searchParams.get('tab') as Tab | null;
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [stats, setStats] = useState<any>(null);
@@ -44,8 +41,23 @@ export default function AdminPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [disputes, setDisputes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>(tabParam || "overview");
+  
+  // Get tab from URL safely
+  const [tab, setTab] = useState<Tab>("overview");
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | "tenant" | "owner" | "admin">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
+  // Safely read URL params only on client
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const tabParam = searchParams.get('tab') as Tab | null;
+      if (tabParam && ["overview", "users", "verifications", "disputes", "reminders", "marketing", "add-user", "late-fee"].includes(tabParam)) {
+        setTab(tabParam);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!ready || !authUser) return;
@@ -108,6 +120,84 @@ export default function AdminPage() {
     } catch { toast.error("Failed to update dispute"); }
   };
 
+  // Download user data as CSV
+  const downloadUserDataCSV = () => {
+    if (users.length === 0) {
+      toast.error("No users to download");
+      return;
+    }
+
+    // Prepare CSV headers
+    const headers = ["Username", "Email", "Phone", "Role", "Status", "Verified", "Created Date"];
+    
+    // Prepare CSV rows
+    const rows = users.map((u) => [
+      u.username || "",
+      u.email || "",
+      u.phone || "",
+      u.role || "",
+      u.isActive ? "Active" : "Inactive",
+      u.ownerVerified ? "Yes" : "No",
+      u.createdAt ? format(new Date(u.createdAt), "MMM d, yyyy") : "",
+    ]);
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row
+          .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+          .join(",")
+      ),
+    ].join("\n");
+
+    // Download file
+    const element = document.createElement("a");
+    element.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent));
+    element.setAttribute("download", `users_${format(new Date(), "yyyy-MM-dd_HHmmss")}.csv`);
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    toast.success(`Downloaded ${users.length} users as CSV`);
+  };
+
+  // Download user data as JSON
+  const downloadUserDataJSON = () => {
+    if (users.length === 0) {
+      toast.error("No users to download");
+      return;
+    }
+
+    // Prepare data with formatted dates
+    const data = users.map((u) => ({
+      id: u._id,
+      username: u.username,
+      email: u.email,
+      phone: u.phone || null,
+      role: u.role,
+      status: u.isActive ? "active" : "inactive",
+      verified: u.ownerVerified || false,
+      avatar: u.avatar || null,
+      createdAt: u.createdAt ? format(new Date(u.createdAt), "yyyy-MM-dd HH:mm:ss") : null,
+      lastLogin: u.lastLogin ? format(new Date(u.lastLogin), "yyyy-MM-dd HH:mm:ss") : null,
+    }));
+
+    // Create JSON content
+    const jsonContent = JSON.stringify(data, null, 2);
+
+    // Download file
+    const element = document.createElement("a");
+    element.setAttribute("href", "data:application/json;charset=utf-8," + encodeURIComponent(jsonContent));
+    element.setAttribute("download", `users_${format(new Date(), "yyyy-MM-dd_HHmmss")}.json`);
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    toast.success(`Downloaded ${users.length} users as JSON`);
+  };
+
+  // Now conditional rendering is safe - all hooks have been called
   if (!ready || !authUser || !user || user.role !== "admin") {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 flex items-center justify-center">
@@ -410,7 +500,10 @@ export default function AdminPage() {
                       {(["all", "tenant", "owner", "admin"] as const).map((filterRole) => (
                         <motion.button
                           key={filterRole}
-                          onClick={() => setUserRoleFilter(filterRole)}
+                          onClick={() => {
+                            setUserRoleFilter(filterRole);
+                            setCurrentPage(1);
+                          }}
                           whileTap={{ scale: 0.95 }}
                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all capitalize ${
                             userRoleFilter === filterRole
@@ -432,21 +525,43 @@ export default function AdminPage() {
 
                 {/* Users List */}
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800 overflow-hidden">
-                  <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
-                    <h2 className="font-semibold text-zinc-900 dark:text-white">
-                      {userRoleFilter === "all" ? "All Users" : 
-                       userRoleFilter === "tenant" ? "Tenants" :
-                       userRoleFilter === "owner" ? "Owners" : "Admins"}
-                      <span className="ml-2 text-zinc-500 dark:text-zinc-400 font-normal">
-                        ({users.filter(u => userRoleFilter === "all" || u.role === userRoleFilter).length})
-                      </span>
-                    </h2>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                      {userRoleFilter === "all" && "All registered users on the platform"}
-                      {userRoleFilter === "tenant" && "Users looking for properties to rent"}
-                      {userRoleFilter === "owner" && "Property owners and landlords"}
-                      {userRoleFilter === "admin" && "Platform administrators"}
-                    </p>
+                  <div className="px-4 sm:px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-semibold text-zinc-900 dark:text-white">
+                        {userRoleFilter === "all" ? "All Users" : 
+                         userRoleFilter === "tenant" ? "Tenants" :
+                         userRoleFilter === "owner" ? "Owners" : "Admins"}
+                        <span className="ml-2 text-zinc-500 dark:text-zinc-400 font-normal">
+                          ({users.filter(u => userRoleFilter === "all" || u.role === userRoleFilter).length})
+                        </span>
+                      </h2>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        {userRoleFilter === "all" && "All registered users on the platform"}
+                        {userRoleFilter === "tenant" && "Users looking for properties to rent"}
+                        {userRoleFilter === "owner" && "Property owners and landlords"}
+                        {userRoleFilter === "admin" && "Platform administrators"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={downloadUserDataCSV}
+                        className="gap-1.5 text-xs"
+                      >
+                        <Download className="w-4 h-4" />
+                        CSV
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={downloadUserDataJSON}
+                        className="gap-1.5 text-xs"
+                      >
+                        <Download className="w-4 h-4" />
+                        JSON
+                      </Button>
+                    </div>
                   </div>
                   <motion.div
                     variants={stagger}
@@ -454,82 +569,135 @@ export default function AdminPage() {
                     animate="show"
                     className="divide-y divide-zinc-50 dark:divide-zinc-800"
                   >
-                    {users
-                      .filter(u => userRoleFilter === "all" || u.role === userRoleFilter)
-                      .map((u) => (
-                      <motion.div
-                        key={u._id}
-                        variants={fadeUp}
-                        className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            u.role === "admin" ? "bg-rose-100 dark:bg-rose-950/30" :
-                            u.role === "owner" ? "bg-indigo-100 dark:bg-indigo-950/30" :
-                            "bg-cyan-100 dark:bg-cyan-950/30"
-                          }`}>
-                            <span className={`text-sm font-bold ${
-                              u.role === "admin" ? "text-rose-600 dark:text-rose-400" :
-                              u.role === "owner" ? "text-indigo-600 dark:text-indigo-400" :
-                              "text-cyan-600 dark:text-cyan-400"
-                            }`}>
-                              {u.username[0].toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-zinc-900 dark:text-white text-sm flex items-center gap-1.5 truncate">
-                              {u.username}
-                              {u.ownerVerified && u.role === "owner" && (
-                                <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                              )}
-                            </p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{u.email}</p>
-                            {u.phone && <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">{u.phone}</p>}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
-                          <Badge 
-                            variant={u.role === "admin" ? "danger" : u.role === "owner" ? "info" : "default"} 
-                            className="capitalize text-xs"
-                          >
-                            {u.role}
-                          </Badge>
-                          {u.role === "owner" && !u.ownerVerified && u.verificationDoc && (
-                            <Badge variant="warning" className="text-xs">Pending</Badge>
-                          )}
-                          {u.isActive !== undefined && (
-                            <button
-                              onClick={() => toggleUserStatus(u._id, u.isActive)}
-                              className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
-                                u.isActive 
-                                  ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400 hover:bg-green-200" 
-                                  : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 hover:bg-red-200"
-                              }`}
+                    {(() => {
+                      const filteredUsers = users.filter(u => userRoleFilter === "all" || u.role === userRoleFilter);
+                      const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+                      const startIdx = (currentPage - 1) * itemsPerPage;
+                      const endIdx = startIdx + itemsPerPage;
+                      const paginatedUsers = filteredUsers.slice(startIdx, endIdx);
+
+                      return paginatedUsers.length > 0 ? (
+                        <>
+                          {paginatedUsers.map((u) => (
+                            <motion.div
+                              key={u._id}
+                              variants={fadeUp}
+                              className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                             >
-                              {u.isActive ? "Active" : "Inactive"}
-                            </button>
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  u.role === "admin" ? "bg-rose-100 dark:bg-rose-950/30" :
+                                  u.role === "owner" ? "bg-indigo-100 dark:bg-indigo-950/30" :
+                                  "bg-cyan-100 dark:bg-cyan-950/30"
+                                }`}>
+                                  <span className={`text-sm font-bold ${
+                                    u.role === "admin" ? "text-rose-600 dark:text-rose-400" :
+                                    u.role === "owner" ? "text-indigo-600 dark:text-indigo-400" :
+                                    "text-cyan-600 dark:text-cyan-400"
+                                  }`}>
+                                    {u.username[0].toUpperCase()}
+                                  </span>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-zinc-900 dark:text-white text-sm flex items-center gap-1.5 truncate">
+                                    {u.username}
+                                    {u.ownerVerified && u.role === "owner" && (
+                                      <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                                    )}
+                                  </p>
+                                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{u.email}</p>
+                                  {u.phone && <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">{u.phone}</p>}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
+                                <Badge 
+                                  variant={u.role === "admin" ? "danger" : u.role === "owner" ? "info" : "default"} 
+                                  className="capitalize text-xs"
+                                >
+                                  {u.role}
+                                </Badge>
+                                {u.role === "owner" && !u.ownerVerified && u.verificationDoc && (
+                                  <Badge variant="warning" className="text-xs">Pending</Badge>
+                                )}
+                                {u.isActive !== undefined && (
+                                  <button
+                                    onClick={() => toggleUserStatus(u._id, u.isActive)}
+                                    className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                      u.isActive 
+                                        ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400 hover:bg-green-200" 
+                                        : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 hover:bg-red-200"
+                                    }`}
+                                  >
+                                    {u.isActive ? "Active" : "Inactive"}
+                                  </button>
+                                )}
+                                {u._id !== user._id && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    onClick={() => deleteUser(u._id)} 
+                                    className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 p-1.5"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </motion.div>
+                          ))}
+                          {/* Pagination Controls */}
+                          {totalPages > 1 && (
+                            <div className="px-4 sm:px-6 py-4 bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
+                              <div className="text-xs text-zinc-600 dark:text-zinc-400">
+                                Showing {startIdx + 1} to {Math.min(endIdx, filteredUsers.length)} of {filteredUsers.length}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                  disabled={currentPage === 1}
+                                  className="text-xs"
+                                >
+                                  ← Prev
+                                </Button>
+                                <div className="flex items-center gap-1">
+                                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <motion.button
+                                      key={page}
+                                      onClick={() => setCurrentPage(page)}
+                                      whileTap={{ scale: 0.95 }}
+                                      className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
+                                        currentPage === page
+                                          ? "bg-rose-500 text-white shadow-md"
+                                          : "bg-white dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+                                      }`}
+                                    >
+                                      {page}
+                                    </motion.button>
+                                  ))}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                  disabled={currentPage === totalPages}
+                                  className="text-xs"
+                                >
+                                  Next →
+                                </Button>
+                              </div>
+                            </div>
                           )}
-                          {u._id !== user._id && (
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              onClick={() => deleteUser(u._id)} 
-                              className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 p-1.5"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
+                        </>
+                      ) : (
+                        <div className="px-4 sm:px-6 py-12 text-center">
+                          <Users className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                            No {userRoleFilter !== "all" ? userRoleFilter + "s" : "users"} found
+                          </p>
                         </div>
-                      </motion.div>
-                    ))}
-                    {users.filter(u => userRoleFilter === "all" || u.role === userRoleFilter).length === 0 && (
-                      <div className="px-4 sm:px-6 py-12 text-center">
-                        <Users className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                          No {userRoleFilter !== "all" ? userRoleFilter + "s" : "users"} found
-                        </p>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </motion.div>
                 </div>
               </motion.div>

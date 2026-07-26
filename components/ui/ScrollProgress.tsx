@@ -6,14 +6,15 @@ export default function ScrollProgress() {
   const { scrollYProgress } = useScroll();
   const prefersReducedMotion = useReducedMotion();
   
-  // Use spring animation only if motion is not reduced
-  const scaleX = prefersReducedMotion 
-    ? scrollYProgress 
-    : useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-      });
+  // Always call useSpring - hooks must be called unconditionally
+  const springScaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+  
+  // Choose which value to use based on preferences
+  const scaleX = prefersReducedMotion ? scrollYProgress : springScaleX;
 
   return (
     <motion.div
