@@ -1,11 +1,18 @@
 import { ConnectionOptions } from 'bullmq';
 
-// BullMQ connection configuration
+// // BullMQ connection configuration
+// // DISABLED - Redis not available
+// export const queueConnection: ConnectionOptions = {
+//   host: process.env.REDIS_HOST || 'localhost',
+//   port: parseInt(process.env.REDIS_PORT || '6379'),
+//   password: process.env.REDIS_PASSWORD,
+//   maxRetriesPerRequest: null,
+// };
+
+// Dummy configuration when Redis is disabled
 export const queueConnection: ConnectionOptions = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
-  maxRetriesPerRequest: null,
+  host: 'disabled',
+  port: 0,
 };
 
 // Queue names

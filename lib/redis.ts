@@ -1,38 +1,47 @@
-import Redis from 'ioredis';
-import { logger } from './logger';
+// import Redis from 'ioredis';
+// import { logger } from './logger';
 
-// Redis connection configuration
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
-  maxRetriesPerRequest: null, // Required for BullMQ
-  enableReadyCheck: false,
-};
+// // Redis connection configuration
+// const redisConfig = {
+//   host: process.env.REDIS_HOST || 'localhost',
+//   port: parseInt(process.env.REDIS_PORT || '6379'),
+//   password: process.env.REDIS_PASSWORD,
+//   maxRetriesPerRequest: null, // Required for BullMQ
+//   enableReadyCheck: false,
+// };
 
-// Create Redis client instance
-let redis: Redis | null = null;
+// // Create Redis client instance
+// let redis: Redis | null = null;
 
-export function getRedisClient(): Redis {
-  if (!redis) {
-    redis = new Redis(redisConfig);
+// export function getRedisClient(): Redis {
+//   if (!redis) {
+//     redis = new Redis(redisConfig);
 
-    redis.on('error', (err) => {
-      logger.error('[Redis] Connection error', err);
-    });
+//     redis.on('error', (err) => {
+//       logger.error('[Redis] Connection error', err);
+//     });
 
-    redis.on('connect', () => {
-      logger.info('[Redis] Connected successfully');
-    });
-  }
+//     redis.on('connect', () => {
+//       logger.info('[Redis] Connected successfully');
+//     });
+//   }
 
-  return redis;
+//   return redis;
+// }
+
+// // Graceful shutdown
+// export async function closeRedis() {
+//   if (redis) {
+//     await redis.quit();
+//     redis = null;
+//   }
+// }
+
+// Dummy exports for compatibility
+export function getRedisClient() {
+  throw new Error('Redis is disabled');
 }
 
-// Graceful shutdown
 export async function closeRedis() {
-  if (redis) {
-    await redis.quit();
-    redis = null;
-  }
+  // No-op when Redis is disabled
 }

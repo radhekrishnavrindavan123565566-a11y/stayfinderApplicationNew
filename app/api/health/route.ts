@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { getRedisClient } from '@/lib/redis';
+// import { getRedisClient } from '@/lib/redis';
 
 export async function GET(req: NextRequest) {
   const checks = {
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     environment: process.env.NODE_ENV,
     services: {
       database: 'unknown',
-      redis: 'unknown',
+      // redis: 'unknown',
     },
   };
 
@@ -23,14 +23,14 @@ export async function GET(req: NextRequest) {
     checks.status = 'degraded';
   }
 
-  // Check Redis
-  try {
-    await getRedisClient().ping();
-    checks.services.redis = 'healthy';
-  } catch (error) {
-    checks.services.redis = 'unhealthy';
-    checks.status = 'degraded';
-  }
+  // // Check Redis
+  // try {
+  //   await getRedisClient().ping();
+  //   checks.services.redis = 'healthy';
+  // } catch (error) {
+  //   checks.services.redis = 'unhealthy';
+  //   checks.status = 'degraded';
+  // }
 
   const statusCode = checks.status === 'healthy' ? 200 : 503;
 
