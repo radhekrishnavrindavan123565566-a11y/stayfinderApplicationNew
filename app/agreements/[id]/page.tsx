@@ -5,12 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useApi } from "@/hooks/useApi";
-import { FileText, CheckCircle, Clock, PenLine, Download, ArrowLeft } from "lucide-react";
+import { FileText, CheckCircle, Clock, PenLine, Download } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import BackButton from "@/components/ui/BackButton";
 
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((m) => m.PDFDownloadLink),
@@ -124,10 +125,7 @@ export default function AgreementPage() {
         {/* Header */}
         <motion.div custom={0} variants={fadeUp} initial="hidden" animate="show" className="mb-6">
           <div className="flex items-center gap-3 flex-wrap">
-            <button onClick={() => router.back()}
-              className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors flex-shrink-0">
-              <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-            </button>
+            <BackButton />
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <FileText className="w-6 h-6 text-rose-500 flex-shrink-0" />
               <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white truncate">Rental Agreement</h1>

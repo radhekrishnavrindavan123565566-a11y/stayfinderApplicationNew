@@ -8,10 +8,11 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera, Phone, KeyRound, AlertCircle, ArrowLeft } from "lucide-react";
+import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera, Phone, KeyRound, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import TrustProfile from "@/components/trust/TrustProfile";
 import { useRouter } from "next/navigation";
+import BackButton from "@/components/ui/BackButton";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -159,15 +160,7 @@ export default function ProfilePage() {
           animate="show"
           className="mb-8 flex items-center gap-3"
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.back()}
-            className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
-            title="Go back"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-          </motion.button>
+          <BackButton />
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-1">Profile</h1>
             <p className="text-zinc-500 dark:text-zinc-400">Manage your account settings</p>

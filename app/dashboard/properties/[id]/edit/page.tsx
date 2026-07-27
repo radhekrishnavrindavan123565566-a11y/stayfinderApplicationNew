@@ -22,6 +22,7 @@ import {
   Bus, Utensils, Bath, BedDouble, Sofa, Sun, Leaf, Lock, Camera,
   Bell, Zap as Lightning, Droplets, Trash2, Package, Loader2,
 } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
   "WiFi": <Wifi className="w-3.5 h-3.5" />, "AC": <Wind className="w-3.5 h-3.5" />,
@@ -169,8 +170,13 @@ export default function EditPropertyPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Edit Property</h1>
-          <p className="text-zinc-500 text-sm mt-1">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
+          <div className="flex items-center gap-3 mb-4">
+            <BackButton />
+            <div>
+              <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Edit Property</h1>
+              <p className="text-zinc-500 text-sm mt-1">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Progress */}

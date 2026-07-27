@@ -5,9 +5,10 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import {
   MapPin, Bed, Bath, Users, Star, Wifi, Car, Utensils,
-  Waves, Dumbbell, Wind, Tv, Coffee, MessageCircle, Zap, Shield, Reply, ArrowLeft,
+  Waves, Dumbbell, Wind, Tv, Coffee, MessageCircle, Zap, Shield, Reply,
 } from "lucide-react";
 import ImageGallery from "@/components/property/ImageGallery";
+import BackButton from "@/components/ui/BackButton";
 import BookingForm from "@/components/booking/BookingForm";
 import MobileBookingBar from "@/components/booking/MobileBookingBar";
 import AvailabilityCalendar from "@/components/booking/AvailabilityCalendar";
@@ -254,15 +255,7 @@ export default function PropertyDetailPage() {
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => router.back()}
-                className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
-                title="Go back"
-              >
-                <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-              </motion.button>
+              <BackButton />
               <div className="min-w-0">
                 <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-2 leading-tight">
                   {property.title}
