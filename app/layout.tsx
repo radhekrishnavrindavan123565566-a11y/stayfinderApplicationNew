@@ -5,8 +5,9 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ClientProviders from "@/components/providers/ClientProviders";
+import { Suspense } from "react";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap", preload: true });
 
 const BASE_URL = "https://stayerra.com";
 const OG_IMAGE = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80";
@@ -57,23 +58,22 @@ export const viewport: Viewport = {
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollProgress from '@/components/ui/ScrollProgress';
 
+function ScrollProgressWrapper() {
+  return <ScrollProgress />;
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         {/* Preconnect to external domains */}
-        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         
-        {/* Preload LCP hero image */}
-        <link
-          rel="preload"
-          as="image"
-          href="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1920&q=80"
-          fetchPriority="high"
-        />
+        {/* Preload critical font */}
+        <link rel="preload" as="font" href={geist.variable} type="font/woff2" crossOrigin="anonymous" />
         
         {/* PWA Meta Tags */}
         <meta name="mobile-web-app-capable" content="yes" />
@@ -82,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="Stayerra" />
         <link rel="apple-touch-icon" href="/logo.png" />
         
-        {/* Accessibility - Skip to main content */}
+        {/* Optimization: Defer non-critical CSS/JS */}
         <style dangerouslySetInnerHTML={{
           __html: `
             .skip-link {
@@ -108,7 +108,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         
-        <ScrollProgress />
+        <Suspense fallback={null}>
+          <ScrollProgressWrapper />
+        </Suspense>
         <ErrorBoundary>
           <Navbar />
           <main id="main-content" className="flex-1">{children}</main>

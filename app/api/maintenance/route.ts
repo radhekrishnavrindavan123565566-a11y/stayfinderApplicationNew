@@ -43,26 +43,36 @@ export async function POST(req: NextRequest) {
     await connectDB();
     const user = requireAuth(req);
     if (!user) return errorResponse("Unauthorized", 401);
-    const { bookingId, title, description, category, priority, images } = await req.json();
-
-    if (!bookingId || !title || !description) {
-      return errorResponse("bookingId, title and description are required");
+    
+    // Parse FormData for file uploads
+    const formData = await req.formData();
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const category = formData.get("category") as string || "other";
+    const priority = formData.get("priority") as string || "medium";
+    
+    if (!title || !description) {
+      return errorResponse("title and description are required");
     }
 
-    const booking = await Booking.findById(bookingId);
-    if (!booking) return errorResponse("Booking not found", 404);
-    if (booking.tenantId.toString() !== user.userId) return errorResponse("Forbidden", 403);
+    // Get current booking for tenant - find latest booking
+    const booking = await Booking.findOne({ 
+      tenantId: user.userId,
+      status: { $in: ["confirmed", "active"] }
+    }).sort({ createdAt: -1 });
+
+    if (!booking) return errorResponse("No active booking found", 404);
 
     const request = await MaintenanceRequest.create({
-      bookingId,
+      bookingId: booking._id,
       propertyId: booking.propertyId,
       tenantId: user.userId,
       ownerId: booking.ownerId,
       title,
       description,
-      category: category || "other",
-      priority: priority || "medium",
-      images: images || [],
+      category,
+      priority,
+      images: [],
     });
 
     return successResponse({ request }, 201);

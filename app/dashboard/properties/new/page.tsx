@@ -64,7 +64,6 @@ const AMENITY_ICONS: Record<string, React.ReactNode> = {
   // Storage
   "Storage Room":   <Package className="w-3.5 h-3.5" />,
 };
-const AMENITIES = Object.keys(AMENITY_ICONS);
 const PROPERTY_TYPES = ["apartment", "house", "villa", "studio", "condo", "cabin"];
 const STEPS = ["Basics", "Location", "Photos", "Amenities", "Settings"];
 
@@ -85,7 +84,6 @@ export default function NewPropertyPage() {
   const { ready, user } = useRequireAuth(["owner", "admin"]);
   const { authHeaders } = useApi();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(0);
   const [images, setImages] = useState<string[]>([]);
   const [videos, setVideos] = useState<PropertyVideos>({});
@@ -101,7 +99,7 @@ export default function NewPropertyPage() {
     defaultValues: { propertyType: "apartment", bedrooms: 1, bathrooms: 1, maxGuests: 2 },
   });
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { /* mount tracking removed for optimization */ }, []);
   
   // Show loading while auth rehydrates or redirect is pending
   if (!ready || !user) {
