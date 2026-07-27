@@ -60,20 +60,19 @@ export default function PropertiesPage() {
         {/* Controls row */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
           className="flex items-center justify-end mb-6">
-            <div className="flex items-center gap-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
-              <button onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-rose-500 text-white" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button onClick={() => setViewMode("map")}
-                className={`p-2 rounded-lg transition-colors ${viewMode === "map" ? "bg-rose-500 text-white" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
-                <Map className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="hidden sm:flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
-              <SlidersHorizontal className="w-4 h-4" />
-              <span>Sort: Newest</span>
-            </div>
+          <div className="flex items-center gap-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
+            <button onClick={() => setViewMode("grid")}
+              className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-rose-500 text-white" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button onClick={() => setViewMode("map")}
+              className={`p-2 rounded-lg transition-colors ${viewMode === "map" ? "bg-rose-500 text-white" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
+              <Map className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="hidden sm:flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Sort: Newest</span>
           </div>
         </motion.div>
 
