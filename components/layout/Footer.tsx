@@ -13,7 +13,7 @@ const EXPLORE = [
   { label: "Properties", href: "/properties" },
   { label: "Roommates", href: "/roommates" },
   { label: "Become a Host", href: "/auth/register" },
-  { label: "Compare", href: "/compare" },
+  // { label: "Compare", href: "/compare" },
 ];
 const SUPPORT = [
   { label: "Help Center", href: "/contact" },

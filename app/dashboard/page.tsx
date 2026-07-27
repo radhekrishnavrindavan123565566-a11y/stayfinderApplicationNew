@@ -8,7 +8,8 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import {
   Home, Calendar, Heart, Star, PlusCircle, ArrowRight,
-  TrendingUp, BarChart2, MessageCircle, GitCompare, Wrench,
+  TrendingUp, BarChart2, MessageCircle, Wrench,
+  // GitCompare,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -85,7 +86,7 @@ export default function DashboardPage() {
     { href: "/dashboard/maintenance", icon: <Wrench className="w-6 h-6 mb-3 text-amber-500" />, title: "Maintenance", sub: "Report & track issues", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     { href: "/wishlist", icon: <Heart className="w-6 h-6 mb-3 text-rose-400" />, title: "Wishlist", sub: "Your saved properties", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     { href: "/chat", icon: <MessageCircle className="w-6 h-6 mb-3 text-blue-500" />, title: "Messages", sub: "Chat with owners & tenants", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
-    { href: "/compare", icon: <GitCompare className="w-6 h-6 mb-3 text-purple-500" />, title: "Compare", sub: "Compare properties side-by-side", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
+    // { href: "/compare", icon: <GitCompare className="w-6 h-6 mb-3 text-purple-500" />, title: "Compare", sub: "Compare properties side-by-side", gradient: false, color: "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm" },
     ...(user.role === "owner" ? [
       { href: "/dashboard/analytics", icon: <BarChart2 className="w-6 h-6 mb-3" />, title: "Analytics", sub: "Earnings & occupancy stats", gradient: true, color: "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-lg shadow-purple-500/25" },
       { href: "/dashboard/income", icon: <TrendingUp className="w-6 h-6 mb-3" />, title: "Rental Income", sub: "Earnings, auto-pricing & broadcast", gradient: true, color: "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/25" },

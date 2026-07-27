@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp, Home, Users } from "lucide-react";
+import { Menu, X, User, LogOut, Heart, Calendar, Settings, PlusCircle, LayoutDashboard, MessageCircle, BarChart2, Wrench, IndianRupee, TrendingUp, Users } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
@@ -30,17 +30,18 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isHome, setIsHome] = useState(false);
   const { user, logout } = useAuthStore();
-  const router = useRouter();
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMounted(true);
+    setIsHome(pathname === "/");
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [pathname]);
 
   // Close menus when clicking outside the navbar
   useEffect(() => {
@@ -72,15 +73,13 @@ export default function Navbar() {
     }
   };
 
-  const isHome = pathname === "/";
-
   return (
     <motion.nav
       ref={navRef}
       initial={{ y: -80 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled || !isHome ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-zinc-100" : "bg-transparent"
+        !mounted ? "bg-transparent" : (scrolled || !isHome ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-zinc-100" : "bg-transparent")
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -92,7 +91,7 @@ export default function Navbar() {
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.3 }}
               className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-600 to-amber-600 shadow-lg ${
-                scrolled || !isHome ? "shadow-emerald-500/20" : "shadow-emerald-500/40"
+                !mounted ? "shadow-emerald-500/40" : (scrolled || !isHome ? "shadow-emerald-500/20" : "shadow-emerald-500/40")
               }`}
             >
               <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -100,26 +99,26 @@ export default function Navbar() {
                 <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </motion.div>
-            <span className={`font-bold text-lg ${scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white"}`}>
+            <span className={`font-bold text-lg ${!mounted ? "text-white" : (scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white")}`}>
               Stay<span className="text-amber-600">erra</span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/properties" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
+            <Link href="/properties" className={`text-sm font-medium transition-colors hover:text-rose-500 ${!mounted ? "text-white/90" : (scrolled || !isHome ? "text-zinc-600" : "text-white/90")}`}>
               Explore
             </Link>
             {(!user || user.role !== "owner") && (
-              <Link href="/roommates" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
+              <Link href="/roommates" className={`text-sm font-medium transition-colors hover:text-rose-500 ${!mounted ? "text-white/90" : (scrolled || !isHome ? "text-zinc-600" : "text-white/90")}`}>
                 Roommates
               </Link>
             )}
-            <Link href="/compare" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
+            {/* <Link href="/compare" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
               Compare
-            </Link>
+            </Link> */}
             {user?.role === "owner" && (
-              <Link href="/dashboard/properties/new" className={`text-sm font-medium transition-colors hover:text-rose-500 ${scrolled || !isHome ? "text-zinc-600" : "text-white/90"}`}>
+              <Link href="/dashboard/properties/new" className={`text-sm font-medium transition-colors hover:text-rose-500 ${!mounted ? "text-white/90" : (scrolled || !isHome ? "text-zinc-600" : "text-white/90")}`}>
                 List Property
               </Link>
             )}
@@ -131,7 +130,7 @@ export default function Navbar() {
             {mounted && user ? (
               <div className="flex items-center gap-2">
                 <NotificationCenter />
-                <Link href="/chat" className={`relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${scrolled || !isHome ? "text-zinc-600 dark:text-zinc-300" : "text-white"}`}>
+                <Link href="/chat" className={`relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors ${!mounted ? "text-white" : (scrolled || !isHome ? "text-zinc-600 dark:text-zinc-300" : "text-white")}`}>
                   <MessageCircle className="w-5 h-5" />
                   <ChatBadge />
                 </Link>
@@ -206,7 +205,7 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="/auth/login" className={`text-sm font-medium px-4 py-2 rounded-xl transition-colors ${scrolled || !isHome ? "text-zinc-700 hover:bg-zinc-100" : "text-white hover:bg-white/10"}`}>
+                <Link href="/auth/login" className={`text-sm font-medium px-4 py-2 rounded-xl transition-colors ${!mounted ? "text-white hover:bg-white/10" : (scrolled || !isHome ? "text-zinc-700 hover:bg-zinc-100" : "text-white hover:bg-white/10")}`}>
                   Login
                 </Link>
                 <Link href="/auth/register" className="text-sm font-medium px-4 py-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 transition-colors shadow-lg shadow-rose-500/25">
@@ -274,7 +273,7 @@ export default function Navbar() {
                   {(!user || user.role !== "owner") && (
                     <Link href="/roommates" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Roommates</Link>
                   )}
-                  <Link href="/compare" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Compare</Link>
+                  {/* <Link href="/compare" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Compare</Link> */}
                   {user.role === "admin" && (
                     <>
                       <Link href="/admin" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors touch-target">Admin Panel</Link>

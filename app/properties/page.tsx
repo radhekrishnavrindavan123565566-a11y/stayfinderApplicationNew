@@ -10,7 +10,7 @@ import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import Button from "@/components/ui/Button";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, LayoutGrid, Map } from "lucide-react";
 import SaveSearchButton from "@/components/properties/SaveSearchButton";
-import CompareBar from "@/components/property/CompareBar";
+// import CompareBar from "@/components/property/CompareBar";
 import dynamic from "next/dynamic";
 
 const PropertyMap = dynamic(() => import("@/components/property/PropertyMap"), { ssr: false });
@@ -129,7 +129,7 @@ export default function PropertiesPage() {
           </motion.div>
         )}
       </div>
-      <CompareBar />
+      {/* <CompareBar /> */}
     </div>
   );
 }

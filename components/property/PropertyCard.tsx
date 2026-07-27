@@ -2,10 +2,11 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, Star, MapPin, Bed, Bath, Users, GitCompare, Zap } from "lucide-react";
+import { Heart, Star, MapPin, Bed, Bath, Users, Zap } from "lucide-react";
+// import { GitCompare } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { Property } from "@/store/propertyStore";
-import { useCompareStore } from "@/store/compareStore";
+// import { useCompareStore } from "@/store/compareStore";
 import toast from "react-hot-toast";
 import Badge from "@/components/ui/Badge";
 import { cn } from "@/utils/cn";
@@ -28,9 +29,9 @@ const TYPE_COLORS: Record<string, string> = {
 
 export default function PropertyCard({ property, index = 0 }: PropertyCardProps) {
   const { user, toggleWishlist } = useAuthStore();
-  const { add, remove, has } = useCompareStore();
+  // const { add, remove, has } = useCompareStore();
   const isWishlisted = user?.wishlist?.includes(property._id);
-  const isComparing = has(property._id);
+  // const isComparing = has(property._id);
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -45,12 +46,12 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
 
   const handleCompare = (e: React.MouseEvent) => {
     e.preventDefault();
-    try {
-      if (isComparing) { remove(property._id); toast.success("Removed from compare"); }
-      else { add(property._id); toast.success("Added to compare"); }
-    } catch {
-      toast.error("Failed to update compare");
-    }
+    // try {
+    //   if (isComparing) { remove(property._id); toast.success("Removed from compare"); }
+    //   else { add(property._id); toast.success("Added to compare"); }
+    // } catch {
+    //   toast.error("Failed to update compare");
+    // }
   };
 
   const image = property.images?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800";
@@ -105,7 +106,8 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
             >
               <Heart className={cn("w-4 h-4 transition-colors", isWishlisted ? "fill-white text-white" : "text-zinc-600 dark:text-zinc-300")} />
             </motion.button>
-            <motion.button
+            {/* Compare button - disabled for now */}
+            {/* <motion.button
               whileHover={{ scale: 1.12 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleCompare}
@@ -116,7 +118,7 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
               )}
             >
               <GitCompare className={cn("w-4 h-4", isComparing ? "text-white" : "text-zinc-600 dark:text-zinc-300")} />
-            </motion.button>
+            </motion.button> */}
           </div>
 
           {/* Rating pill on image */}
