@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, CheckCircle, Twitter, Instagram, Facebook, Sparkles, Zap, ArrowRight } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 import Button from "@/components/ui/Button";
 
 const CONTACT_CARDS = [
@@ -121,6 +122,9 @@ export default function ContactPage() {
       {/* Hero */}
       <section className="relative pt-32 pb-20 px-4 text-center z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+          <div className="flex justify-center mb-6">
+            <BackButton />
+          </div>
           <div className="inline-flex items-center gap-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-rose-100 dark:border-rose-900">
             <Sparkles className="w-4 h-4" />
             We&apos;re here to help

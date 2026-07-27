@@ -2,6 +2,7 @@
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import AgreementGeneratorForm from "@/components/agreements/AgreementGeneratorForm";
 import { Loader2 } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 
 export default function GenerateAgreementPage() {
   const { ready } = useRequireAuth();
@@ -15,7 +16,10 @@ export default function GenerateAgreementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 pt-20">
+      <div className="max-w-2xl mx-auto px-4 mb-6">
+        <BackButton />
+      </div>
       <AgreementGeneratorForm />
     </div>
   );

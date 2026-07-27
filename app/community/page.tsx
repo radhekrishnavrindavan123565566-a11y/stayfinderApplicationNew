@@ -14,6 +14,7 @@ import {
   X,
   Send,
 } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -239,6 +240,10 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 py-8 px-4">
       <div className="max-w-7xl mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <BackButton />
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Community</h1>
+        </div>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

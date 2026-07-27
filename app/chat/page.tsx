@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Menu, X } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 import { useChatStore, Conversation } from "@/store/chatStore";
 import { useAuthStore } from "@/store/authStore";
 import ChatWindow from "@/components/chat/ChatWindow";
@@ -127,7 +128,12 @@ export default function ChatPage() {
   );
 
   return (
-    <div className="h-[calc(100vh-64px)] flex bg-white dark:bg-zinc-900 overflow-hidden">
+    <div className="h-[calc(100vh-64px)] flex flex-col bg-white dark:bg-zinc-900">
+      <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 flex items-center gap-3 md:hidden">
+        <BackButton />
+        <h1 className="font-semibold text-zinc-900 dark:text-white">Messages</h1>
+      </div>
+      <div className="flex-1 flex overflow-hidden">
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -282,6 +288,7 @@ export default function ChatPage() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
       </div>
     </div>
   );

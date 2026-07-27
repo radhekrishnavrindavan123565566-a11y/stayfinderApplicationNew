@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import BackButton from "@/components/ui/BackButton";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, AlertCircle, MapPin, DollarSign, Clock, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
@@ -85,10 +86,9 @@ export default function RevenuePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-rose-500 mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Admin
-          </Link>
+          <div className="flex items-center gap-3 mb-4">
+            <BackButton />
+          </div>
           
           <div className="flex items-center justify-between">
             <div>

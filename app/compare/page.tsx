@@ -6,6 +6,7 @@ import axios from "axios";
 import { useCompareStore } from "@/store/compareStore";
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import BackButton from "@/components/ui/BackButton";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
 import Button from "@/components/ui/Button";
@@ -117,12 +118,7 @@ export default function ComparePage() {
           className="flex items-center justify-between py-6 mb-2"
         >
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
-            </button>
+            <BackButton />
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">Compare Properties</h1>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">{properties.length} properties selected</p>

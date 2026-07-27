@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, MapPin, IndianRupee, GraduationCap, Briefcase, Plus, X, MessageCircle, Check } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
@@ -282,6 +283,9 @@ export default function RoommatesPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="flex items-center gap-3 mb-6">
+          <BackButton />
+        </div>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">

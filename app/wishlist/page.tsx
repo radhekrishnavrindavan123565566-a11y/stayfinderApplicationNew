@@ -4,6 +4,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import BackButton from "@/components/ui/BackButton";
 import PropertyCard from "@/components/property/PropertyCard";
 import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import { Heart } from "lucide-react";
@@ -50,6 +51,9 @@ export default function WishlistPage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
+          <div className="flex items-center gap-3 mb-3">
+            <BackButton />
+          </div>
           <div className="flex items-center gap-3">
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
