@@ -10,10 +10,7 @@ import { useApi } from "@/hooks/useApi";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
-import { differenceInCalendarMonths, format } from "date-fns";
-import { useRouter } from "next/navigation";
-
-const PLATFORM_FEE_PCT = 0.1; // 10%
+import { format } from "date-fns";
 
 interface BookingFormProps {
   propertyId: string;
@@ -38,10 +35,8 @@ const POLICY_LABELS = {
 export default function BookingForm({ propertyId, price, maxGuests, instantBooking, cancellationPolicy = "moderate", propertyType = "apartment", ownerId }: BookingFormProps) {
   const { user } = useAuthStore();
   const { authHeaders } = useApi();
-  const router = useRouter();
   const isDaily = DAILY_TYPES.includes(propertyType);
   const unit = isDaily ? (DAILY_LABEL[propertyType] || "night") : "month";
-  const [duration, setDuration] = useState(0); // months or nights
 
   // Block owner from seeing booking form
   if (user && ownerId && user._id === ownerId) {
@@ -58,23 +53,6 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
   });
 
   const startDate = watch("startDate");
-  const endDate = watch("endDate");
-
-  const calcDuration = () => {
-    if (startDate && endDate) {
-      if (isDaily) {
-        const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
-        setDuration(days > 0 ? days : 0);
-      } else {
-        const m = differenceInCalendarMonths(new Date(endDate), new Date(startDate));
-        setDuration(m > 0 ? m : 0);
-      }
-    }
-  };
-
-  const subtotal = price * duration;
-  const platformFee = Math.round(subtotal * PLATFORM_FEE_PCT * 100) / 100;
-  const total = subtotal + platformFee;
 
   const onSubmit = async (data: BookingInput) => {
     if (!user) {
@@ -113,42 +91,22 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
         <input type="hidden" {...register("propertyId")} />
 
-        {/* Date picker - Stack on mobile, side by side on desktop */}
-        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 sm:gap-0 sm:border sm:border-zinc-200 sm:dark:border-zinc-700 sm:rounded-xl sm:overflow-hidden">
-          <div className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-xl sm:border-0 sm:border-r sm:border-zinc-200 sm:dark:border-zinc-700 sm:rounded-none">
-            <label htmlFor="startDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-in</label>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
-              <input
-                id="startDate"
-                type="date"
-                min={today}
-                {...register("startDate")}
-                onChange={(e) => { register("startDate").onChange(e); calcDuration(); }}
-                placeholder="dd-mm-yyyy"
-                className="text-sm text-zinc-900 dark:text-white bg-transparent focus:outline-none w-full cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
-                style={{ colorScheme: 'auto' }}
-              />
-            </div>
-            {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
+        {/* Check-in date only */}
+        <div className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+          <label htmlFor="startDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Move-in Date</label>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
+            <input
+              id="startDate"
+              type="date"
+              min={today}
+              {...register("startDate")}
+              placeholder="dd-mm-yyyy"
+              className="text-sm text-zinc-900 dark:text-white bg-transparent focus:outline-none w-full cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
+              style={{ colorScheme: 'auto' }}
+            />
           </div>
-          <div className="p-3 border border-zinc-200 dark:border-zinc-700 rounded-xl sm:border-0 sm:rounded-none">
-            <label htmlFor="endDate" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide block mb-1">Check-out</label>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-zinc-400 shrink-0 pointer-events-none" />
-              <input
-                id="endDate"
-                type="date"
-                min={startDate || today}
-                {...register("endDate")}
-                onChange={(e) => { register("endDate").onChange(e); calcDuration(); }}
-                placeholder="dd-mm-yyyy"
-                className="text-sm text-zinc-900 dark:text-white bg-transparent focus:outline-none w-full cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
-                style={{ colorScheme: 'auto' }}
-              />
-            </div>
-            {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate.message}</p>}
-          </div>
+          {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
         </div>
 
         {/* Guests */}
@@ -174,30 +132,18 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
           </div>
         </div>
 
-        {/* Price breakdown */}
-        {duration > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800"
-          >
-            <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
-              <span className="text-xs sm:text-sm">₹{price.toLocaleString("en-IN")} × {duration} {unit}{duration > 1 ? "s" : ""}</span>
-              <span className="text-xs sm:text-sm">₹{subtotal.toLocaleString("en-IN")}</span>
-            </div>
-            <div className="flex justify-between text-sm text-zinc-500 dark:text-zinc-400">
-              <span className="flex items-center gap-1 text-xs sm:text-sm">
-                Service fee (10%)
-                <Info className="w-3 h-3 text-zinc-400" />
-              </span>
-              <span className="text-xs sm:text-sm">₹{platformFee.toLocaleString("en-IN")}</span>
-            </div>
-            <div className="flex justify-between font-bold text-zinc-900 dark:text-white pt-2 border-t border-zinc-100 dark:border-zinc-800">
-              <span className="text-sm sm:text-base">Total</span>
-              <span className="text-sm sm:text-base">₹{total.toLocaleString("en-IN")}</span>
-            </div>
-          </motion.div>
-        )}
+        {/* Price breakdown - Show monthly rent clearly */}
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800"
+        >
+          <div className="flex justify-between items-center font-bold text-zinc-900 dark:text-white">
+            <span className="text-sm sm:text-base">Monthly Rent</span>
+            <span className="text-lg sm:text-xl">₹{price.toLocaleString("en-IN")}</span>
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Booking starts from your move-in date</p>
+        </motion.div>
 
         {/* Cancellation policy */}
         <div className="flex items-start gap-2 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
