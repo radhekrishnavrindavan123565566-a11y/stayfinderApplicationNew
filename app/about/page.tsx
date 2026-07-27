@@ -43,10 +43,10 @@ const TEAM = [
 
 const MILESTONES = [
   { year: "2024", title: "Founded", desc: "Stayerra was born in Prayagraj with a mission to simplify room rentals across UP." },
-  { year: "2025", title: "1,000 Properties", desc: "Reached our first major milestone with listings across 10 cities in Uttar Pradesh." },
-  { year: "2025", title: "AI Launch", desc: "Launched AI-powered search and smart pricing recommendations." },
-  { year: "2026", title: "50K Users", desc: "Crossed 50,000 users and expanded to all major UP cities." },
-  { year: "2026", title: "Series A", desc: "Raised funding to accelerate growth and build new features." },
+  { year: "2025Q1", title: "1,000 Properties", desc: "Reached our first major milestone with listings across 10 cities in Uttar Pradesh." },
+  { year: "2025Q2", title: "AI Launch", desc: "Launched AI-powered search and smart pricing recommendations." },
+  { year: "2026Q1", title: "50K Users", desc: "Crossed 50,000 users and expanded to all major UP cities." },
+  { year: "2026Q2", title: "Series A", desc: "Raised funding to accelerate growth and build new features." },
 ];
 
 export default function AboutPage() {
@@ -294,7 +294,7 @@ export default function AboutPage() {
             <div className="space-y-8">
               {MILESTONES.map((m, i) => (
                 <motion.div
-                  key={m.year}
+                  key={`${m.year}-${m.title}`}
                   initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
