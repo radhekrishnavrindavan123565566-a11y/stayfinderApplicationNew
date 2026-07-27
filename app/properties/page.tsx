@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { usePropertyStore } from "@/store/propertyStore";
+import BackButton from "@/components/ui/BackButton";
 import PropertyCard from "@/components/property/PropertyCard";
 import SearchBar from "@/components/property/SearchBar";
 import AISearchBar from "@/components/search/AISearchBar";
@@ -46,14 +47,19 @@ export default function PropertiesPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
         {/* Header row */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex items-center justify-between mb-6">
+          className="flex items-center gap-3 mb-6">
+          <BackButton />
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
               {isLoading ? "Loading..." : `${total} Properties Found`}
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Page {page} of {pages}</p>
           </div>
-          <div className="flex items-center gap-2">
+        </motion.div>
+
+        {/* Controls row */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+          className="flex items-center justify-end mb-6">
             <div className="flex items-center gap-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
               <button onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-rose-500 text-white" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
