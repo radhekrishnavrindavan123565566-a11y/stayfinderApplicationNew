@@ -78,6 +78,7 @@ export default function Navbar() {
       ref={navRef}
       initial={{ y: -80 }}
       animate={{ y: 0 }}
+      suppressHydrationWarning
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         !mounted ? "bg-transparent" : (scrolled || !isHome ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-zinc-100" : "bg-transparent")
       }`}

@@ -33,6 +33,7 @@ function GlitchText({ text }: { text: string }) {
 
 export default function NotFound() {
   const [clicked, setClicked] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const eyeRef = useRef<HTMLDivElement>(null);
@@ -42,16 +43,22 @@ export default function NotFound() {
   // Generate random particle data client-side only to avoid hydration mismatch
   const particles = useMemo(
     () =>
-      Array.from({ length: 30 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 4 + 1,
-        duration: Math.random() * 6 + 4,
-        delay: Math.random() * 3,
-      })),
-    []
+      mounted
+        ? Array.from({ length: 30 }, (_, i) => ({
+            id: i,
+            x: Math.random() * 100,
+            y: Math.random() * 100,
+            size: Math.random() * 4 + 1,
+            duration: Math.random() * 6 + 4,
+            delay: Math.random() * 3,
+          }))
+        : [],
+    [mounted]
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const move = (e: MouseEvent) => {

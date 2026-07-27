@@ -46,6 +46,17 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Call ALL hooks at the top level - before any conditional returns
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting, touchedFields },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+  });
+
   // Handle client-side mounting
   useEffect(() => {
     setMounted(true);
@@ -67,16 +78,6 @@ function LoginForm() {
       </div>
     );
   }
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting, touchedFields },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
-    mode: "onChange",
-  });
 
   const emailValue = watch("email", "");
   const passwordValue = watch("password", "");
