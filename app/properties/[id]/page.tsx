@@ -5,7 +5,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import axios from "axios";
 import {
   MapPin, Bed, Bath, Users, Star, Wifi, Car, Utensils,
-  Waves, Dumbbell, Wind, Tv, Coffee, MessageCircle, Zap, Shield, Reply,
+  Waves, Dumbbell, Wind, Tv, Coffee, MessageCircle, Zap, Shield, Reply, ArrowLeft,
 } from "lucide-react";
 import ImageGallery from "@/components/property/ImageGallery";
 import BookingForm from "@/components/booking/BookingForm";
@@ -253,23 +253,34 @@ export default function PropertyDetailPage() {
           className="mb-6 pt-4"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-2 leading-tight">
-                {property.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-zinc-600 dark:text-zinc-400">
-                {property.averageRating > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    <strong className="text-zinc-900 dark:text-white">{property.averageRating.toFixed(1)}</strong>
-                    <span className="text-zinc-400">({property.totalReviews} reviews)</span>
-                  </span>
-                )}
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                  <span className="truncate">{property.location.address}, {property.location.city}, {property.location.country}</span>
-                </span>
+            <div className="flex items-center gap-3 min-w-0">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.back()}
+                className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
+                title="Go back"
+              >
+                <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+              </motion.button>
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-2 leading-tight">
+                  {property.title}
+                </h1>
               </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-zinc-600 dark:text-zinc-400">
+              {property.averageRating > 0 && (
+                <span className="flex items-center gap-1">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <strong className="text-zinc-900 dark:text-white">{property.averageRating.toFixed(1)}</strong>
+                  <span className="text-zinc-400">({property.totalReviews} reviews)</span>
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                <span className="truncate">{property.location.address}, {property.location.city}, {property.location.country}</span>
+              </span>
             </div>
             <Badge variant="info" className="capitalize text-sm px-3 py-1 flex-shrink-0">
               {property.propertyType}

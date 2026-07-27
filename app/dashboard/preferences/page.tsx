@@ -4,11 +4,12 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import toast from "react-hot-toast";
 import { usePreferencesStore, UserPreferencesData } from "@/store/preferencesStore";
 import { useAuthStore } from "@/store/authStore";
-import { Bell, BellOff, Plus, Trash2, Search, SlidersHorizontal } from "lucide-react";
+import { Bell, BellOff, Plus, Trash2, Search, SlidersHorizontal, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useApi } from "@/hooks/useApi";
 import Button from "@/components/ui/Button";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import BackButton from "@/components/ui/BackButton";
 
 const AMENITY_OPTIONS = ["WiFi", "AC", "Parking", "Kitchen", "Gym", "Pool", "Laundry", "Security"];
 const TENANT_TYPES = [
@@ -150,13 +151,16 @@ export default function PreferencesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="pt-6 mb-8"
+          className="pt-6 mb-8 flex items-center gap-3"
         >
-          <div className="flex items-center gap-3 mb-1">
-            <SlidersHorizontal className="w-6 h-6 text-rose-500" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">My Preferences</h1>
+          <BackButton />
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-1">
+              <SlidersHorizontal className="w-6 h-6 text-rose-500" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">My Preferences</h1>
+            </div>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Help us find your perfect match.</p>
           </div>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Help us find your perfect match.</p>
         </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

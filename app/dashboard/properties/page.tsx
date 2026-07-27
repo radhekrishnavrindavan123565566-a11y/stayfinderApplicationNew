@@ -11,6 +11,7 @@ import { useApi } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
 import { Plus, Edit2, Trash2, Eye, Star, MapPin, BedDouble, Users, ToggleLeft, ToggleRight, BarChart2 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import BackButton from "@/components/ui/BackButton";
 
 interface Property {
   _id: string;
@@ -99,13 +100,16 @@ export default function MyPropertiesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-between mb-8"
+          className="flex items-center justify-between mb-8 flex-wrap gap-3"
         >
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">My Properties</h1>
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
-              {properties.length} listing{properties.length !== 1 ? "s" : ""}
-            </p>
+          <div className="flex items-center gap-3 min-w-0">
+            <BackButton />
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">My Properties</h1>
+              <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+                {properties.length} listing{properties.length !== 1 ? "s" : ""}
+              </p>
+            </div>
           </div>
           <Link href="/dashboard/properties/new">
             <Button className="flex items-center gap-2">

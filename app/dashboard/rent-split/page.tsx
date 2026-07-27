@@ -7,6 +7,7 @@ import { Users, Calendar, IndianRupee, CheckCircle, Clock, AlertCircle, Plus, X,
 import RentSplitManager from "@/components/rent/RentSplitManager";
 import { cn } from "@/utils/cn";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import BackButton from "@/components/ui/BackButton";
 
 interface RentSplit {
   _id: string;
@@ -108,14 +109,17 @@ export default function RentSplitPage() {
         {/* ── Header ── */}
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
           className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-500/25">
-                <IndianRupee className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3 min-w-0">
+            <BackButton />
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-500/25 flex-shrink-0">
+                  <IndianRupee className="w-5 h-5 text-white" />
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">Rent Split</h1>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">Rent Split</h1>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Split rent with roommates and track payments</p>
             </div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 ml-13 pl-1">Split rent with roommates and track payments</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}

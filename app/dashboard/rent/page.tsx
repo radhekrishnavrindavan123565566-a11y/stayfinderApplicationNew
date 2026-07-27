@@ -18,6 +18,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import dynamic from "next/dynamic";
+import BackButton from "@/components/ui/BackButton";
 
 // Dynamically import PDF components (client-side only)
 const PDFDownloadLink = dynamic(
@@ -190,14 +191,17 @@ export default function RentRemindersPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 flex items-center gap-3"
         >
-          <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
-            Rent Reminders
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Never miss a rent payment deadline
-          </p>
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
+              Rent Reminders
+            </h1>
+            <p className="text-zinc-600 dark:text-zinc-400">
+              Never miss a rent payment deadline
+            </p>
+          </div>
         </motion.div>
 
         {/* Stats Cards */}

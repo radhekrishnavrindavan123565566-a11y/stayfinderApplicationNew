@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
+import BackButton from "@/components/ui/BackButton";
 
 interface RentalDocument {
   _id: string;
@@ -87,7 +88,6 @@ export default function DocumentVaultPage() {
       const totalBytes = (data.data || []).reduce((sum: number, doc: RentalDocument) => sum + doc.fileSize, 0);
       setStorageUsed(totalBytes / (1024 * 1024)); // Convert to MB
     } catch (error) {
-      console.error("Failed to fetch documents:", error);
       toast.error("Failed to load documents");
     } finally {
       setLoading(false);
@@ -255,13 +255,16 @@ export default function DocumentVaultPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
         >
-          <div>
-            <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
-              Document Vault
-            </h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Securely store and share your rental documents
-            </p>
+          <div className="flex items-center gap-3 min-w-0">
+            <BackButton />
+            <div>
+              <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
+                Document Vault
+              </h1>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                Securely store and share your rental documents
+              </p>
+            </div>
           </div>
           <div className="flex gap-3">
             <Button

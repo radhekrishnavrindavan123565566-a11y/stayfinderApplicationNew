@@ -15,7 +15,7 @@ import ImageUploader from "@/components/properties/ImageUploader";
 import VideoUploader, { PropertyVideos } from "@/components/properties/VideoUploader";
 import Tour360Uploader from "@/components/properties/Tour360Uploader";
 import AIDescriptionGenerator from "@/components/properties/AIDescriptionGenerator";
-import { Sparkles, Zap, Calendar, ChevronRight, ChevronLeft, Check, Wifi, Car, UtensilsCrossed, Waves, Dumbbell, Wind, Tv, Coffee, WashingMachine, Shirt, Shield, Flame, Snowflake, Dog, Baby, Bike, Bus, Utensils, Bath, BedDouble, Sofa, Sun, Leaf, Lock, Camera, Bell, Zap as Lightning, Droplets, Trash2, Package } from "lucide-react";
+import { Sparkles, Zap, Calendar, ChevronRight, ChevronLeft, Check, Wifi, Car, UtensilsCrossed, Waves, Dumbbell, Wind, Tv, Coffee, WashingMachine, Shirt, Shield, Flame, Snowflake, Dog, Baby, Bike, Bus, Utensils, Bath, BedDouble, Sofa, Sun, Leaf, Lock, Camera, Bell, Zap as Lightning, Droplets, Trash2, Package, ArrowLeft } from "lucide-react";
 
 const AMENITY_ICONS: Record<string, React.ReactNode> = {
   // Essentials
@@ -169,8 +169,21 @@ export default function NewPropertyPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">List Your Property</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
+          <div className="flex items-center gap-3 mb-6">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.back()}
+              className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
+              title="Go back"
+            >
+              <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+            </motion.button>
+            <div>
+              <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">List Your Property</h1>
+              <p className="text-zinc-500 dark:text-zinc-400 text-sm">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Progress Bar */}

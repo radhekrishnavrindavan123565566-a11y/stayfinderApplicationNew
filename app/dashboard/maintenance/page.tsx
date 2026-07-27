@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import BackButton from "@/components/ui/BackButton";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   open:        { label: "Open",        color: "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-400",     icon: <AlertTriangle className="w-3.5 h-3.5" /> },
@@ -139,14 +140,17 @@ export default function MaintenancePage() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 pb-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white flex items-center gap-3">
-                <Wrench className="w-7 h-7 text-amber-500" /> Maintenance Requests
-              </h1>
-              <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
-                {user?.role === "owner" ? "Manage tenant maintenance requests" : "Track your maintenance requests"}
-              </p>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3 min-w-0">
+              <BackButton />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white flex items-center gap-3">
+                  <Wrench className="w-7 h-7 text-amber-500" /> Maintenance Requests
+                </h1>
+                <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+                  {user?.role === "owner" ? "Manage tenant maintenance requests" : "Track your maintenance requests"}
+                </p>
+              </div>
             </div>
             {user?.role === "tenant" && (
               <Button onClick={() => setShowCreateModal(true)}>

@@ -8,9 +8,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera, Phone, KeyRound, AlertCircle } from "lucide-react";
+import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera, Phone, KeyRound, AlertCircle, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import TrustProfile from "@/components/trust/TrustProfile";
+import { useRouter } from "next/navigation";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const { ready, user } = useRequireAuth();
   const { fetchMe } = useAuthStore();
   const { authHeaders } = useApi();
+  const router = useRouter();
   const [username, setUsername]           = useState(user?.username || "");
   const [saving, setSaving]               = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || "");
@@ -155,10 +157,21 @@ export default function ProfilePage() {
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="mb-8"
+          className="mb-8 flex items-center gap-3"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-1">Profile</h1>
-          <p className="text-zinc-500 dark:text-zinc-400">Manage your account settings</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.back()}
+            className="p-2 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors flex-shrink-0"
+            title="Go back"
+          >
+            <ArrowLeft className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+          </motion.button>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-1">Profile</h1>
+            <p className="text-zinc-500 dark:text-zinc-400">Manage your account settings</p>
+          </div>
         </motion.div>
 
         {/* Main card */}

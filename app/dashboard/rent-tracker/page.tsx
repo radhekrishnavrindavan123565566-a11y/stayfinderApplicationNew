@@ -9,6 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import { format } from "date-fns";
+import BackButton from "@/components/ui/BackButton";
 
 interface Payment {
   _id: string;
@@ -95,13 +96,16 @@ export default function RentTrackerPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-            <IndianRupee className="w-7 h-7 text-rose-500" /> Rent Tracker
-          </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
-            {user.role === "owner" ? "Track rent payments from your tenants" : "Track your monthly rent payments"}
-          </p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+          <BackButton />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              <IndianRupee className="w-7 h-7 text-rose-500" /> Rent Tracker
+            </h1>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+              {user.role === "owner" ? "Track rent payments from your tenants" : "Track your monthly rent payments"}
+            </p>
+          </div>
         </motion.div>
 
         {/* Stats */}

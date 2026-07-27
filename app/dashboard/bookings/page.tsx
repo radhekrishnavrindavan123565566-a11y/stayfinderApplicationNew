@@ -7,7 +7,7 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { Calendar, MapPin, Check, X, DollarSign, Lock, Unlock, TrendingUp } from "lucide-react";
+import { Calendar, MapPin, Check, X, DollarSign, Lock, Unlock, TrendingUp, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -15,6 +15,7 @@ import EcosystemServices from "@/components/booking/EcosystemServices";
 import MoveInConfirmation from "@/components/booking/MoveInConfirmation";
 import DisputeForm from "@/components/booking/DisputeForm";
 import MaintenanceForm from "@/components/maintenance/MaintenanceForm";
+import BackButton from "@/components/ui/BackButton";
 
 const statusVariant: Record<string, "success" | "warning" | "danger" | "info" | "default"> = {
   approved: "success", pending: "warning", rejected: "danger", cancelled: "danger", completed: "info",
@@ -83,11 +84,14 @@ export default function BookingsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
+          transition={{ delay: 0.05 }}
+          className="mb-6 flex items-center gap-3"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-1">Bookings</h1>
-          <p className="text-zinc-500 dark:text-zinc-400">Manage all your booking requests</p>
+          <BackButton />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Bookings</h1>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm">Manage all your bookings</p>
+          </div>
         </motion.div>
 
         {/* Tab switcher (owners only) */}

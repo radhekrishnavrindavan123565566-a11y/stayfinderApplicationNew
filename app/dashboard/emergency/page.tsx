@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { AlertTriangle, Plus, Trash2, Shield, Phone, User } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 import { cn } from "@/utils/cn";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
@@ -109,7 +110,8 @@ export default function EmergencyContactsPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white">
+            <BackButton />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white flex-shrink-0">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>

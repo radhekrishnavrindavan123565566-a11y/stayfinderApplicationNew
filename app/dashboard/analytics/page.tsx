@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { TrendingUp, DollarSign, Home, Calendar, Star, Zap } from "lucide-react";
+import { TrendingUp, DollarSign, Home, Calendar, Star, Zap, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import DemandInsights from "@/components/analytics/DemandInsights";
+import BackButton from "@/components/ui/BackButton";
 
 interface AnalyticsData {
   totalEarnings: number;
@@ -175,11 +177,15 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="flex items-center gap-3"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Analytics</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
-            Track your earnings, bookings, and property performance
-          </p>
+          <BackButton />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">Analytics</h1>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+              Track your earnings, bookings, and property performance
+            </p>
+          </div>
         </motion.div>
 
         {/* Stats grid */}

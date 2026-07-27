@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Trophy, Gift, Users, Share2, CheckCircle, Zap } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 import RewardsCard from "@/components/rewards/RewardsCard";
 import BadgeShowcase from "@/components/rewards/BadgeShowcase";
 import { cn } from "@/utils/cn";
@@ -148,15 +149,18 @@ export default function RewardsPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
+          className="flex items-center justify-between gap-3 flex-wrap"
         >
-          <div>
-            <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
-              🏆 Rewards & Achievements
-            </h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Earn points, unlock badges, and climb the leaderboard
-            </p>
+          <div className="flex items-center gap-3 min-w-0">
+            <BackButton />
+            <div>
+              <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                🏆 Rewards & Achievements
+              </h1>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                Earn points, unlock badges, and climb the leaderboard
+              </p>
+            </div>
           </div>
         </motion.div>
 

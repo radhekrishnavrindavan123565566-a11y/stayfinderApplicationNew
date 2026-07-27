@@ -23,6 +23,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import BackButton from "@/components/ui/BackButton";
 
 interface SharedExpense {
   _id: string;
@@ -244,13 +245,16 @@ export default function ExpensesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
         >
-          <div>
-            <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
-              Bill Splitter
-            </h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Split expenses with your roommates
-            </p>
+          <div className="flex items-center gap-3 min-w-0">
+            <BackButton />
+            <div>
+              <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
+                Bill Splitter
+              </h1>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                Split expenses with your roommates
+              </p>
+            </div>
           </div>
           <div className="flex gap-3">
             <Link href="/dashboard/expenses/analytics">

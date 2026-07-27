@@ -9,6 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
+import BackButton from "@/components/ui/BackButton";
 
 type ItemStatus = "ok" | "damaged" | "missing" | "pending";
 
@@ -242,11 +243,14 @@ function ChecklistPageContent() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                <PenLine className="w-6 h-6 text-rose-500" /> Move-in Checklist
-              </h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">{checklist.propertyId.title}</p>
+            <div className="flex items-center gap-3 min-w-0">
+              <BackButton />
+              <div>
+                <h1 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <PenLine className="w-6 h-6 text-rose-500" /> Move-in Checklist
+                </h1>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">{checklist.propertyId.title}</p>
+              </div>
             </div>
             <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${statusCfg.color}`}>{statusCfg.label}</span>
           </div>
