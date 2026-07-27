@@ -96,7 +96,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-4 sm:p-6 lg:sticky lg:top-24"
+      className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-100 dark:border-zinc-800 p-4 sm:p-6"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-baseline gap-1">

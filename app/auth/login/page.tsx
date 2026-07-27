@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
-import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Shield, Zap, Clock, CreditCard, Home } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Shield, Zap, Clock, CreditCard } from "lucide-react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -59,6 +59,15 @@ function LoginForm() {
     }
   }, [user, router, searchParams, mounted]);
 
+  // Show loading while checking auth
+  if (!mounted || user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   const {
     register,
     handleSubmit,
@@ -78,11 +87,14 @@ function LoginForm() {
       // Get redirect destination before login
       const redirect = searchParams.get('redirect') || '/dashboard';
       
-      // Perform login
+      // Perform login (this sets zustand state and axios header)
       await login(data.email, data.password);
       
-      // Immediate redirect without waiting for toast
-      window.location.href = redirect;
+      // Wait a tick to ensure state is updated before redirect
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Use router.push instead of window.location.href to respect auth state
+      router.push(redirect);
     } catch (err) {
       const msg = axios.isAxiosError(err)
         ? err.response?.data?.error || "Login failed"

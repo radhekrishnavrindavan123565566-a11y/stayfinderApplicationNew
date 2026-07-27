@@ -8,7 +8,10 @@ import mongoose from "mongoose";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireAuth(req); // must be logged in to browse locality Q&A
+    const auth = requireAuth(req);
+    if (!auth) {
+      return errorResponse("Unauthorized", 401);
+    }
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city");
     const locality = searchParams.get("locality");

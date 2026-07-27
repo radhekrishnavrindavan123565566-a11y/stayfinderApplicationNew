@@ -92,6 +92,15 @@ function RegisterForm() {
     }
   }, [user, router, mounted]);
 
+  // Show loading while checking auth
+  if (!mounted || user) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   useEffect(() => {
     if (resendTimer <= 0) return;
     const t = setTimeout(() => setResendTimer((v) => v - 1), 1000);
@@ -147,8 +156,10 @@ function RegisterForm() {
           await axios.patch("/api/user/profile", { phone: `+91${phoneValue}` });
         } catch { /* non-critical */ }
       }
-      // Immediate redirect
-      window.location.href = "/dashboard";
+      // Wait a tick to ensure state is updated before redirect
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // Use router.push instead of window.location.href to respect auth state
+      router.push("/dashboard");
     } catch (err) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.error || "Verification failed" : "Something went wrong";
       setServerError(msg); toast.error(msg);

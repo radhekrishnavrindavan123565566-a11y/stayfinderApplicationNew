@@ -35,7 +35,10 @@ function getMediaType(mimeType: string): "image" | "video" | "file" {
 
 export async function POST(req: NextRequest) {
   try {
-    requireAuth(req);
+    const auth = requireAuth(req);
+    if (!auth) {
+      return errorResponse("Unauthorized", 401);
+    }
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 

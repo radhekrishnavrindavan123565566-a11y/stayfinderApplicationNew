@@ -27,7 +27,10 @@ const MONTH_LABELS = ["","January","February","March","April","May","June","July
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    requireAuth(req);
+    const auth = requireAuth(req);
+    if (!auth) {
+      return errorResponse("Unauthorized", 401);
+    }
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city") || "Lucknow";
     const propertyType = searchParams.get("type") || "apartment";

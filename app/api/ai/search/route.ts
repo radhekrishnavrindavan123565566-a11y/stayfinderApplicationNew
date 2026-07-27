@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { getOpenAI } from "@/lib/openai";
-import { requireAuth } from "@/lib/auth";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { rateLimit } from "@/lib/rateLimit";
 

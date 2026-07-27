@@ -12,7 +12,10 @@ export async function POST(req: NextRequest) {
       return errorResponse('Too many description generation requests. Please try again later.', 429);
     }
 
-    requireAuth(req);
+    const auth = requireAuth(req);
+    if (!auth) {
+      return errorResponse("Unauthorized", 401);
+    }
     const { title, propertyType, bedrooms, bathrooms, amenities, city, highlights } = await req.json();
     if (!title || !propertyType) return errorResponse("title and propertyType required");
 

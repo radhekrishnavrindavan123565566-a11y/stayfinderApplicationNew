@@ -497,7 +497,7 @@ export default function PropertyDetailPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="lg:col-span-1 space-y-4"
+            className="lg:col-span-1 space-y-4 lg:sticky lg:top-24 lg:h-fit"
           >
             {/* Badges */}
             <div className="flex flex-wrap gap-2">
@@ -516,7 +516,7 @@ export default function PropertyDetailPage() {
             </div>
 
             {/* Sticky booking form on desktop */}
-            <div className="lg:sticky lg:top-24">
+            <div>
               <BookingForm
                 propertyId={property._id}
                 price={property.price}

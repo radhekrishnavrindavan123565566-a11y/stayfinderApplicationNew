@@ -9,8 +9,11 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const auth = requireAuth(req);
-    if (!auth || auth.role !== "admin") {
+    if (!auth) {
       return errorResponse("Unauthorized", 401);
+    }
+    if (auth.role !== "admin") {
+      return errorResponse("Forbidden", 403);
     }
 
     // Get all properties with their unit counts (each property can have multiple units)
