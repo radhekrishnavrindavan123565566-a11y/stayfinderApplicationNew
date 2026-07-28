@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     if (!user) return errorResponse("Unauthorized", 401);
     const { propertyId, startDate, endDate, message } = await req.json();
 
-    if (!propertyId || !startDate || !endDate) return errorResponse("propertyId, startDate, endDate are required");
+    if (!propertyId || !startDate) return errorResponse("propertyId and startDate are required");
 
     const property = await Property.findById(propertyId);
     if (!property) return errorResponse("Property not found", 404);
@@ -67,7 +67,9 @@ export async function POST(req: NextRequest) {
     }
 
     const start = new Date(startDate);
-    const end = new Date(endDate);
+    // For monthly bookings, set end date to 1 year from start if not provided
+    const end = endDate ? new Date(endDate) : new Date(start.getTime() + 365 * 24 * 60 * 60 * 1000);
+    
     if (start >= end) return errorResponse("endDate must be after startDate");
 
     // Check for conflicting bookings
@@ -85,8 +87,9 @@ export async function POST(req: NextRequest) {
     });
     if (blockedConflict) return errorResponse("Some dates are blocked by the owner");
 
-    const nights = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    const totalPrice = property.price * nights;
+    // For monthly bookings, calculate as 1 month
+    const months = 1;
+    const totalPrice = property.price * months;
     const platformFee = Math.round(totalPrice * PLATFORM_COMMISSION * 100) / 100;
     const landlordEarning = totalPrice - platformFee;
 
@@ -97,7 +100,8 @@ export async function POST(req: NextRequest) {
       startDate: start,
       endDate: end,
       totalPrice,
-      nights,
+      nights: months,
+      monthlyPrice: property.price,
       platformFee,
       landlordEarning,
       escrowStatus: "none",

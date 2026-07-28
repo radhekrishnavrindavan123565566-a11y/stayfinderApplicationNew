@@ -80,6 +80,19 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Call useForm hook at top level BEFORE any conditionals
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting, touchedFields } } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { role: "tenant" as const },
+    mode: "onChange",
+  });
+
+  // Call watch hooks at top level BEFORE any conditionals
+  const role          = watch("role");
+  const passwordValue = watch("password", "");
+  const emailValue    = watch("email", "");
+  const usernameValue = watch("username", "");
+
   // Handle client-side mounting
   useEffect(() => {
     setMounted(true);
@@ -92,6 +105,13 @@ function RegisterForm() {
     }
   }, [user, router, mounted]);
 
+  // Timer effect
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer((v) => v - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
+
   // Show loading while checking auth
   if (!mounted || user) {
     return (
@@ -100,23 +120,6 @@ function RegisterForm() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (resendTimer <= 0) return;
-    const t = setTimeout(() => setResendTimer((v) => v - 1), 1000);
-    return () => clearTimeout(t);
-  }, [resendTimer]);
-
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting, touchedFields } } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { role: "tenant" as const },
-    mode: "onChange",
-  });
-
-  const role          = watch("role");
-  const passwordValue = watch("password", "");
-  const emailValue    = watch("email", "");
-  const usernameValue = watch("username", "");
 
   const inputCls = (err: boolean, touched: boolean, val: string) =>
     `w-full pl-10 pr-4 py-3 rounded-xl border text-sm transition-all outline-none focus:ring-2 dark:bg-zinc-800 dark:text-white ${

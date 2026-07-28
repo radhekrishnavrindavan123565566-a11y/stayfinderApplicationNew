@@ -34,7 +34,7 @@ export const propertySchema = z.object({
 export const bookingSchema = z.object({
   propertyId: z.string().min(1, "Property ID is required"),
   startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
+  endDate: z.string().optional(),
   message: z.string().optional(),
 });
 
