@@ -108,7 +108,14 @@ export default function PreferencesPage() {
       setNewSearch({});
       setShowAddSearch(false);
       toast.success("Search saved with alerts!");
-    } catch { toast.error("Failed to save search"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to save search");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSavingSearch(false); }
   };
 
@@ -116,7 +123,14 @@ export default function PreferencesPage() {
     const updated = savedSearches.map((s, i) => i === index ? { ...s, alertEnabled: !s.alertEnabled } : s);
     setSavedSearches(updated);
     try { await axios.patch("/api/user/preferences", { savedSearches: updated }, authHeaders()); }
-    catch { toast.error("Failed to update alert"); }
+    catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to update alert");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   const removeSearch = async (index: number) => {
@@ -125,7 +139,14 @@ export default function PreferencesPage() {
     try {
       await axios.patch("/api/user/preferences", { savedSearches: updated }, authHeaders());
       toast.success("Search removed");
-    } catch { toast.error("Failed to remove search"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to remove search");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   if (!ready || !authUser) {

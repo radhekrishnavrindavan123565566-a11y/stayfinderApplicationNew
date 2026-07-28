@@ -80,7 +80,14 @@ function AutoPricingPanel({ authHeaders }: { authHeaders: () => { headers: Recor
       const { data: res } = await axios.post("/api/owner/auto-pricing", { propertyIds: [...selected] }, authHeaders());
       toast.success(`Price updated for ${res.data.count} properties`);
       load();
-    } catch { toast.error("Failed to apply pricing"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to apply pricing");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setApplying(false); }
   };
 
@@ -183,7 +190,14 @@ function BroadcastPanel({ authHeaders, properties }: {
       toast.success(`Sent to ${data.data.sent} tenants`);
       setMsg("");
       setOpen(false);
-    } catch { toast.error("Broadcast failed"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Broadcast failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSending(false); }
   };
 

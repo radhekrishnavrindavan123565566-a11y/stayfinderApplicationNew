@@ -64,7 +64,13 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
       toast.success(instantBooking ? "Booking confirmed instantly!" : "Booking request sent!");
       window.location.href = "/dashboard/bookings";
     } catch (err) {
-      if (axios.isAxiosError(err)) toast.error(err.response?.data?.error || "Booking failed");
+      if (axios.isAxiosError(err)) {
+        // Display server error message if available
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Booking failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 

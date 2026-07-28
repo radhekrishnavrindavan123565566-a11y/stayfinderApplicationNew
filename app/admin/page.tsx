@@ -91,7 +91,14 @@ export default function AdminPage() {
       await axios.patch(`/api/admin/users/${userId}`, { isActive: !currentStatus }, authHeaders());
       setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: !currentStatus } : u)));
       toast.success(!currentStatus ? "User activated" : "User deactivated");
-    } catch { toast.error("Failed to update user status"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to update user status");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   const deleteUser = async (id: string) => {
@@ -100,7 +107,14 @@ export default function AdminPage() {
       await axios.delete(`/api/admin/users/${id}`, authHeaders());
       setUsers((prev) => prev.filter((u) => u._id !== id));
       toast.success("User deleted");
-    } catch { toast.error("Failed to delete user"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to delete user");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   const handleVerification = async (userId: string, approve: boolean) => {
@@ -109,7 +123,14 @@ export default function AdminPage() {
       setPendingVerifications((prev) => prev.filter((u) => u._id !== userId));
       setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, ownerVerified: approve } : u)));
       toast.success(approve ? "Owner verified successfully" : "Verification rejected");
-    } catch { toast.error("Failed to update verification"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to update verification");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   const resolveDispute = async (id: string, status: string, resolution: string) => {
@@ -117,7 +138,14 @@ export default function AdminPage() {
       await axios.patch(`/api/disputes/${id}`, { status, resolution }, authHeaders());
       setDisputes((prev) => prev.map((d) => d._id === id ? { ...d, status, resolution } : d));
       toast.success("Dispute updated");
-    } catch { toast.error("Failed to update dispute"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to update dispute");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   // Download user data as CSV
@@ -1033,7 +1061,14 @@ function RemindersPanel({ authHeaders }: { authHeaders: () => { headers: { Autho
       const { data } = await axios.post("/api/admin/reminders", { type }, authHeaders());
       setResults(data.data.results);
       toast.success("Reminders sent!");
-    } catch { toast.error("Failed to send reminders"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to send reminders");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSending(null); }
   };
 
@@ -1097,7 +1132,14 @@ function BulkMarketingPanel({ authHeaders }: { authHeaders: () => { headers: { A
       const { data } = await axios.post("/api/admin/bulk-marketing", form, authHeaders());
       setResult(data.data);
       toast.success(`${data.data.total} users ko message bheja gaya!`);
-    } catch { toast.error("Send failed"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Send failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSending(false); }
   };
 

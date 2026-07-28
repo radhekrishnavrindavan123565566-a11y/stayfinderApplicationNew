@@ -32,8 +32,13 @@ export default function MaintenanceForm({ bookingId, onSubmitted }: { bookingId:
       toast.success("Maintenance request submitted");
       setSubmitted(true);
       onSubmitted?.();
-    } catch {
-      toast.error("Failed to submit request");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to submit request");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

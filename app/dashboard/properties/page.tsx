@@ -71,7 +71,14 @@ export default function MyPropertiesPage() {
       await axios.put(`/api/properties/${id}`, { isAvailable: !current }, authHeaders());
       setProperties((prev) => prev.map((p) => p._id === id ? { ...p, isAvailable: !current } : p));
       toast.success(`Property ${!current ? "activated" : "deactivated"}`);
-    } catch { toast.error("Failed to update"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to update");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
   };
 
   const deleteProperty = async (id: string) => {
@@ -81,7 +88,14 @@ export default function MyPropertiesPage() {
       await axios.delete(`/api/properties/${id}`, authHeaders());
       setProperties((prev) => prev.filter((p) => p._id !== id));
       toast.success("Property deleted");
-    } catch { toast.error("Failed to delete"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to delete");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setDeletingId(null); }
   };
 

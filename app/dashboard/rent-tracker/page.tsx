@@ -60,7 +60,14 @@ export default function RentTrackerPage() {
       const { data } = await axios.get(`/api/rent-tracker?role=${role}`, authHeaders());
       setPayments(data.data.payments);
       setStats(data.data.stats);
-    } catch { toast.error("Failed to load payments"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to load payments");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setLoading(false); }
   }, [user, authHeaders]);
 
@@ -75,7 +82,14 @@ export default function RentTrackerPage() {
       await axios.patch("/api/rent-tracker", { paymentId, status }, authHeaders());
       toast.success(status === "paid" ? "Payment confirmed!" : "Status updated");
       load();
-    } catch { toast.error("Failed to update"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to update");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setConfirming(null); }
   };
 

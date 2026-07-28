@@ -175,7 +175,14 @@ function RegisterForm() {
     try {
       await axios.post("/api/auth/send-otp", { email: pendingData.email, action: "verify-register" });
       setResendTimer(60); toast.success("OTP resent");
-    } catch { toast.error("Failed to resend OTP"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to resend OTP");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setLoading(false); }
   };
 

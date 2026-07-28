@@ -128,7 +128,14 @@ function CreateProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved
       toast.success("Profile saved!");
       onSaved();
       onClose();
-    } catch { toast.error("Failed to save profile"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to save profile");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSaving(false); }
   };
 
@@ -253,7 +260,14 @@ export default function RoommatesPage() {
       if (filters.occupation) params.set("occupation", filters.occupation);
       const { data } = await axios.get(`/api/roommates?${params}`);
       setProfiles(data.data.profiles);
-    } catch { toast.error("Failed to load profiles"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to load profiles");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setLoading(false); }
   }, [filters]);
 

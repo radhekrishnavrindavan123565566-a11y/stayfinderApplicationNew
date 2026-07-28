@@ -162,7 +162,14 @@ function ChecklistPageContent() {
       const { data } = await axios.get(`/api/checklist?bookingId=${bookingId}`, authHeaders());
       setChecklist(data.data.checklist);
       setLocalItems(data.data.checklist.items);
-    } catch { toast.error("Failed to load checklist"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to load checklist");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setLoading(false); }
   }, [bookingId, authHeaders]);
 
@@ -198,7 +205,14 @@ function ChecklistPageContent() {
       }));
       await axios.patch("/api/checklist", { bookingId, items: updates }, authHeaders());
       toast.success("Saved");
-    } catch { toast.error("Save failed"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Save failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSaving(false); }
   };
 
@@ -214,7 +228,14 @@ function ChecklistPageContent() {
       setChecklist(data.data.checklist);
       setLocalItems(data.data.checklist.items);
       toast.success("Checklist signed!");
-    } catch { toast.error("Sign failed"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Sign failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSigning(false); }
   };
 

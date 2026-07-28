@@ -57,7 +57,14 @@ export default function SaveSearchButton({ filters }: Props) {
       setSaved(true);
       setShowModal(false);
       toast.success("Search saved! You'll be notified of new matches.");
-    } catch { toast.error("Failed to save search"); }
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const serverError = err.response?.data?.error;
+        toast.error(serverError || "Failed to save search");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
     finally { setSaving(false); }
   };
 
