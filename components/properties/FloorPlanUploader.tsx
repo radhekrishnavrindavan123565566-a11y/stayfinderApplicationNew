@@ -26,7 +26,7 @@ export default function FloorPlanUploader({
 }: FloorPlanUploaderProps) {
   const { authHeaders } = useApi();
   const [uploading, setUploading] = useState(false);
-  const [newRoom, setNewRoom] = useState({ name: "", area: 0, unit: "sqm" as const });
+  const [newRoom, setNewRoom] = useState<{ name: string; area: number; unit: "sqm" | "sqft" }>({ name: "", area: 0, unit: "sqm" });
   const [showRoomForm, setShowRoomForm] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,7 +250,7 @@ export default function FloorPlanUploader({
                   className="flex-1 px-2 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400"
                 />
                 <select
-                  value={newRoom.unit}
+                  value={newRoom.unit || "sqm"}
                   onChange={(e) =>
                     setNewRoom({
                       ...newRoom,
@@ -259,8 +259,8 @@ export default function FloorPlanUploader({
                   }
                   className="px-2 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white"
                 >
-                  <option>sqm</option>
-                  <option>sqft</option>
+                  <option value="sqm">sqm</option>
+                  <option value="sqft">sqft</option>
                 </select>
               </div>
               <div className="flex gap-2">

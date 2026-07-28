@@ -450,33 +450,33 @@ export default function PropertyDetailPage() {
             </motion.div>
 
             {/* Floor Plan */}
-            {property.floorPlan && (
+            {(property as any).floorPlan && (
               <motion.div variants={fadeUp}>
                 <FloorPlan
-                  imageUrl={property.floorPlan.imageUrl}
+                  imageUrl={(property as any).floorPlan.imageUrl}
                   title={property.title}
-                  totalArea={property.floorPlan.totalArea}
-                  roomDetails={property.floorPlan.rooms}
+                  totalArea={(property as any).floorPlan.totalArea}
+                  roomDetails={(property as any).floorPlan.rooms}
                 />
               </motion.div>
             )}
 
             {/* Room Details */}
-            {property.floorPlan?.rooms && property.floorPlan.rooms.length > 0 && (
+            {(property as any).floorPlan?.rooms && (property as any).floorPlan.rooms.length > 0 && (
               <motion.div variants={fadeUp}>
                 <RoomDetails
-                  rooms={property.floorPlan.rooms}
-                  totalArea={property.floorPlan.totalArea}
+                  rooms={(property as any).floorPlan.rooms}
+                  totalArea={(property as any).floorPlan.totalArea}
                 />
               </motion.div>
             )}
 
             {/* Neighborhood Map */}
-            {property.location?.lat && property.location?.lng && (
+            {(property as any).location?.lat && (property as any).location?.lng && (
               <motion.div variants={fadeUp}>
                 <NeighborhoodMap
-                  lat={property.location.lat}
-                  lng={property.location.lng}
+                  lat={(property as any).location.lat}
+                  lng={(property as any).location.lng}
                   address={property.location.address}
                   city={property.location.city}
                   amenities={property.locationIntelligence?.nearbyAmenities}
@@ -570,7 +570,7 @@ export default function PropertyDetailPage() {
               bathrooms={property.bathrooms}
               amenities={property.amenities}
               rating={property.averageRating}
-              area={property.area}
+              area={(property as any).area}
               cityAvgPrice={property.priceIntelligence?.cityAvgPrice}
               weeklyBookings={property.weeklyBookings}
             />

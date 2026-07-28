@@ -63,8 +63,8 @@ export const generatePropertyScore = (property: Property): number => {
   }
 
   // Space factor
-  if (property.area && property.bedrooms) {
-    const sqmPerBed = property.area / property.bedrooms;
+  if ((property as any).area && property.bedrooms) {
+    const sqmPerBed = (property as any).area / property.bedrooms;
     if (sqmPerBed > 20) score += 10;
     else if (sqmPerBed > 15) score += 5;
   }

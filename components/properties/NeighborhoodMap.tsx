@@ -48,7 +48,7 @@ export default function NeighborhoodMap({
     if (!mapRef.current || !lat || !lng) return;
 
     // Dynamically load Google Maps script
-    if (!window.google) {
+    if (!(window as any).google) {
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
       script.async = true;

@@ -120,7 +120,7 @@ export default function PropertyExperienceCard({
           </div>
           <div className="text-center">
             <p className="text-lg font-bold text-zinc-900 dark:text-white">
-              {property.area || "—"}
+              {(property as any).area || "—"}
             </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">sqm</p>
           </div>
