@@ -52,6 +52,43 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    await connectDB();
+    const { id } = await params;
+    const user = requireAuth(req);
+    if (!user) return errorResponse("Unauthorized", 401);
+    const property = await Property.findById(id);
+    if (!property) return errorResponse("Property not found", 404);
+    if (property.ownerId.toString() !== user.userId && user.role !== "admin") {
+      return errorResponse("Forbidden", 403);
+    }
+    const body = await req.json();
+    // Build flat $set with dot-notation for nested fields
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const flatSet: Record<string, any> = {};
+    const processField = (key: string, value: any, prefix = "") => {
+      if (value === undefined || value === null) return;
+      if (typeof value === "object" && !Array.isArray(value)) {
+        Object.entries(value).forEach(([k, v]) => {
+          processField(k, v, prefix ? `${prefix}.${key}` : key);
+        });
+      } else {
+        flatSet[prefix ? `${prefix}.${key}` : key] = value;
+      }
+    };
+    Object.entries(body).forEach(([key, value]) => processField(key, value));
+    const updated = await Property.findByIdAndUpdate(
+      id,
+      { $set: flatSet },
+      { new: true, strict: false }
+    );
+    return successResponse({ property: updated });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();

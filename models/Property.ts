@@ -47,6 +47,21 @@ export interface IProperty extends Document {
   unitCount: number;
   area: number;
   smartTags?: string[];
+  floorPlan?: {
+    imageUrl?: string;
+    totalArea?: number;
+    rooms?: { name: string; area: number; unit: "sqm" | "sqft" }[];
+  };
+  commuteSaved?: Array<{
+    name: string;
+    address: string;
+    times: {
+      driving?: number;
+      transit?: number;
+      walking?: number;
+      cycling?: number;
+    };
+  }>;
 }
 
 const PropertySchema = new Schema<IProperty>(
@@ -124,6 +139,29 @@ const PropertySchema = new Schema<IProperty>(
     unitCount: { type: Number, default: 1 },
     area: { type: Number, default: 0 },
     smartTags: [{ type: String }],
+    floorPlan: {
+      imageUrl: String,
+      totalArea: Number,
+      rooms: [
+        {
+          name: String,
+          area: Number,
+          unit: { type: String, enum: ["sqm", "sqft"], default: "sqm" },
+        },
+      ],
+    },
+    commuteSaved: [
+      {
+        name: String,
+        address: String,
+        times: {
+          driving: Number,
+          transit: Number,
+          walking: Number,
+          cycling: Number,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

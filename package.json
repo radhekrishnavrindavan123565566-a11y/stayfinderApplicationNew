@@ -18,6 +18,8 @@
     "test:auto": "tsx tests/run-automated-tests.ts",
     "test:setup": "tsx tests/setup-test-users.ts",
     "workers": "tsx workers.ts",
+    "check-env": "node scripts/validate-env.js",
+    "validate-env": "node scripts/validate-env.js",
     "workers:dev": "tsx watch workers.ts",
     "pre-deploy": "tsx scripts/pre-production-check.ts",
     "verify": "tsx scripts/pre-production-check.ts",

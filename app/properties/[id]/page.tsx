@@ -28,6 +28,13 @@ import TrustProfile from "@/components/trust/TrustProfile";
 import PriceIntelligence from "@/components/properties/PriceIntelligence";
 import LocationIntelligence from "@/components/properties/LocationIntelligence";
 import UrgencySignals from "@/components/properties/UrgencySignals";
+import FloorPlan from "@/components/properties/FloorPlan";
+import ImageGalleryEnhanced from "@/components/properties/ImageGalleryEnhanced";
+import PropertyComparison from "@/components/properties/PropertyComparison";
+import CommuteEstimator from "@/components/properties/CommuteEstimator";
+import NeighborhoodMap from "@/components/properties/NeighborhoodMap";
+import RoomDetails from "@/components/properties/RoomDetails";
+import PropertyInsights from "@/components/properties/PropertyInsights";
 import LocalityReviews from "@/components/community/LocalityReviews";
 import LocalityQA from "@/components/community/LocalityQA";
 import SimilarProperties from "@/components/properties/SimilarProperties";
@@ -442,6 +449,51 @@ export default function PropertyDetailPage() {
               <LocationIntelligence property={property as any} />
             </motion.div>
 
+            {/* Floor Plan */}
+            {property.floorPlan && (
+              <motion.div variants={fadeUp}>
+                <FloorPlan
+                  imageUrl={property.floorPlan.imageUrl}
+                  title={property.title}
+                  totalArea={property.floorPlan.totalArea}
+                  roomDetails={property.floorPlan.rooms}
+                />
+              </motion.div>
+            )}
+
+            {/* Room Details */}
+            {property.floorPlan?.rooms && property.floorPlan.rooms.length > 0 && (
+              <motion.div variants={fadeUp}>
+                <RoomDetails
+                  rooms={property.floorPlan.rooms}
+                  totalArea={property.floorPlan.totalArea}
+                />
+              </motion.div>
+            )}
+
+            {/* Neighborhood Map */}
+            {property.location?.lat && property.location?.lng && (
+              <motion.div variants={fadeUp}>
+                <NeighborhoodMap
+                  lat={property.location.lat}
+                  lng={property.location.lng}
+                  address={property.location.address}
+                  city={property.location.city}
+                  amenities={property.locationIntelligence?.nearbyAmenities}
+                />
+              </motion.div>
+            )}
+
+            {/* Commute Estimator */}
+            {property.location && (
+              <motion.div variants={fadeUp}>
+                <CommuteEstimator
+                  propertyLocation={property.location}
+                  propertyTitle={property.title}
+                />
+              </motion.div>
+            )}
+
             {/* Community */}
             {property.location?.city && property.location?.address && (
               <>
@@ -507,6 +559,21 @@ export default function PropertyDetailPage() {
                 </span>
               )}
             </div>
+
+            {/* Property Comparison */}
+            <PropertyComparison currentPropertyId={property._id} />
+
+            {/* Smart Insights */}
+            <PropertyInsights
+              price={property.price}
+              bedrooms={property.bedrooms}
+              bathrooms={property.bathrooms}
+              amenities={property.amenities}
+              rating={property.averageRating}
+              area={property.area}
+              cityAvgPrice={property.priceIntelligence?.cityAvgPrice}
+              weeklyBookings={property.weeklyBookings}
+            />
 
             {/* Sticky booking form on desktop */}
             <div>
