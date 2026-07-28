@@ -25,20 +25,21 @@ const sizes = {
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", isLoading, children, disabled, ...props }, ref) => (
+  ({ className, variant = "primary", size = "md", isLoading, children, disabled, type = "button", ...props }, ref) => (
     <motion.button
       ref={ref}
+      type={type as any}
       suppressHydrationWarning
       whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
       whileTap={{ scale: disabled || isLoading ? 1 : 0.97 }}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
         variants[variant],
         sizes[size],
         className
       )}
       disabled={disabled || isLoading}
-      {...(props as React.ComponentProps<typeof motion.button>)}
+      {...(props as any)}
     >
       {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
       {children}

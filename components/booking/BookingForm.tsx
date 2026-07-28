@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Users, MessageSquare, Zap, Info } from "lucide-react";
+import { Calendar, Users, MessageSquare, Zap, Info, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { bookingSchema, BookingInput } from "@/lib/validations";
@@ -57,6 +57,10 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
   const onSubmit = async (data: BookingInput) => {
     if (!user) {
       window.location.href = "/auth/login";
+      return;
+    }
+    if (!data.startDate) {
+      toast.error("Please select a move-in date");
       return;
     }
     try {
@@ -160,9 +164,14 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
           </div>
         </div>
 
-        <Button type="submit" isLoading={isSubmitting} className="w-full" size="lg">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-3.5 px-7 rounded-xl font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/25 text-base"
+        >
+          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {user ? (instantBooking ? "Book Now" : "Request Booking") : "Login to Book"}
-        </Button>
+        </button>
       </form>
     </motion.div>
   );
