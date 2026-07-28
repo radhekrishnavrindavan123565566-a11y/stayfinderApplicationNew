@@ -57,6 +57,10 @@ function LoginForm() {
     mode: "onChange",
   });
 
+  // Call watch hooks at top level before conditionals
+  const emailValue = watch("email", "");
+  const passwordValue = watch("password", "");
+
   // Handle client-side mounting
   useEffect(() => {
     setMounted(true);
@@ -78,9 +82,6 @@ function LoginForm() {
       </div>
     );
   }
-
-  const emailValue = watch("email", "");
-  const passwordValue = watch("password", "");
 
   const onSubmit = async (data: LoginInput) => {
     setServerError("");

@@ -15,6 +15,7 @@ import EcosystemServices from "@/components/booking/EcosystemServices";
 import MoveInConfirmation from "@/components/booking/MoveInConfirmation";
 import DisputeForm from "@/components/booking/DisputeForm";
 import MaintenanceForm from "@/components/maintenance/MaintenanceForm";
+import CheckoutRequestForm from "@/components/booking/CheckoutRequestForm";
 import BackButton from "@/components/ui/BackButton";
 
 const statusVariant: Record<string, "success" | "warning" | "danger" | "info" | "default"> = {
@@ -269,6 +270,12 @@ export default function BookingsPage() {
                   {tab === "tenant" && b.status === "approved" && (
                     <div className="px-4 sm:px-5 pb-5 space-y-3">
                       <MoveInConfirmation bookingId={b._id} onConfirmed={fetchBookings} />
+                      <CheckoutRequestForm 
+                        bookingId={b._id} 
+                        monthlyPrice={b.monthlyPrice || 0} 
+                        startDate={b.startDate}
+                        onSubmitted={fetchBookings}
+                      />
                       <MaintenanceForm bookingId={b._id} />
                       <EcosystemServices bookingId={b._id} city={b.propertyId?.location?.city} />
                       <DisputeForm bookingId={b._id} />
