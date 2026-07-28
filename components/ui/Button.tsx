@@ -28,7 +28,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", isLoading, children, disabled, type = "button", ...props }, ref) => (
     <motion.button
       ref={ref}
-      type={type as any}
+      type={type}
       suppressHydrationWarning
       whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
       whileTap={{ scale: disabled || isLoading ? 1 : 0.97 }}

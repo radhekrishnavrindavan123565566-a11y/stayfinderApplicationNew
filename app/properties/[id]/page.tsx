@@ -283,19 +283,15 @@ export default function PropertyDetailPage() {
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <MatchScoreBadge propertyId={id} />
             <SmartTags tags={(property as Property & { smartTags?: string[] }).smartTags ?? []} />
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(property as any).tour360?.length > 0 && (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              <Tour360Viewer images={(property as any).tour360} title={property.title} />
+            {property.tour360 && property.tour360.length > 0 && (
+              <Tour360Viewer images={property.tour360} title={property.title} />
             )}
           </div>
           <div className="mt-3">
             <UrgencySignals
               propertyId={id}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              weeklyBookings={(property as any).weeklyBookings}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              unitCount={(property as any).unitCount}
+              weeklyBookings={property.weeklyBookings}
+              unitCount={property.unitCount}
             />
           </div>
         </motion.div>
@@ -391,8 +387,7 @@ export default function PropertyDetailPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-zinc-900 dark:text-white">Hosted by {property.ownerId?.username}</p>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{property.ownerId?.email}</p>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <div className="mt-1.5"><ResponseRateBadge avgResponseTimeHours={(property.ownerId as any)?.avgResponseTimeHours} responseRate={(property.ownerId as any)?.responseRate} /></div>
+                <div className="mt-1.5"><ResponseRateBadge avgResponseTimeHours={property.ownerId?.avgResponseTimeHours} responseRate={property.ownerId?.responseRate} /></div>
               </div>
               {user && user._id !== property.ownerId?._id && (
                 <motion.button
@@ -439,12 +434,12 @@ export default function PropertyDetailPage() {
 
             {/* Price Intelligence */}
             <motion.div variants={fadeUp}>
-              <PriceIntelligence propertyId={id} stored={(property as never as { priceIntelligence?: unknown }).priceIntelligence as never} />
+              <PriceIntelligence propertyId={id} stored={property.priceIntelligence} />
             </motion.div>
 
             {/* Location Intelligence */}
             <motion.div variants={fadeUp}>
-              <LocationIntelligence property={property as never} />
+              <LocationIntelligence property={property as any} />
             </motion.div>
 
             {/* Community */}
@@ -501,14 +496,12 @@ export default function PropertyDetailPage() {
           >
             {/* Badges */}
             <div className="flex flex-wrap gap-2">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(property as any).instantBooking && (
+              {property.instantBooking && (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 rounded-full text-xs font-medium">
                   <Zap className="w-3 h-3" /> Instant Booking
                 </span>
               )}
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(property as any).ownerVerified && (
+              {property.ownerVerified && (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
                   <Shield className="w-3 h-3" /> Verified Owner
                 </span>
@@ -521,10 +514,8 @@ export default function PropertyDetailPage() {
                 propertyId={property._id}
                 price={property.price}
                 maxGuests={property.maxGuests}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                instantBooking={(property as any).instantBooking}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                cancellationPolicy={(property as any).cancellationPolicy}
+                instantBooking={property.instantBooking}
+                cancellationPolicy={property.cancellationPolicy}
                 propertyType={property.propertyType}
                 ownerId={property.ownerId?._id}
               />
@@ -546,10 +537,8 @@ export default function PropertyDetailPage() {
         propertyId={property._id}
         price={property.price}
         maxGuests={property.maxGuests}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        instantBooking={(property as any).instantBooking}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        cancellationPolicy={(property as any).cancellationPolicy}
+        instantBooking={property.instantBooking}
+        cancellationPolicy={property.cancellationPolicy}
       />
 
       {/* Bottom padding on mobile to account for sticky bar */}

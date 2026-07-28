@@ -16,7 +16,14 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   maxGuests: number;
-  ownerId: { _id: string; username: string; avatar?: string; email: string };
+  ownerId: { 
+    _id: string; 
+    username: string; 
+    avatar?: string; 
+    email: string;
+    avgResponseTimeHours?: number;
+    responseRate?: number;
+  };
   isAvailable: boolean;
   averageRating: number;
   totalReviews: number;
@@ -27,6 +34,29 @@ export interface Property {
   cancellationPolicy: "flexible" | "moderate" | "strict";
   ownerVerified: boolean;
   smartTags?: string[];
+  weeklyBookings?: number;
+  unitCount?: number;
+  priceIntelligence?: {
+    cityAvgPrice?: number;
+    medianPrice?: number;
+    fairPriceRange?: { min: number; max: number };
+    pricePosition?: string;
+    percentageDiff?: number;
+    totalListingsInCity?: number;
+    lastUpdated?: string | Date;
+  };
+  locationIntelligence?: {
+    nearbyAmenities?: Array<{
+      type: string;
+      name: string;
+      distanceKm: number;
+      walkTimeMinutes: number;
+    }>;
+    safetyScore?: number;
+    safetyLabel?: string;
+    lastUpdated?: string | Date;
+  } | null;
+  blockedDates?: Date[];
   createdAt: string;
 }
 
