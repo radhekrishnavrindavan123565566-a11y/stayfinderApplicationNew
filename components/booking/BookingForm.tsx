@@ -63,7 +63,7 @@ export default function BookingForm({ propertyId, price, maxGuests, instantBooki
       return;
     }
     try {
-      await axios.post("/api/bookings", data, authHeaders());
+      const response = await axios.post("/api/bookings", data, authHeaders());
       toast.success(instantBooking ? "Booking confirmed instantly!" : "Booking request sent!");
       window.location.href = "/dashboard/bookings";
     } catch (err) {

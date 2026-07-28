@@ -24,7 +24,7 @@ export default function RewardsCard() {
     try {
       const res = await fetch("/api/rewards");
       const data = await res.json();
-      setRewards(data.reward);
+      setRewards(data.data?.rewards || data.reward);
     } catch (error) {
       console.error("Failed to fetch rewards:", error);
     } finally {

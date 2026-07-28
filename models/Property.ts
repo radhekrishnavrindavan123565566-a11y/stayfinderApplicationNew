@@ -35,6 +35,7 @@ export interface IProperty extends Document {
   };
   priceIntelligence?: {
     cityAvgPrice?: number;
+    medianPrice?: number;
     fairPriceRange?: { min: number; max: number };
     pricePosition?: string;
     percentageDiff?: number;
@@ -103,6 +104,7 @@ const PropertySchema = new Schema<IProperty>(
     },
     priceIntelligence: {
       cityAvgPrice: { type: Number },
+      medianPrice: { type: Number },
       fairPriceRange: {
         min: { type: Number },
         max: { type: Number },

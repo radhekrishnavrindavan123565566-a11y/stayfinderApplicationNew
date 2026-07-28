@@ -9,6 +9,7 @@ export interface IBooking extends Document {
   endDate: Date;
   totalPrice: number;
   nights: number;
+  monthlyPrice: number;
   platformFee: number;
   landlordEarning: number;
   escrowStatus: "holding" | "released" | "refunded" | "none";
@@ -43,6 +44,7 @@ const BookingSchema = new Schema<IBooking>(
     endDate: { type: Date, required: true },
     totalPrice: { type: Number, required: true },
     nights: { type: Number, required: true },
+    monthlyPrice: { type: Number, required: true },
     platformFee: { type: Number, default: 0 },
     landlordEarning: { type: Number, default: 0 },
     escrowStatus: {
