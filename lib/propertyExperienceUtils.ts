@@ -108,7 +108,7 @@ export const generateComparisonReport = (
         : prev
     ),
     bestSpace: properties.reduce((prev, current) =>
-      (current.area || 0) > (prev.area || 0) ? current : prev
+      ((current as any).area || 0) > ((prev as any).area || 0) ? current : prev
     ),
     mostAmenities: properties.reduce((prev, current) =>
       (current.amenities?.length || 0) > (prev.amenities?.length || 0)
@@ -253,7 +253,7 @@ export const generatePropertyHighlights = (property: Property): string[] => {
     highlights.push("Highly Rated");
   }
 
-  if (property.area && property.bedrooms && property.area / property.bedrooms > 20) {
+  if ((property as any).area && property.bedrooms && (property as any).area / property.bedrooms > 20) {
     highlights.push("Spacious");
   }
 

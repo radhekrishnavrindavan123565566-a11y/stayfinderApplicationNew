@@ -173,7 +173,10 @@ export default function Navbar() {
                         <DropItem href="/dashboard/rewards" icon={<TrendingUp className="w-4 h-4" />} label="Rewards" onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/bookings" icon={<Calendar className="w-4 h-4" />} label={user.role === "owner" ? "Property Bookings" : "My Bookings"} onClick={() => setDropdownOpen(false)} />
                         {user.role === "tenant" && (
-                          <DropItem href="/dashboard/rent-split" icon={<IndianRupee className="w-4 h-4" />} label="Rent Split" onClick={() => setDropdownOpen(false)} />
+                          <>
+                            <DropItem href="/dashboard/checkout" icon={<LogOut className="w-4 h-4" />} label="Checkout Management" onClick={() => setDropdownOpen(false)} />
+                            <DropItem href="/dashboard/rent-split" icon={<IndianRupee className="w-4 h-4" />} label="Rent Split" onClick={() => setDropdownOpen(false)} />
+                          </>
                         )}
                         <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label={user.role === "owner" ? "Rent Collection" : "Rent Tracker"} onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label={user.role === "owner" ? "Maintenance Requests" : "My Requests"} onClick={() => setDropdownOpen(false)} />
@@ -256,7 +259,10 @@ export default function Navbar() {
                   <Link href="/dashboard/rewards" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rewards</Link>
                   <Link href="/dashboard/bookings" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Property Bookings" : "My Bookings"}</Link>
                   {user.role === "tenant" && (
-                    <Link href="/dashboard/rent-split" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rent Split</Link>
+                    <>
+                      <Link href="/dashboard/checkout" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Checkout Management</Link>
+                      <Link href="/dashboard/rent-split" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Rent Split</Link>
+                    </>
                   )}
                   <Link href="/dashboard/rent-tracker" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Rent Collection" : "Rent Tracker"}</Link>
                   <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Maintenance Requests" : "My Requests"}</Link>

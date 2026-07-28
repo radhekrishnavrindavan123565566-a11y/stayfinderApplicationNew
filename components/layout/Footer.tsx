@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { Home, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 const fadeUp: Variants = {
@@ -13,8 +14,8 @@ const EXPLORE = [
   { label: "Properties", href: "/properties" },
   { label: "Roommates", href: "/roommates" },
   { label: "Become a Host", href: "/auth/register" },
-  // { label: "Compare", href: "/compare" },
 ];
+
 const SUPPORT = [
   { label: "Help Center", href: "/contact" },
   { label: "About Us", href: "/about" },
@@ -22,7 +23,7 @@ const SUPPORT = [
   { label: "Terms & Conditions", href: "/terms" },
 ];
 
-// Simple SVG social icons to avoid deprecated lucide icons
+// Simple SVG social icons
 function TwitterIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
@@ -30,6 +31,7 @@ function TwitterIcon() {
     </svg>
   );
 }
+
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
@@ -37,6 +39,7 @@ function InstagramIcon() {
     </svg>
   );
 }
+
 function FacebookIcon() {
   return (
     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
@@ -52,6 +55,8 @@ const SOCIALS = [
 ];
 
 export default function Footer() {
+  const { user } = useAuthStore();
+
   return (
     <footer className="bg-zinc-900 dark:bg-zinc-950 text-zinc-400 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
@@ -62,8 +67,8 @@ export default function Footer() {
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10"
         >
-          {/* Brand — full width on mobile, 2 cols on lg */}
-          <motion.div variants={fadeUp} className="sm:col-span-2 lg:col-span-2">
+          {/* Brand */}
+          <motion.div variants={fadeUp} className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4 group w-fit">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center shadow-lg">
                 <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -75,8 +80,8 @@ export default function Footer() {
                 Stay<span className="text-amber-400">erra</span>
               </span>
             </Link>
-            <p className="text-sm leading-relaxed max-w-xs mb-5 text-zinc-400">
-              Modern Living, Grounded Search. Verified PGs, rooms &amp; flats across Uttar Pradesh.
+            <p className="text-xs leading-relaxed mb-4 text-zinc-500 max-w-xs">
+              Modern Living, Grounded Search. Verified PGs, rooms &amp; flats.
             </p>
             <div className="flex gap-3">
               {SOCIALS.map(({ Icon, label, href }) => (
@@ -125,6 +130,21 @@ export default function Footer() {
               ))}
             </ul>
           </motion.div>
+
+          {/* Communication Hub - Only for authenticated users */}
+          {user && (
+            <motion.div variants={fadeUp}>
+              <h4 className="text-white font-semibold mb-4 text-sm tracking-wide">Features</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link href="/dashboard/communication" className="hover:text-white transition-colors flex items-center gap-1.5 group py-0.5">
+                    <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 flex-shrink-0" />
+                    💬 Communication Hub
+                  </Link>
+                </li>
+              </ul>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Bottom bar */}
