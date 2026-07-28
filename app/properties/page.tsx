@@ -10,7 +10,6 @@ import { SkeletonGrid } from "@/components/ui/SkeletonCard";
 import Button from "@/components/ui/Button";
 import { ChevronLeft, ChevronRight, SlidersHorizontal, LayoutGrid, Map } from "lucide-react";
 import SaveSearchButton from "@/components/properties/SaveSearchButton";
-import { PageTransition } from "@/components/ui";
 // import CompareBar from "@/components/property/CompareBar";
 import dynamic from "next/dynamic";
 
@@ -35,8 +34,7 @@ export default function PropertiesPage() {
   if (!mounted) return null;
 
   return (
-    <PageTransition type="fade" duration={0.4}>
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20">
       {/* Sticky search header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         className="bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 sticky top-16 z-30 shadow-sm">
@@ -132,6 +130,6 @@ export default function PropertiesPage() {
         )}
       </div>
       {/* <CompareBar /> */}
-    </PageTransition>
+    </div>
   );
 }
