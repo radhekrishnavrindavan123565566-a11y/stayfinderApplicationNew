@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import DemandInsights from "@/components/analytics/DemandInsights";
 import BackButton from "@/components/ui/BackButton";
+import { AnalyticsChart } from "@/components/ui";
 
 interface AnalyticsData {
   totalEarnings: number;
@@ -57,33 +58,24 @@ function EarningsChart({ data }: { data: AnalyticsData["monthlyEarnings"] }) {
       </div>
     );
   }
-  const max = Math.max(...data.map((d) => d.earnings), 1);
+
+  // Convert to chart data format
+  const chartData = data.map((d) => ({
+    label: MONTHS[d._id.month - 1],
+    value: Math.round(d.earnings),
+    color: "#f97316", // Orange
+  }));
+
   return (
-    <div className="flex items-end gap-1.5 sm:gap-2 h-40 px-2">
-      {data.map((d, i) => {
-        const height = Math.max(4, (d.earnings / max) * 100);
-        return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
-            <div className="relative w-full flex items-end" style={{ height: "100%" }}>
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ delay: i * 0.05, type: "spring", stiffness: 200, damping: 20 }}
-                style={{ height: `${height}%`, transformOrigin: "bottom" }}
-                className="w-full bg-rose-400 dark:bg-rose-500 rounded-t-md group-hover:bg-rose-500 dark:group-hover:bg-rose-400 transition-colors cursor-pointer"
-                title={`$${d.earnings.toFixed(2)}`}
-              />
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-900 dark:bg-zinc-700 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                ${d.earnings.toFixed(0)}
-              </div>
-            </div>
-            <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500">
-              {MONTHS[d._id.month - 1]}
-            </span>
-          </div>
-        );
-      })}
-    </div>
+    <AnalyticsChart
+      title=""
+      data={chartData}
+      type="bar"
+      height={300}
+      showLegend={false}
+      showValues
+      unit="$"
+    />
   );
 }
 
@@ -209,6 +201,26 @@ export default function AnalyticsPage() {
         >
           <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">Monthly Earnings</h2>
           <EarningsChart data={data.monthlyEarnings} />
+        </motion.div>
+
+        {/* Occupancy Progress */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="bg-white dark:bg-zinc-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-zinc-100 dark:border-zinc-800"
+        >
+          <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">Occupancy Status</h2>
+          <AnalyticsChart
+            title=""
+            data={[
+              { label: "Occupied", value: Math.round((data.occupancyRate / 100) * data.totalProperties), color: "#10b981" },
+              { label: "Available", value: Math.round(((100 - data.occupancyRate) / 100) * data.totalProperties), color: "#e5e7eb" },
+            ]}
+            type="progress"
+            height={200}
+            showLegend
+          />
         </motion.div>
 
         {/* Booking breakdown */}

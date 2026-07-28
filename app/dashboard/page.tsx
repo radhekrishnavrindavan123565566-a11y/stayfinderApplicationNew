@@ -16,6 +16,7 @@ import Badge from "@/components/ui/Badge";
 import ProfileCompleteness from "@/components/ui/ProfileCompleteness";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { DashboardCard, DashboardGrid } from "@/components/ui";
 
 const statusVariant: Record<string, "success" | "warning" | "danger" | "info" | "default"> = {
   approved: "success", pending: "warning", rejected: "danger", cancelled: "danger", completed: "info",
@@ -121,20 +122,46 @@ export default function DashboardPage() {
           animate="show"
           className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8"
         >
-          {stats.map((s) => (
-            <motion.div
-              key={s.label}
-              variants={fadeUp}
-              whileHover={{ y: -4, boxShadow: `0 16px 32px rgba(0,0,0,0.10)` }}
-              className={`bg-white dark:bg-zinc-900 rounded-2xl p-4 sm:p-5 shadow-sm border ${s.border} dark:border-zinc-800 transition-all`}
-            >
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 shadow-lg ${s.color} ${s.shadow}`}>{s.icon}</div>
-              <div className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white">
-                {loading ? <div className="h-7 w-8 skeleton-shimmer rounded" /> : s.value}
-              </div>
-              <div className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{s.label}</div>
-            </motion.div>
-          ))}
+          <DashboardCard
+            title="Total Bookings"
+            value={bookings.length}
+            label="bookings"
+            trend={bookings.length > 0 ? "up" : "neutral"}
+            trendValue={bookings.length > 0 ? `+${bookings.length}` : "0"}
+            icon={<Calendar className="w-6 h-6 text-blue-500" />}
+            variant="primary"
+            delay={0}
+          />
+          <DashboardCard
+            title={user.role === "owner" ? "My Properties" : "Wishlist"}
+            value={user.role === "owner" ? properties.length : user.wishlist?.length || 0}
+            label={user.role === "owner" ? "properties" : "saved"}
+            trend="neutral"
+            trendValue="Active"
+            icon={<Home className="w-6 h-6 text-rose-500" />}
+            variant="success"
+            delay={0.1}
+          />
+          <DashboardCard
+            title="Approved Bookings"
+            value={bookings.filter((b) => b.status === "approved").length}
+            label="confirmed"
+            trend={bookings.filter((b) => b.status === "approved").length > 0 ? "up" : "neutral"}
+            trendValue={`${Math.round((bookings.filter((b) => b.status === "approved").length / Math.max(bookings.length, 1)) * 100)}%`}
+            icon={<Star className="w-6 h-6 text-green-500" />}
+            variant="success"
+            delay={0.2}
+          />
+          <DashboardCard
+            title="Pending Bookings"
+            value={bookings.filter((b) => b.status === "pending").length}
+            label="awaiting"
+            trend={bookings.filter((b) => b.status === "pending").length > 0 ? "up" : "neutral"}
+            trendValue="Action needed"
+            icon={<TrendingUp className="w-6 h-6 text-amber-500" />}
+            variant="warning"
+            delay={0.3}
+          />
         </motion.div>
 
         {/* Quick Actions */}
