@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Loader2, RefreshCw, AlertCircle, CheckCircle, Clock, Activity, ArrowLeft } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
+import { notifySuccess, notifyError } from '@/lib/notifications';
 
 interface QueueStats {
   name: string;
@@ -29,7 +30,7 @@ export default function QueuesPage() {
       setQueues(data.data.queues);
     } catch (error) {
       console.error('Failed to fetch queue stats:', error);
-      toast.error('Failed to load queue statistics');
+      notifyError('Failed to load queue statistics');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -46,11 +47,11 @@ export default function QueuesPage() {
       const { data } = await axios.post('/api/admin/queues', {
         queueName: queueName.toLowerCase(),
       });
-      toast.success(data.data.message);
+      notifySuccess(data.data.message);
       await fetchQueueStats();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.error || 'Failed to retry jobs');
+        notifyError(error.response?.data?.error || 'Failed to retry jobs');
       }
     }
   };

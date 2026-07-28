@@ -16,6 +16,7 @@ import LateFeeCalculator from "@/components/admin/LateFeeCalculator";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import toast from "react-hot-toast";
+import { confirmDelete, notifySuccess, notifyError } from "@/lib/notifications";
 import { format } from "date-fns";
 
 type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing" | "add-user" | "late-fee";
@@ -90,29 +91,30 @@ export default function AdminPage() {
     try {
       await axios.patch(`/api/admin/users/${userId}`, { isActive: !currentStatus }, authHeaders());
       setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isActive: !currentStatus } : u)));
-      toast.success(!currentStatus ? "User activated" : "User deactivated");
+      notifySuccess(!currentStatus ? "User activated" : "User deactivated");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;
-        toast.error(serverError || "Failed to update user status");
+        notifyError(serverError || "Failed to update user status");
       } else {
-        toast.error("An unexpected error occurred");
+        notifyError("An unexpected error occurred");
       }
     }
   };
 
   const deleteUser = async (id: string) => {
-    if (!confirm("Delete this user?")) return;
+    const confirmed = await confirmDelete("Delete User", "This action cannot be undone. The user will be permanently removed.");
+    if (!confirmed) return;
     try {
       await axios.delete(`/api/admin/users/${id}`, authHeaders());
       setUsers((prev) => prev.filter((u) => u._id !== id));
-      toast.success("User deleted");
+      notifySuccess("User deleted successfully");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;
-        toast.error(serverError || "Failed to delete user");
+        notifyError(serverError || "Failed to delete user");
       } else {
-        toast.error("An unexpected error occurred");
+        notifyError("An unexpected error occurred");
       }
     }
   };
@@ -122,13 +124,13 @@ export default function AdminPage() {
       await axios.patch(`/api/admin/users/${userId}`, { ownerVerified: approve }, authHeaders());
       setPendingVerifications((prev) => prev.filter((u) => u._id !== userId));
       setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, ownerVerified: approve } : u)));
-      toast.success(approve ? "Owner verified successfully" : "Verification rejected");
+      notifySuccess(approve ? "Owner verified successfully" : "Verification rejected");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;
-        toast.error(serverError || "Failed to update verification");
+        notifyError(serverError || "Failed to update verification");
       } else {
-        toast.error("An unexpected error occurred");
+        notifyError("An unexpected error occurred");
       }
     }
   };
@@ -137,13 +139,13 @@ export default function AdminPage() {
     try {
       await axios.patch(`/api/disputes/${id}`, { status, resolution }, authHeaders());
       setDisputes((prev) => prev.map((d) => d._id === id ? { ...d, status, resolution } : d));
-      toast.success("Dispute updated");
+      notifySuccess("Dispute updated");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;
-        toast.error(serverError || "Failed to update dispute");
+        notifyError(serverError || "Failed to update dispute");
       } else {
-        toast.error("An unexpected error occurred");
+        notifyError("An unexpected error occurred");
       }
     }
   };
@@ -917,19 +919,19 @@ function AddUserPanel({ authHeaders, onUserAdded }: {
     e.preventDefault();
     
     if (!formData.username || !formData.email || !formData.password) {
-      toast.error("Username, email and password are required");
+      notifyError("Username, email and password are required");
       return;
     }
 
     setLoading(true);
     try {
       await axios.post("/api/auth/register", formData, authHeaders());
-      toast.success(`${formData.role} added successfully!`);
+      notifySuccess(`${formData.role} added successfully!`);
       setFormData({ username: "", email: "", password: "", role: "tenant", phone: "" });
       onUserAdded();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.error || "Failed to add user");
+        notifyError(error.response?.data?.error || "Failed to add user");
       } else {
         toast.error("Failed to add user");
       }
@@ -1060,13 +1062,13 @@ function RemindersPanel({ authHeaders }: { authHeaders: () => { headers: { Autho
     try {
       const { data } = await axios.post("/api/admin/reminders", { type }, authHeaders());
       setResults(data.data.results);
-      toast.success("Reminders sent!");
+      notifySuccess("Reminders sent!");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;
-        toast.error(serverError || "Failed to send reminders");
+        notifyError(serverError || "Failed to send reminders");
       } else {
-        toast.error("An unexpected error occurred");
+        notifyError("An unexpected error occurred");
       }
     }
     finally { setSending(null); }
@@ -1131,13 +1133,13 @@ function BulkMarketingPanel({ authHeaders }: { authHeaders: () => { headers: { A
       if (csvFile) form.append("csv", csvFile);
       const { data } = await axios.post("/api/admin/bulk-marketing", form, authHeaders());
       setResult(data.data);
-      toast.success(`${data.data.total} users ko message bheja gaya!`);
+      notifySuccess(`${data.data.total} users ko message bheja gaya!`);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;
-        toast.error(serverError || "Send failed");
+        notifyError(serverError || "Send failed");
       } else {
-        toast.error("An unexpected error occurred");
+        notifyError("An unexpected error occurred");
       }
     }
     finally { setSending(false); }

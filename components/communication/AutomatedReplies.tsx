@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit2, Trash2, Save, X } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { confirmDelete, notifySuccess, notifyError } from "@/lib/notifications";
 
 interface AutoReply {
   _id?: string;
@@ -39,7 +40,7 @@ export function AutomatedReplies() {
 
   const handleSave = async () => {
     if (!formData.title.trim() || !formData.message.trim()) {
-      toast.error("Please fill in all fields");
+      notifyError("Please fill in all fields");
       return;
     }
 
@@ -51,30 +52,31 @@ export function AutomatedReplies() {
         setReplies(
           replies.map((r) => (r._id === editingId ? { ...formData, _id: editingId } : r))
         );
-        toast.success("Auto-reply updated!");
+        notifySuccess("Auto-reply updated!");
       } else {
         const newReply = { ...formData, _id: Date.now().toString() };
         setReplies([...replies, newReply]);
-        toast.success("Auto-reply created!");
+        notifySuccess("Auto-reply created!");
       }
       resetForm();
     } catch (error) {
-      toast.error("Failed to save auto-reply");
+      notifyError("Failed to save auto-reply");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this auto-reply?")) return;
+    const confirmed = await confirmDelete("Delete Auto-Reply", "This action cannot be undone.");
+    if (!confirmed) return;
 
     try {
       // Backend API: /api/settings/auto-replies/{id}
       // For now, delete from state
       setReplies(replies.filter((r) => r._id !== id));
-      toast.success("Auto-reply deleted!");
+      notifySuccess("Auto-reply deleted!");
     } catch (error) {
-      toast.error("Failed to delete auto-reply");
+      notifyError("Failed to delete auto-reply");
     }
   };
 

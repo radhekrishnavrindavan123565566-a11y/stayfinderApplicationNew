@@ -6,6 +6,7 @@ import { Upload, Plus, Trash2, AlertCircle } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { notifySuccess, notifyError } from "@/lib/notifications";
 
 interface FloorPlanData {
   imageUrl?: string;
@@ -73,7 +74,7 @@ export default function FloorPlanUploader({
 
   const handleAddRoom = () => {
     if (!newRoom.name.trim() || newRoom.area <= 0) {
-      toast.error("Please enter room name and area");
+      notifyError("Please enter room name and area");
       return;
     }
 
@@ -86,7 +87,7 @@ export default function FloorPlanUploader({
 
     setNewRoom({ name: "", area: 0, unit: "sqm" });
     setShowRoomForm(false);
-    toast.success("Room added");
+    notifySuccess("Room added");
   };
 
   const handleRemoveRoom = (idx: number) => {
@@ -98,6 +99,7 @@ export default function FloorPlanUploader({
       rooms,
       totalArea: (value?.totalArea || 0) - (room?.area || 0),
     });
+    notifySuccess("Room removed");
   };
 
   return (
