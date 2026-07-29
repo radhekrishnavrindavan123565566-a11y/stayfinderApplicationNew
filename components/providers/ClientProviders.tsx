@@ -9,6 +9,7 @@ const AIChatbot      = dynamic(() => import("@/components/ai/AIChatbot"),       
 const SocketProvider = dynamic(() => import("@/components/providers/SocketProvider"),  { ssr: false });
 const PWAProvider    = dynamic(() => import("@/components/providers/PWAProvider"),     { ssr: false });
 const FeedbackButton = dynamic(() => import("@/components/feedback/FeedbackButton"),   { ssr: false });
+const AdSenseScript  = dynamic(() => import("@/components/ads/AdSenseScript"),         { ssr: false });
 
 export default function ClientProviders() {
   return (
@@ -19,6 +20,7 @@ export default function ClientProviders() {
       <SocketProvider />
       <PWAProvider />
       <FeedbackButton />
+      <AdSenseScript />
     </>
   );
 }

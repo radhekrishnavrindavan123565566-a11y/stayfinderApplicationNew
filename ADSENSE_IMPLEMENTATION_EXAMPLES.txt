@@ -1,0 +1,413 @@
+GOOGLE ADSENSE - QUICK IMPLEMENTATION EXAMPLES
+==============================================
+
+These are ready-to-use code examples for adding ads to your pages.
+
+EXAMPLE 1: HOMEPAGE WITH BANNER AD
+===================================
+
+File: app/page.tsx
+
+Add this import at the top:
+import AdSenseAd from '@/components/ads/AdSenseAd';
+import { AD_SLOTS } from '@/lib/adsense';
+
+Add this JSX in your component between sections:
+
+{/* After Hero Section, before Property Grid */}
+<motion.div 
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="my-12 px-4"
+>
+  <AdSenseAd
+    slotId={AD_SLOTS.homeHorizontal.slotId}
+    slotName="homeHorizontal"
+    format="auto"
+    responsive={true}
+    className="rounded-lg overflow-hidden"
+  />
+</motion.div>
+
+EXAMPLE 2: PROPERTY LISTING PAGE WITH SIDEBAR
+==============================================
+
+File: app/properties/page.tsx
+
+Update layout to include sidebar:
+
+export default function PropertiesPage() {
+  return (
+    <div className="min-h-screen pt-20 pb-16 bg-zinc-50 dark:bg-zinc-950">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* Main Content - 3 columns */}
+          <div className="lg:col-span-3">
+            {/* Filters */}
+            <SearchFilters />
+            
+            {/* Search Results Ad */}
+            <motion.div className="my-6">
+              <AdSenseAd
+                slotId={AD_SLOTS.searchResults.slotId}
+                slotName="searchResults"
+                format="horizontal"
+                width={728}
+                height={90}
+              />
+            </motion.div>
+            
+            {/* Property Grid */}
+            <PropertyGrid properties={properties} />
+          </div>
+          
+          {/* Sidebar - 1 column */}
+          <aside className="lg:col-span-1">
+            <motion.div 
+              className="sticky top-24"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <AdSenseAd
+                slotId={AD_SLOTS.propertyListSidebar.slotId}
+                slotName="propertyListSidebar"
+                format="vertical"
+                width={300}
+                height={600}
+                className="rounded-lg overflow-hidden"
+              />
+            </motion.div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+EXAMPLE 3: PROPERTY DETAIL PAGE
+===============================
+
+File: app/properties/[id]/page.tsx
+
+export default function PropertyDetailPage() {
+  return (
+    <div className="min-h-screen pt-20 pb-16">
+      <div className="max-w-4xl mx-auto px-4">
+        
+        {/* Header */}
+        <PropertyHeader property={property} />
+        
+        {/* TOP AD */}
+        <motion.div className="my-8">
+          <AdSenseAd
+            slotId={AD_SLOTS.propertyDetailTop.slotId}
+            slotName="propertyDetailTop"
+            format="auto"
+            responsive={true}
+          />
+        </motion.div>
+        
+        {/* Main Content */}
+        <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 mb-8">
+          <PropertyDescription property={property} />
+        </div>
+        
+        {/* Gallery */}
+        <PropertyGallery images={property.images} />
+        
+        {/* Amenities */}
+        <div className="my-8">
+          <AmenitiesList amenities={property.amenities} />
+        </div>
+        
+        {/* BOTTOM AD */}
+        <motion.div className="my-8">
+          <AdSenseAd
+            slotId={AD_SLOTS.propertyDetailBottom.slotId}
+            slotName="propertyDetailBottom"
+            format="auto"
+            responsive={true}
+          />
+        </motion.div>
+        
+        {/* Reviews */}
+        <div className="my-8">
+          <ReviewsSection propertyId={property._id} />
+        </div>
+        
+        {/* Call to Action */}
+        <PropertyCTA property={property} />
+      </div>
+    </div>
+  );
+}
+
+EXAMPLE 4: DASHBOARD WITH SIDEBAR AD
+====================================
+
+File: app/dashboard/page.tsx
+
+export default function DashboardPage() {
+  return (
+    <div className="min-h-screen pt-20 pb-16">
+      <div className="max-w-7xl mx-auto px-4">
+        
+        {/* Header */}
+        <DashboardHeader />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
+          
+          {/* Main Dashboard Content - 3 columns */}
+          <div className="lg:col-span-3">
+            {/* Stats */}
+            <DashboardStats />
+            
+            {/* Quick Links */}
+            <DashboardQuickLinks />
+            
+            {/* Recent Activity */}
+            <RecentActivity />
+          </div>
+          
+          {/* Sidebar with Ad - 1 column */}
+          <aside className="lg:col-span-1">
+            <motion.div 
+              className="sticky top-24"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="bg-white dark:bg-zinc-900 rounded-lg overflow-hidden">
+                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
+                  <h3 className="font-semibold text-zinc-900 dark:text-white">
+                    Recommended
+                  </h3>
+                </div>
+                <AdSenseAd
+                  slotId={AD_SLOTS.dashboardSidebar.slotId}
+                  slotName="dashboardSidebar"
+                  format="vertical"
+                  width={300}
+                  height={600}
+                />
+              </div>
+            </motion.div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+EXAMPLE 5: SEARCH RESULTS PAGE
+==============================
+
+File: app/search/results/page.tsx
+
+export default function SearchResultsPage() {
+  return (
+    <div className="min-h-screen pt-20 pb-16">
+      <div className="max-w-5xl mx-auto px-4">
+        
+        {/* Search Header */}
+        <SearchHeader query={query} />
+        
+        {/* Filters */}
+        <SearchFilters />
+        
+        {/* SEARCH RESULTS AD - Between filters and results */}
+        <motion.div className="my-6 py-4">
+          <AdSenseAd
+            slotId={AD_SLOTS.searchResults.slotId}
+            slotName="searchResults"
+            format="horizontal"
+            width={728}
+            height={90}
+          />
+        </motion.div>
+        
+        {/* Results Count */}
+        <div className="mb-4">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            {results.length} results found
+          </p>
+        </div>
+        
+        {/* Results Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {results.map((result, index) => (
+            <SearchResultCard key={result._id} result={result} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+EXAMPLE 6: COMMUNITY/BLOG PAGE
+==============================
+
+File: app/community/page.tsx
+
+{/* Posts Grid */}
+{posts.map((post, index) => (
+  <div key={post._id}>
+    <CommunityPost post={post} />
+    
+    {/* IN-ARTICLE AD - Every 3 posts */}
+    {(index + 1) % 3 === 0 && (
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="my-8 py-6"
+      >
+        <AdSenseAd
+          slotId={AD_SLOTS.inArticle.slotId}
+          slotName="inArticle"
+          format="in-article"
+          responsive={true}
+        />
+      </motion.div>
+    )}
+  </div>
+))}
+
+EXAMPLE 7: USING WITH CONDITIONS
+================================
+
+Only show ads for non-admin users:
+
+import { useAuthStore } from '@/store/authStore';
+import AdSenseAd from '@/components/ads/AdSenseAd';
+import { AD_SLOTS } from '@/lib/adsense';
+
+export default function HomePage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'admin';
+  
+  return (
+    <div>
+      <HeroSection />
+      
+      {/* Only show ads to non-admin users */}
+      {!isAdmin && (
+        <AdSenseAd
+          slotId={AD_SLOTS.homeHorizontal.slotId}
+          slotName="homeHorizontal"
+          format="auto"
+          responsive={true}
+          className="my-8"
+        />
+      )}
+      
+      <PropertyGrid />
+    </div>
+  );
+}
+
+EXAMPLE 8: RESPONSIVE AD WRAPPER COMPONENT
+==========================================
+
+Create: components/ads/ResponsiveAdSection.tsx
+
+'use client';
+
+import AdSenseAd from './AdSenseAd';
+
+interface ResponsiveAdSectionProps {
+  slotId: string;
+  slotName: string;
+  title?: string;
+  className?: string;
+}
+
+export default function ResponsiveAdSection({
+  slotId,
+  slotName,
+  title,
+  className = '',
+}: ResponsiveAdSectionProps) {
+  return (
+    <div className={`my-8 p-4 bg-zinc-50 dark:bg-zinc-900 rounded-lg ${className}`}>
+      {title && (
+        <h3 className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 mb-4">
+          {title}
+        </h3>
+      )}
+      <AdSenseAd
+        slotId={slotId}
+        slotName={slotName}
+        format="auto"
+        responsive={true}
+      />
+    </div>
+  );
+}
+
+Then use like this:
+<ResponsiveAdSection
+  slotId={AD_SLOTS.homeHorizontal.slotId}
+  slotName="homeHorizontal"
+  title="Sponsored"
+/>
+
+COMMON ISSUES & SOLUTIONS
+=========================
+
+Issue: "Ad not rendering"
+Check:
+1. Publisher ID is correct in .env
+2. Slot ID is correct
+3. Site is approved in AdSense
+4. Rebuild the application
+5. Clear browser cache
+
+Issue: "Placeholder showing instead of ads"
+This is normal when:
+- AdSense is disabled (NEXT_PUBLIC_ADSENSE_PUBLISHER_ID not set)
+- Site not approved yet
+- Slot ID is invalid
+- Testing locally (ads may not show)
+
+Issue: "Too many ads not loading"
+Solution:
+- AdSense has daily limits per page
+- Remove duplicate ad slots
+- Use only recommended placements
+- Space out ads properly
+
+PERFORMANCE OPTIMIZATION
+========================
+
+1. Lazy load ads:
+import dynamic from 'next/dynamic';
+const AdSenseAd = dynamic(() => import('@/components/ads/AdSenseAd'), {
+  ssr: false,
+});
+
+2. Conditional rendering:
+{!isMobile && <AdSenseAd {...props} />}
+
+3. Use responsive ads:
+responsive={true} // Adapts to container size
+
+4. Monitor Core Web Vitals:
+- Ensure ads don't slow down page
+- Use AdSense dashboard metrics
+- Test with Google PageSpeed Insights
+
+VERIFICATION
+============
+
+Check if ads are working:
+1. Open DevTools (F12)
+2. Go to Console tab
+3. Look for AdSense logs
+4. Check Network tab for adsbygoogle.js load
+5. Verify ins elements are present with data-ad-slot
+
+In AdSense Dashboard:
+1. Go to Ads → By code
+2. Check "Ad review center" for blocked ads
+3. View "Earnings" to see impressions/clicks
+4. Check "Performance" tab for metrics
