@@ -181,7 +181,6 @@ export default function Navbar() {
                         <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label={user.role === "owner" ? "Rent Collection" : "Rent Tracker"} onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label={user.role === "owner" ? "Maintenance Requests" : "My Requests"} onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/communication" icon={<MessageCircle className="w-4 h-4" />} label="Communication" onClick={() => setDropdownOpen(false)} />
-                        <DropItem href="/wishlist" icon={<Heart className="w-4 h-4" />} label="Wishlist" onClick={() => setDropdownOpen(false)} />
                         {user.role === "owner" && (
                           <>
                             <DropItem href="/dashboard/properties" icon={<LayoutDashboard className="w-4 h-4" />} label="My Properties" onClick={() => setDropdownOpen(false)} />
@@ -267,7 +266,6 @@ export default function Navbar() {
                   <Link href="/dashboard/rent-tracker" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Rent Collection" : "Rent Tracker"}</Link>
                   <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Maintenance Requests" : "My Requests"}</Link>
                   <Link href="/dashboard/communication" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Communication Hub</Link>
-                  <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Wishlist</Link>
                   <Link href="/chat" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">
                     <span>Messages</span>
                     <ChatBadge />
