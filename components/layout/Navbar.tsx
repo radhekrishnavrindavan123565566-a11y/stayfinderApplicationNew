@@ -181,6 +181,7 @@ export default function Navbar() {
                         <DropItem href="/dashboard/rent-tracker" icon={<IndianRupee className="w-4 h-4" />} label={user.role === "owner" ? "Rent Collection" : "Rent Tracker"} onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/maintenance" icon={<Wrench className="w-4 h-4" />} label={user.role === "owner" ? "Maintenance Requests" : "My Requests"} onClick={() => setDropdownOpen(false)} />
                         <DropItem href="/dashboard/communication" icon={<MessageCircle className="w-4 h-4" />} label="Communication" onClick={() => setDropdownOpen(false)} />
+                        <DropItem href="/dashboard/feedback" icon={<MessageCircle className="w-4 h-4" />} label="My Feedback" onClick={() => setDropdownOpen(false)} />
                         {user.role === "owner" && (
                           <>
                             <DropItem href="/dashboard/properties" icon={<LayoutDashboard className="w-4 h-4" />} label="My Properties" onClick={() => setDropdownOpen(false)} />
@@ -193,6 +194,7 @@ export default function Navbar() {
                           <>
                             <DropItem href="/admin" icon={<Settings className="w-4 h-4" />} label="Admin Panel" onClick={() => setDropdownOpen(false)} />
                             <DropItem href="/admin?tab=users" icon={<Users className="w-4 h-4" />} label="Manage Users" onClick={() => setDropdownOpen(false)} />
+                            <DropItem href="/admin/feedback" icon={<MessageCircle className="w-4 h-4" />} label="All Feedback" onClick={() => setDropdownOpen(false)} />
                           </>
                         )}
                         <DropItem href="/profile" icon={<User className="w-4 h-4" />} label="Profile" onClick={() => setDropdownOpen(false)} />
@@ -266,6 +268,7 @@ export default function Navbar() {
                   <Link href="/dashboard/rent-tracker" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Rent Collection" : "Rent Tracker"}</Link>
                   <Link href="/dashboard/maintenance" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">{user.role === "owner" ? "Maintenance Requests" : "My Requests"}</Link>
                   <Link href="/dashboard/communication" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">Communication Hub</Link>
+                  <Link href="/dashboard/feedback" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">My Feedback</Link>
                   <Link href="/chat" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-3 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors touch-target">
                     <span>Messages</span>
                     <ChatBadge />
@@ -285,6 +288,7 @@ export default function Navbar() {
                     <>
                       <Link href="/admin" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors touch-target">Admin Panel</Link>
                       <Link href="/admin?tab=users" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors touch-target">Manage Users</Link>
+                      <Link href="/admin/feedback" onClick={() => setMenuOpen(false)} className="block py-3 px-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-lg transition-colors touch-target">All Feedback</Link>
                     </>
                   )}
                   <div className="pt-2 mt-2 border-t border-zinc-100 dark:border-zinc-800">

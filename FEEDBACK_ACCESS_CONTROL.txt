@@ -1,0 +1,260 @@
+FEEDBACK FEATURE - ACCESS CONTROL & ROLE PERMISSIONS
+=====================================================
+
+OVERVIEW:
+The feedback system has role-based access control to ensure users only see appropriate content.
+
+USER ROLES & PERMISSIONS:
+=========================
+
+1. GUEST (Not Logged In)
+   ✗ Cannot access feedback features
+   ✗ Redirected to login page
+   ✗ Can see floating feedback button but clicking opens login modal
+
+2. TENANT (Regular User)
+   ✓ CAN access: /dashboard/feedback
+   ✓ CAN see: Their own feedback submissions only
+   ✓ CAN filter: By status (new, reviewed, resolved)
+   ✓ CAN submit: New feedback via floating button
+   ✓ CAN delete: Their own feedback
+   ✓ CAN edit: Their own feedback (title, description, rating, category)
+   ✗ CANNOT see: Other users' feedback
+   ✗ CANNOT access: /admin/feedback page
+   ✗ CANNOT change: Feedback status (only admins can)
+   ✓ MENU: "My Feedback" in Dashboard dropdown
+
+3. OWNER (Property Owner)
+   ✓ CAN access: /dashboard/feedback
+   ✓ CAN see: Their own feedback submissions only
+   ✓ CAN filter: By status (new, reviewed, resolved)
+   ✓ CAN submit: New feedback via floating button
+   ✓ CAN delete: Their own feedback
+   ✓ CAN edit: Their own feedback (title, description, rating, category)
+   ✗ CANNOT see: Other users' feedback
+   ✗ CANNOT access: /admin/feedback page
+   ✗ CANNOT change: Feedback status (only admins can)
+   ✓ MENU: "My Feedback" in Dashboard dropdown
+
+4. ADMIN (Administrator)
+   ✓ CAN access: /admin/feedback
+   ✓ CAN see: ALL feedback from all users
+   ✓ CAN search: By title, description, username, email
+   ✓ CAN filter: By status, category
+   ✓ CAN change: Feedback status (new → reviewed → in-progress → resolved → closed)
+   ✓ CAN edit: Any feedback
+   ✓ CAN delete: Any feedback
+   ✓ CAN access: /dashboard/feedback (their own)
+   ✓ CAN view: User details for each feedback
+   ✓ MENU: "All Feedback" in Admin dropdown (only for admins)
+   ✓ STATS: Dashboard showing feedback statistics
+
+FEATURES BY ROLE:
+=================
+
+TENANT / OWNER:
+- Floating feedback button (bottom-right) on all pages
+- Dashboard feedback page showing their submissions
+- Filter own feedback by status
+- Can submit feedback in categories: bug, feature, improvement, other
+- Can rate experience (1-5 stars) with feedback
+- Can choose to make feedback public
+- Can delete their own feedback
+- Cannot see feedback from other users
+- Cannot view admin feedback page
+
+ADMIN:
+- Full access to all user feedback
+- Admin feedback page (/admin/feedback) with:
+  - All feedback from all users
+  - Advanced search (title, description, username, email)
+  - Filter by status: new, reviewed, in-progress, resolved, closed
+  - Filter by category: bug, feature, improvement, other
+  - Statistics dashboard (total, new, reviewed, in-progress, resolved)
+  - Click any feedback to see details
+  - Change feedback status
+  - View who submitted the feedback (username, email)
+  - See rating and public/private status
+- Can access their own /dashboard/feedback
+- Menu shows "All Feedback" option (admin only)
+
+API ENDPOINTS & ACCESS CONTROL:
+===============================
+
+GET /api/feedback
+- Authentication: REQUIRED (must be logged in)
+- Query: userOnly=true → shows only user's feedback
+- Query: userOnly=false or omitted:
+  - Non-admin: Still returns only their own feedback (enforced on backend)
+  - Admin: Returns ALL feedback
+- Response: Feedback array with user details
+
+POST /api/feedback
+- Authentication: REQUIRED
+- Any authenticated user can create feedback
+- Fields: category, title, description, rating (optional), email, attachments (optional), isPublic
+- Response: Created feedback with user details
+
+GET /api/feedback/[id]
+- Authentication: REQUIRED
+- Permission: User can view own feedback OR must be admin
+- Response: Specific feedback details
+
+PUT /api/feedback/[id]
+- Authentication: REQUIRED
+- Permission: User can update own feedback OR admin can update any
+- Admin-only fields: status
+- User-editable fields: category, title, description, rating, isPublic
+- Response: Updated feedback
+
+DELETE /api/feedback/[id]
+- Authentication: REQUIRED
+- Permission: User can delete own feedback OR admin can delete any
+- Response: Success message
+
+PAGE ACCESS CONTROL:
+====================
+
+/dashboard/feedback
+- Authentication: REQUIRED
+- Role: TENANT, OWNER, ADMIN (all can access)
+- Content: Shows only the logged-in user's feedback
+- Features: Filter, delete, submit new feedback
+- Access: Via Dashboard menu → "My Feedback"
+
+/admin/feedback
+- Authentication: REQUIRED
+- Role: ADMIN ONLY (403 Forbidden for non-admins)
+- Content: Shows ALL feedback from all users
+- Features: Advanced search, filter, status change, view user details
+- Access: Via Admin menu → "All Feedback"
+
+FLOATING FEEDBACK BUTTON:
+========================
+
+Location: Bottom-right corner, visible on all pages
+Access: All authenticated users
+Action: Opens FeedbackModal for submitting new feedback
+Features: Triggers FeedbackForm component
+
+FEEDBACK SUBMISSION FLOW:
+========================
+
+1. User clicks floating button or "New Feedback" button
+2. Modal opens with FeedbackForm
+3. User fills:
+   - Category (bug, feature, improvement, other) - required
+   - Title (max 200 chars) - required
+   - Description (max 5000 chars) - required
+   - Rating (1-5 stars) - optional
+   - Make public checkbox - optional
+4. On submit:
+   - POST /api/feedback with data
+   - Feedback created with status "new"
+   - User's email auto-filled
+   - Feedback visible in /dashboard/feedback
+   - Admin can see in /admin/feedback
+
+FEEDBACK LIFECYCLE:
+===================
+
+Status Flow (Admin Only):
+new → reviewed → in-progress → resolved → closed
+
+User View:
+- See feedback in /dashboard/feedback
+- Can filter by current status
+- Cannot change status
+
+Admin View:
+- See all feedback in /admin/feedback
+- Can change status through modal
+- Can track progress through statuses
+
+DATABASE PERMISSIONS:
+====================
+
+Feedback Model Fields:
+- userId: User who submitted (indexed)
+- category: Type of feedback (indexed)
+- title: Summary (required)
+- description: Details (required)
+- rating: 1-5 stars (optional)
+- status: Current status (indexed)
+- isPublic: Public visibility toggle
+- createdAt: Timestamp (indexed)
+- updatedAt: Timestamp
+
+Query Indexes:
+- userId + createdAt (for user feedback history)
+- status + category (for admin filtering)
+- createdAt (for sorting latest first)
+
+SECURITY MEASURES:
+==================
+
+1. Authentication:
+   - All endpoints require valid JWT token
+   - Redirects to login if not authenticated
+
+2. Authorization:
+   - Non-admin users can only see their own feedback
+   - Enforced at API level (backend checks role)
+   - Admin-only pages check role before rendering
+
+3. Input Validation:
+   - Title max 200 characters
+   - Description max 5000 characters
+   - Rating must be 1-5
+   - Category must be one of: bug, feature, improvement, other
+   - Status must be one of: new, reviewed, in-progress, resolved, closed
+
+4. Access Logs:
+   - Feedback fetch logged with user role and admin status
+   - Helps track who accesses what
+
+TESTING CHECKLIST:
+==================
+
+[ ] Tenant can submit feedback
+[ ] Tenant sees only their own feedback in /dashboard/feedback
+[ ] Tenant cannot access /admin/feedback
+[ ] Tenant cannot change feedback status
+[ ] Owner can submit feedback
+[ ] Owner sees only their own feedback in /dashboard/feedback
+[ ] Owner cannot access /admin/feedback
+[ ] Owner cannot change feedback status
+[ ] Admin can access /admin/feedback
+[ ] Admin sees ALL feedback from all users
+[ ] Admin can change feedback status
+[ ] Admin can filter by status and category
+[ ] Admin can search feedback
+[ ] Guest cannot access feedback features
+[ ] Unauthenticated requests return 401
+[ ] Non-admin accessing /admin/feedback gets 403 error
+[ ] Feedback count matches across user and admin views
+[ ] Status changes reflected immediately
+[ ] Deleted feedback removed from view
+
+NAVIGATION MENU ITEMS:
+======================
+
+TENANT / OWNER Dashboard Menu:
+- Dashboard
+- Rewards
+- Bookings
+- Maintenance/Requests
+- Rent Tracker
+- Communication
+→ My Feedback (NEW)
+- Messages
+
+ADMIN Dropdown Menu:
+- Admin Panel
+- Manage Users
+→ All Feedback (NEW - ADMIN ONLY)
+
+Mobile Menu:
+- Same as above but in mobile layout
+
+Summary: Complete role-based access control ensures data privacy and security. Users see only their feedback, admins can manage all feedback.
