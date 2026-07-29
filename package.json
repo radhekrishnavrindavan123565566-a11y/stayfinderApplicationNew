@@ -30,7 +30,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@react-pdf/renderer": "^4.5.1",
-    "@sentry/nextjs": "^7.118.0",
+    "@sentry/nextjs": "^7.100.0",
     "@stripe/stripe-js": "^8.11.0",
     "@types/leaflet": "^1.9.21",
     "@types/nodemailer": "^8.0.0",
