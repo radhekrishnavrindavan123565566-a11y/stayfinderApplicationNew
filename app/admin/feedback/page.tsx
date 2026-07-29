@@ -96,17 +96,6 @@ export default function AdminFeedbackPage() {
     );
   }
 
-  const handleStatusChange = async (feedbackId: string, newStatus: string) => {
-    try {
-      await axios.put(`/api/feedback/${feedbackId}`, { status: newStatus });
-      toast.success('Feedback status updated');
-      loadFeedback();
-      setSelectedFeedback(null);
-    } catch (error) {
-      toast.error('Failed to update feedback');
-    }
-  };
-
   const filteredFeedbacks = feedbacks.filter((f) => {
     const matchesSearch =
       f.title.toLowerCase().includes(search.toLowerCase()) ||

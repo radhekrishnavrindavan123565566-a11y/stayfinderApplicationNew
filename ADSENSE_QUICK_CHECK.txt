@@ -1,0 +1,234 @@
+QUICK CHECK: IS GOOGLE ADS WORKING? (5 MINUTES)
+===============================================
+
+STEP 1: OPEN YOUR WEBSITE
+==========================
+- Go to http://localhost:3000 (or your deployed site)
+
+
+STEP 2: PRESS F12 (OPEN DEVELOPER TOOLS)
+==========================================
+Windows/Linux: F12 or Ctrl+Shift+I
+Mac: Cmd+Option+I
+
+
+STEP 3: GO TO CONSOLE TAB
+==========================
+- Click "Console" at top of DevTools
+- You should see messages like:
+
+  ✓ GOOD:
+  [AdSense] Ad impression: homeHorizontal (1234567890)
+  [AdSense] Ad impression: dashboardSidebar (1234567891)
+  
+  ✗ BAD (no messages):
+  - Check your .env file (see STEP 4)
+  - Restart your dev server
+
+
+STEP 4: VERIFY .ENV CONFIGURATION
+===================================
+Open .env file and check:
+
+1. Is NEXT_PUBLIC_ADSENSE_PUBLISHER_ID filled?
+   ✓ NEXT_PUBLIC_ADSENSE_PUBLISHER_ID=ca-pub-xxxxxxxxxxxxxxxx
+   ✗ NEXT_PUBLIC_ADSENSE_PUBLISHER_ID= (empty)
+
+2. Is at least ONE slot ID filled?
+   ✓ NEXT_PUBLIC_ADSENSE_SLOT_HOME_HORIZONTAL=1234567890
+   ✗ NEXT_PUBLIC_ADSENSE_SLOT_HOME_HORIZONTAL= (empty)
+
+If any are empty:
+- Go to AdSense dashboard: https://www.google.com/adsense/
+- Get your Publisher ID
+- Create ad slots and copy their IDs
+- Add to .env file
+- Restart dev server: npm run dev
+
+
+STEP 5: CHECK IF AD ELEMENTS EXIST
+====================================
+Open DevTools Console and type:
+
+document.querySelectorAll('ins.adsbygoogle').length
+
+You should see a number > 0 (like 2, 3, or 5)
+- If it shows 0: You haven't added AdSenseAd components to your pages yet
+
+
+STEP 6: INSPECT AD ELEMENT
+============================
+Right-click on an ad area on your page (or grey box if ads not showing)
+Click "Inspect Element"
+
+Look for this code:
+  <ins class="adsbygoogle"
+       data-ad-client="ca-pub-xxxxxxxx"
+       data-ad-slot="1234567890">
+  </ins>
+
+✓ If you see this: Ad code is inserted correctly
+✗ If you see "[Ad Space - Enable Google AdSense]": Slot ID is not set
+
+
+STEP 7: CHECK NETWORK REQUESTS
+================================
+1. Open DevTools → Network tab
+2. Reload page
+3. Search for: "pagead2"
+4. You should see requests like:
+   - pagead2.googlesyndication.com/pagead/js/adsbygoogle.js
+   - pagead2.googlesyndication.com/pcs/activeview
+
+✓ If you see these: AdSense script loaded successfully
+✗ If you don't see these: Publisher ID might be wrong
+
+
+===========================================
+WHAT YOU'LL SEE AT DIFFERENT STAGES
+===========================================
+
+STAGE 1: Configuration Not Set
+-------------------------------
+.env: NEXT_PUBLIC_ADSENSE_PUBLISHER_ID= (empty)
+
+You'll see:
+- Console: No ad impression logs
+- Page: "[Ad Space - Enable Google AdSense]" message
+- Inspect: data-ad-client="undefined"
+
+
+STAGE 2: Configuration Set, Site Not Approved
+-----------------------------------------------
+.env: NEXT_PUBLIC_ADSENSE_PUBLISHER_ID=ca-pub-xxxxx
+You haven't submitted site for approval yet
+
+You'll see:
+- Console: [AdSense] Ad impression logs ✓
+- Page: Grey box or public service ads
+- Inspect: data-ad-client="ca-pub-xxxxx" ✓
+- Network: pagead2 requests loading ✓
+- Status: Waiting for Google approval (24-48 hours)
+
+
+STAGE 3: Site Approved, Real Ads Showing
+------------------------------------------
+.env: NEXT_PUBLIC_ADSENSE_PUBLISHER_ID=ca-pub-xxxxx
+Site approved by Google
+
+You'll see:
+- Console: [AdSense] Ad impression logs ✓
+- Page: Real ads showing (various brands/products) ✓
+- Inspect: data-ad-client="ca-pub-xxxxx" ✓
+- Network: pagead2 requests loading ✓
+- AdSense Dashboard: Earnings starting to show ✓
+
+
+===========================================
+COMMON SCENARIOS & SOLUTIONS
+===========================================
+
+SCENARIO 1: No ad logs in console
+-----------------------------------
+Problem: Ads not initializing
+Solution:
+1. Check .env has NEXT_PUBLIC_ADSENSE_PUBLISHER_ID (not empty, not "undefined")
+2. Make sure format is: ca-pub-xxxxxxxxxxxxxxxx
+3. Restart dev server: npm run dev
+4. Refresh browser page: Ctrl+R or Cmd+R
+5. Check console again
+
+
+SCENARIO 2: Ads showing "[Ad Space - Enable Google AdSense]"
+-------------------------------------------------------------
+Problem: Slot ID not configured
+Solution:
+1. Go to AdSense dashboard: https://www.google.com/adsense/
+2. Click: Ads → By code
+3. Create ad units and copy slot IDs
+4. Add to .env:
+   NEXT_PUBLIC_ADSENSE_SLOT_HOME_HORIZONTAL=1234567890
+5. Restart dev server: npm run dev
+
+
+SCENARIO 3: Ads showing grey box
+----------------------------------
+Problem: Normal! Site not approved yet OR using localhost
+Solution:
+1. Deploy to production (Vercel, etc)
+2. Submit site for AdSense approval
+3. Wait 24-48 hours for Google review
+4. Real ads will show after approval
+
+
+SCENARIO 4: Still no ads after everything
+--------------------------------------------
+Problem: Most likely components not added to pages
+Solution:
+1. Go to your page file (e.g., app/page.tsx, app/dashboard/page.tsx)
+2. Add this at top:
+   import AdSenseAd from '@/components/ads/AdSenseAd';
+   import { AD_SLOTS } from '@/lib/adsense';
+
+3. Add in JSX where you want ads:
+   <AdSenseAd
+     slotId={AD_SLOTS.homeHorizontal.slotId}
+     slotName="homeHorizontal"
+     format="auto"
+     responsive={true}
+   />
+
+4. Save and rebuild: npm run build
+
+
+===========================================
+5-MINUTE VERIFICATION CHECKLIST
+===========================================
+
+☐ Open DevTools (F12)
+☐ Check Console tab shows ad impression logs
+☐ Open .env file and verify Publisher ID is filled
+☐ Verify at least one slot ID is filled in .env
+☐ Right-click ad area → Inspect → see adsbygoogle code
+☐ Check Network tab shows pagead2.googlesyndication.com requests
+☐ Restart dev server if you made .env changes
+☐ All checks pass = Ads are working! ✓
+
+
+===========================================
+NEXT STEPS
+===========================================
+
+After verifying ads are working:
+
+1. Add AdSenseAd components to all your pages
+2. Test across different pages
+3. Deploy to production
+4. Submit site for AdSense approval
+5. Wait for approval (24-48 hours)
+6. Real ads will show after approval
+7. Monitor earnings in AdSense dashboard
+
+
+===========================================
+STILL STUCK? TRY THIS
+===========================================
+
+Run this in browser console:
+
+// Check if AdSense script loaded
+console.log('AdSense loaded:', !!window.adsbygoogle);
+
+// Check all ad elements
+console.log('Ad slots:', document.querySelectorAll('ins.adsbygoogle').length);
+
+// Check if script is in DOM
+console.log('Script in DOM:', !!document.querySelector('script[src*="pagead2"]'));
+
+// Check environment
+console.log('Publisher ID set:', !!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID);
+
+If all show true/positive values, ads are configured correctly!
+
+
+That's it! You should now know if Google Ads are working on your website.

@@ -10,10 +10,8 @@ import { ConnectionOptions } from 'bullmq';
 // };
 
 // Dummy configuration when Redis is disabled
-export const queueConnection: ConnectionOptions = {
-  host: 'disabled',
-  port: 0,
-};
+// Note: Using null to prevent any connection attempts
+export const queueConnection: ConnectionOptions | null = null;
 
 // Queue names
 export const QUEUE_NAMES = {

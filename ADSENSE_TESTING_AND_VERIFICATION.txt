@@ -1,0 +1,401 @@
+HOW TO CHECK IF GOOGLE ADS ARE WORKING ON YOUR WEBSITE
+========================================================
+
+Your website is set up correctly with AdSense components. Here's how to verify and test them:
+
+================================
+METHOD 1: BROWSER CONSOLE LOGGING
+================================
+
+1. Open your website in browser
+2. Press F12 or Ctrl+Shift+I (Windows) / Cmd+Option+I (Mac)
+3. Click on "Console" tab
+4. You should see logs like:
+   
+   [AdSense] Ad impression: homeHorizontal (1234567890)
+   [AdSense] Ad impression: dashboardSidebar (1234567891)
+
+   ✓ If you see these = Ads are loading correctly
+   ✗ If you don't = Check configuration below
+
+================================
+METHOD 2: INSPECT ELEMENT (HTML)
+================================
+
+1. Right-click on the ad area on your website
+2. Select "Inspect" or "Inspect Element"
+3. Look for this code:
+
+   <ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+     data-ad-slot="1234567890"
+     data-ad-format="auto"
+     data-full-width-responsive="true">
+   </ins>
+
+   ✓ If you see this = Ad code is inserted correctly
+   ✗ If you see "[Ad Space - Enable Google AdSense]" = Configuration issue
+
+Key things to check:
+- data-ad-client: Should be your Publisher ID (ca-pub-xxxxxx)
+- data-ad-slot: Should be a numeric ID
+- data-ad-format: Should be auto, vertical, horizontal, or in-article
+- data-full-width-responsive: true or false
+
+
+================================
+METHOD 3: NETWORK TAB (ADVANCED)
+================================
+
+1. Open DevTools (F12)
+2. Click "Network" tab
+3. Reload page
+4. Search for "pagead2.googlesyndication.com"
+5. You should see requests like:
+   - pagead2.googlesyndication.com/pagead/js/adsbygoogle.js
+   - pagead2.googlesyndication.com/pcs/activeview
+
+   ✓ If you see these = AdSense script is loading
+   ✗ If you don't = Publisher ID might be wrong
+
+
+================================
+METHOD 4: CHECK YOUR .ENV FILE
+================================
+
+Verify your environment variables are set correctly:
+
+1. Open .env file
+2. Check you have:
+
+   NEXT_PUBLIC_ADSENSE_PUBLISHER_ID=ca-pub-xxxxxxxxxxxxxxxx
+   
+   At least one slot ID:
+   NEXT_PUBLIC_ADSENSE_SLOT_HOME_HORIZONTAL=1234567890
+
+   ✓ All filled in with real values = Good
+   ✗ Empty or placeholder values = Ads won't show
+
+
+================================
+METHOD 5: REBUILD & RESTART
+================================
+
+If ads still aren't showing, rebuild your app:
+
+1. Stop your dev server (Ctrl+C)
+2. Run: npm run build
+3. Run: npm run dev
+4. Visit your website in browser
+5. Check console logs again
+
+
+================================
+WHERE ADS SHOULD APPEAR
+================================
+
+Based on your components, ads will show in these locations:
+
+1. HOMEPAGE (if you added AdSenseAd component):
+   - Banner at top (728x90 or responsive)
+   - Location: NEXT_PUBLIC_ADSENSE_SLOT_HOME_HORIZONTAL
+
+2. PROPERTY LISTING PAGE:
+   - Right sidebar (300x600)
+   - Location: NEXT_PUBLIC_ADSENSE_SLOT_PROPERTY_SIDEBAR
+
+3. PROPERTY DETAIL PAGE:
+   - Above description
+   - Below reviews
+   - Locations: NEXT_PUBLIC_ADSENSE_SLOT_PROPERTY_DETAIL_TOP/BOTTOM
+
+4. DASHBOARD:
+   - Right sidebar (300x600)
+   - Location: NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_SIDEBAR
+
+5. SEARCH RESULTS:
+   - Between filters and results (728x90)
+   - Location: NEXT_PUBLIC_ADSENSE_SLOT_SEARCH_RESULTS
+
+6. BLOG POSTS:
+   - Within content (responsive)
+   - Location: NEXT_PUBLIC_ADSENSE_SLOT_IN_ARTICLE
+
+
+==================================================
+STEP-BY-STEP: HOW TO ADD ADS TO YOUR PAGES
+==================================================
+
+Your components are already created. You need to add them to your pages.
+
+EXAMPLE 1: Add Ad to Homepage
+==============================
+
+File: app/page.tsx
+
+```
+import AdSenseAd from '@/components/ads/AdSenseAd';
+import { AD_SLOTS } from '@/lib/adsense';
+
+export default function HomePage() {
+  return (
+    <>
+      {/* Your hero section */}
+      <HeroSection />
+      
+      {/* ADD THIS FOR AD */}
+      <div className="my-8 px-4">
+        <AdSenseAd
+          slotId={AD_SLOTS.homeHorizontal.slotId}
+          slotName="homeHorizontal"
+          format="auto"
+          responsive={true}
+        />
+      </div>
+      
+      {/* Your property grid */}
+      <PropertyGrid />
+    </>
+  );
+}
+```
+
+
+EXAMPLE 2: Add Ad to Dashboard
+================================
+
+File: app/dashboard/page.tsx
+
+```
+import AdSenseAd from '@/components/ads/AdSenseAd';
+import { AD_SLOTS } from '@/lib/adsense';
+
+export default function DashboardPage() {
+  return (
+    <div className="flex gap-6">
+      <main className="flex-1">
+        {/* Dashboard content here */}
+      </main>
+      
+      {/* ADD THIS FOR SIDEBAR AD */}
+      <aside className="w-80">
+        <AdSenseAd
+          slotId={AD_SLOTS.dashboardSidebar.slotId}
+          slotName="dashboardSidebar"
+          format="vertical"
+          width={300}
+          height={600}
+        />
+      </aside>
+    </div>
+  );
+}
+```
+
+
+EXAMPLE 3: Add Multiple Ads to Property Detail
+=================================================
+
+File: app/properties/[id]/page.tsx
+
+```
+import AdSenseAd from '@/components/ads/AdSenseAd';
+import { AD_SLOTS } from '@/lib/adsense';
+
+export default function PropertyDetailPage() {
+  return (
+    <>
+      {/* TOP AD */}
+      <div className="my-6">
+        <AdSenseAd
+          slotId={AD_SLOTS.propertyDetailTop.slotId}
+          slotName="propertyDetailTop"
+          format="auto"
+          responsive={true}
+        />
+      </div>
+      
+      {/* Property information */}
+      <PropertyInfo />
+      
+      {/* MIDDLE CONTENT */}
+      
+      {/* BOTTOM AD */}
+      <div className="my-6">
+        <AdSenseAd
+          slotId={AD_SLOTS.propertyDetailBottom.slotId}
+          slotName="propertyDetailBottom"
+          format="auto"
+          responsive={true}
+        />
+      </div>
+      
+      {/* Reviews section */}
+      <ReviewsSection />
+    </>
+  );
+}
+```
+
+
+============================================
+COMMON ISSUES & HOW TO FIX THEM
+============================================
+
+ISSUE 1: "Ad Space - Enable Google AdSense" message shown
+---------------------------------------------------------
+Cause: Publisher ID or slot ID is not configured
+Solution:
+1. Check .env file has NEXT_PUBLIC_ADSENSE_PUBLISHER_ID
+2. Check slots are filled in .env
+3. Make sure values don't have quotes or extra spaces
+4. Rebuild: npm run build
+
+ISSUE 2: Ads not showing in Console logs
+------------------------------------------
+Cause: AdSenseScript not initialized properly
+Solution:
+1. Open DevTools Console
+2. Look for any errors
+3. Verify AdSenseScript is in ClientProviders ✓ (It is)
+4. Check .env NEXT_PUBLIC_ADSENSE_PUBLISHER_ID is correct
+5. Restart dev server
+
+ISSUE 3: Network tab shows errors from pagead2.googlesyndication.com
+---------------------------------------------------------------------
+Cause: Usually means Publisher ID is invalid or site not approved by Google
+Solution:
+1. Verify Publisher ID (should be ca-pub-xxxxx format)
+2. Check your site is approved in AdSense dashboard
+3. Wait 24-48 hours after first approval request
+4. Check AdSense dashboard for any warnings
+
+ISSUE 4: Different ads keep appearing on the same page
+--------------------------------------------------------
+Cause: This is normal! Google rotates ads
+Solution:
+- This is expected behavior
+- Ads will change based on user interests
+- More traffic = better ad targeting
+
+ISSUE 5: Ads show in development but not in production
+--------
+Cause: AdSense requires specific setup for production
+Solution:
+1. Ensure NEXT_PUBLIC_ variables are in production environment
+2. Verify Publisher ID matches between dev and production
+3. Check AdSense dashboard for errors
+4. Review AdSense policies page
+
+
+============================================
+REAL ADS VS TEST/PLACEHOLDER ADS
+============================================
+
+During Development (localhost):
+- Shows "[Ad Space - Enable Google AdSense]" if slot ID is empty
+- Shows public service ads (grey box)
+- This is normal - Google doesn't show real ads on localhost
+
+After Deployment:
+- Real ads will show once site is approved by Google
+- Approval takes 24-48 hours typically
+- Real ads = You start earning revenue!
+
+
+============================================
+MONITOR ADS PERFORMANCE
+============================================
+
+After ads start showing, monitor in AdSense Dashboard:
+
+1. Go to: https://www.google.com/adsense/
+2. Click "Reports" section
+3. You'll see:
+   - Earnings (money from ads)
+   - Impressions (times ads shown)
+   - Clicks (times users clicked)
+   - CTR (Click Through Rate)
+   - RPM (Revenue Per Mille = revenue per 1000 impressions)
+
+Example metrics:
+- 1000 impressions × $5 RPM = $5 earnings
+- 40 clicks / 1000 impressions = 4% CTR
+- Higher CTR = More valuable ads
+
+
+============================================
+CHROME EXTENSION: VERIFY ADSENSE
+============================================
+
+Install Google Publisher Toolbar:
+1. Search "Google Publisher Toolbar" in Chrome Web Store
+2. Install extension
+3. Click toolbar icon on your website
+4. Shows:
+   ✓ Ad placements
+   ✓ Slot IDs in use
+   ✓ Any errors
+   ✓ Ad formats
+
+
+============================================
+DEBUG MODE: ENABLE LOGGING
+============================================
+
+To see more detailed logs, add this to your .env:
+
+DEBUG_ADSENSE=true
+
+Then in your components, logs will show:
+[AdSense] Initializing ads...
+[AdSense] Ad impression: homeHorizontal (1234567890)
+[AdSense] Publisher ID loaded: ca-pub-xxxxx
+
+
+============================================
+QUICK CHECKLIST
+============================================
+
+Before assuming ads aren't working, verify:
+
+☐ .env has NEXT_PUBLIC_ADSENSE_PUBLISHER_ID (not empty)
+☐ .env has at least one slot ID (NEXT_PUBLIC_ADSENSE_SLOT_HOME_HORIZONTAL, etc)
+☐ AdSenseScript is in ClientProviders.tsx ✓
+☐ You've added AdSenseAd components to your pages
+☐ You ran npm run build after updating .env
+☐ You restarted dev server after changes
+☐ Browser console shows logs like "[AdSense] Ad impression: ..."
+☐ Inspect element shows <ins class="adsbygoogle"> tags
+☐ Your site is approved in AdSense dashboard (for real ads)
+☐ You're not clicking your own ads (against policy)
+
+
+============================================
+SUPPORT & HELP
+============================================
+
+If ads still aren't working:
+
+1. Check AdSense Help: https://support.google.com/adsense
+2. View your site's AdSense status: https://www.google.com/adsense/
+3. Check browser console for error messages
+4. Verify all environment variables are set
+5. Try in an incognito window (to clear cache)
+6. Check AdSense policies: https://support.google.com/adsense/answer/48182
+
+
+============================================
+QUICK TEST COMMAND
+============================================
+
+To verify your configuration is correct, run this in console:
+
+console.log('Publisher ID:', process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID)
+console.log('Slots:', window.__ADSENSE_SLOTS__)
+
+This will show your configuration is loaded.
+
+
+That's everything you need to know about checking and testing Google Ads on your website!
