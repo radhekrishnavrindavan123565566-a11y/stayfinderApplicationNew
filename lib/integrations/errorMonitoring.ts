@@ -161,7 +161,7 @@ export function captureException(errorEvent: ErrorEvent): string | null {
  */
 export function captureMessage(message: string, level: "fatal" | "error" | "warning" | "info" = "info"): string | null {
   if (!isSentryConfigured()) {
-    logger.info("[Error Monitoring] Message not captured - Sentry not configured");
+    logger.warn("[Error Monitoring] Message not captured - Sentry not configured");
     return null;
   }
 
