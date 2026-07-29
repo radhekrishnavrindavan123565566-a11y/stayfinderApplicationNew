@@ -7,7 +7,7 @@ import Notification from "@/models/Notification";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const decoded = authenticateRequest(request);
@@ -28,8 +28,11 @@ export async function POST(
       );
     }
 
+    // Await params for Next.js 16
+    const { id } = await params;
+
     // Get booking
-    const booking = await Booking.findById(params.id);
+    const booking = await Booking.findById(id);
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }

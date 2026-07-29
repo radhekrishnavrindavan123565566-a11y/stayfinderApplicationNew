@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { X, Download, Share2, ArrowRight } from "lucide-react";
+import { Download, Share2, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import BackButton from "@/components/ui/BackButton";
@@ -24,7 +24,7 @@ interface ComparisonProperty {
   propertyType: string;
 }
 
-export default function ComparisonPage() {
+function ComparisonPageContent() {
   const searchParams = useSearchParams();
   const [properties, setProperties] = useState<ComparisonProperty[]>([]);
   const [loading, setLoading] = useState(true);
@@ -302,5 +302,25 @@ export default function ComparisonPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ComparisonPageLoader() {
+  return (
+    <div className="min-h-screen pt-20 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full"
+      />
+    </div>
+  );
+}
+
+export default function ComparisonPage() {
+  return (
+    <Suspense fallback={<ComparisonPageLoader />}>
+      <ComparisonPageContent />
+    </Suspense>
   );
 }
