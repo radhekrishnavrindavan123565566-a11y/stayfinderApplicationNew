@@ -1,0 +1,250 @@
+QUICK START: VERCEL DEPLOYMENT
+===============================
+
+TL;DR - Deploy in 5 minutes:
+
+1. Files already configured:
+   ✅ vercel.json - Build commands with --legacy-peer-deps
+   ✅ .npmrc - Global npm config for legacy-peer-deps
+
+2. Push to GitHub (main branch):
+   git add .
+   git commit -m "Ready for Vercel deployment"
+   git push origin main
+
+3. Connect to Vercel:
+   - Visit vercel.com
+   - Click "New Project"
+   - Select your GitHub repository
+   - Click "Import"
+
+4. Add Environment Variables in Vercel Dashboard:
+   Essential (required):
+     DATABASE_URL = <your-mongodb-url>
+     REDIS_URL = <your-redis-url>
+     NEXT_PUBLIC_SENTRY_DSN = <your-sentry-dsn>
+     JWT_SECRET = <generate-strong-random-string>
+     NODE_ENV = production
+   
+   Google Calendar:
+     GOOGLE_CALENDAR_PROJECT_ID = <your-id>
+     GOOGLE_CALENDAR_CLIENT_EMAIL = <your-email>
+     GOOGLE_CALENDAR_PRIVATE_KEY = <your-private-key>
+     GOOGLE_CALENDAR_ID = <your-calendar-id>
+     TIMEZONE = America/New_York
+   
+   Video Calls:
+     NEXT_PUBLIC_VIDEO_PROVIDER = daily
+     DAILY_API_KEY = <your-api-key>
+   
+   Analytics:
+     NEXT_PUBLIC_GOOGLE_ANALYTICS_ID = <your-ga-id>
+     GOOGLE_ANALYTICS_API_SECRET = <your-secret>
+   
+   Error Monitoring:
+     NEXT_PUBLIC_APP_VERSION = 1.0.0
+
+5. Click "Deploy"
+   - Vercel will automatically build using vercel.json settings
+   - Deployment takes 2-3 minutes
+   - Get your production URL
+
+Done! ✅
+
+WHAT'S ALREADY CONFIGURED:
+==========================
+
+vercel.json:
+  - buildCommand: npm install --legacy-peer-deps && npm run build
+  - installCommand: npm install --legacy-peer-deps
+  - crons: Daily task at 9 AM
+
+.npmrc:
+  - legacy-peer-deps=true globally for all npm operations
+
+WHY --legacy-peer-deps?
+======================
+
+Next.js 16 is new, some packages haven't updated their peer dependency constraints yet:
+  - @sentry/nextjs: expects Next.js 14 (works fine with 16)
+  - next-cloudinary: expects Next.js 14 (works fine with 16)
+
+The --legacy-peer-deps flag tells npm to proceed despite mismatches.
+All packages work perfectly - the dependencies just haven't been updated yet.
+
+FIRST DEPLOYMENT CHECKLIST:
+===========================
+
+□ Create Vercel account at vercel.com
+□ Connect GitHub repository
+□ Add all required environment variables
+□ Set Database URL and Redis URL
+□ Set API keys (Sentry, Video provider, etc.)
+□ Click Deploy
+□ Wait for build to complete
+□ Test your app at the Vercel URL
+□ Test integrations:
+  - Calendar: Check if events are created
+  - Video: Verify room creation works
+  - Analytics: Confirm events are tracked
+  - Errors: Verify errors reach Sentry
+
+NEXT DEPLOYMENTS:
+=================
+
+After the first deployment, all future deployments are automatic:
+
+1. Make changes locally
+2. Commit to git
+3. Push to GitHub main branch
+4. Vercel automatically detects push
+5. Vercel rebuilds and redeploys
+6. Done! No manual steps needed
+
+VERCEL DASHBOARD SHORTCUTS:
+===========================
+
+Project Settings:
+  - Domains: Add custom domain (stayfinderapp.com)
+  - Environment Variables: Update API keys
+  - Build & Dev Settings: Already configured via vercel.json
+
+Deployments:
+  - View all deployment history
+  - Rollback to previous version if needed
+  - View build logs for debugging
+
+Analytics:
+  - Monitor page load times
+  - Track user performance
+  - Identify slow pages
+
+Logs:
+  - Real-time application logs
+  - Check for errors
+  - Debug production issues
+
+TROUBLESHOOTING:
+================
+
+Build Failed?
+  1. Check Build Logs in Vercel dashboard
+  2. Look for npm error messages
+  3. Verify all environment variables are set
+  4. Clear cache: Settings → Advanced → Clear Build Cache
+  5. Redeploy
+
+Module Not Found?
+  - Clear cache and redeploy
+  - Ensure .npmrc exists in root
+  - Check vercel.json has correct buildCommand
+
+Deployment Stuck?
+  - Wait 10 minutes (it's building)
+  - If still stuck: click "Cancel" and "Redeploy"
+  - Check Vercel status page
+
+Database Connection Failed?
+  - Verify DATABASE_URL environment variable
+  - Check MongoDB is accessible (whitelist Vercel IPs)
+  - Verify Redis connection (REDIS_URL)
+
+CUSTOM DOMAIN:
+==============
+
+1. In Vercel dashboard → Project Settings → Domains
+2. Click "Add Domain"
+3. Enter your domain (stayfinderapp.com)
+4. Update your domain registrar DNS:
+   - Type: CNAME
+   - Name: www (or subdomain)
+   - Value: <provided by Vercel>
+5. Wait 24-48 hours for DNS propagation
+6. SSL certificate is automatic
+
+MONITORING:
+===========
+
+After deployment, monitor:
+
+1. Sentry Dashboard (sentry.io):
+   - Check error tracking
+   - Monitor performance
+   - Set up alerts
+
+2. Google Analytics:
+   - Track user behavior
+   - Monitor conversions
+   - Analyze traffic
+
+3. Vercel Dashboard:
+   - Monitor build times
+   - Check deployment status
+   - View Web Vitals
+
+4. Database:
+   - Monitor query performance
+   - Check connection pools
+   - Optimize slow queries
+
+SCALING:
+========
+
+As you grow:
+
+1. Database:
+   - MongoDB Atlas auto-scaling
+   - Enable replica sets for high availability
+   - Add read replicas for read-heavy workloads
+
+2. Cache:
+   - Redis for session/data caching
+   - Reduce database load
+   - Improve response times
+
+3. CDN:
+   - Vercel includes global CDN (Edge Network)
+   - Images auto-optimized
+   - Static assets cached globally
+
+4. Monitoring:
+   - Set up alerts for errors
+   - Monitor database queries
+   - Track API performance
+
+SECURITY:
+=========
+
+Before production:
+
+□ Change all placeholder API keys to real ones
+□ Generate strong JWT_SECRET
+□ Enable database authentication
+□ Set HTTPS enforced (Vercel default)
+□ Configure environment variables securely
+□ Set up proper firewall rules
+□ Enable database encryption
+□ Monitor access logs
+
+HELPFUL LINKS:
+==============
+
+- Vercel Docs: https://vercel.com/docs
+- Next.js Docs: https://nextjs.org/docs
+- Sentry Docs: https://docs.sentry.io
+- MongoDB Atlas: https://cloud.mongodb.com
+- Vercel Status: https://www.vercel-status.com
+
+SUMMARY:
+========
+
+Everything is configured and ready! Just:
+
+1. Push to GitHub
+2. Connect to Vercel
+3. Add environment variables
+4. Click Deploy
+
+Your StayFinder app will be live in minutes!
+
+Questions? Check VERCEL_DEPLOYMENT.txt for detailed instructions.
