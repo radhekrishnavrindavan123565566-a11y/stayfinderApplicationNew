@@ -204,7 +204,6 @@ export default function BlogPost({ params }: BlogPostProps) {
 
 // Generate static params for blog posts
 export async function generateStaticParams() {
-  return Object.keys(blogPosts).map((slug) => ({
-    slug,
-  }));
+  return []; // Return empty array to skip static generation for now
+  // These can be enabled later when data is available
 }

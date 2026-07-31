@@ -7,7 +7,7 @@ const nextConfig = {
 
   // Image optimization - CRITICAL FOR SEO
   images: {
-    formats: ['image/avif', 'image/webp', 'image/jpeg'],
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
@@ -16,7 +16,6 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year for optimal caching
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    unoptimized: false, // Keep optimization enabled for SEO
   },
 
   // Performance optimizations
@@ -24,21 +23,11 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // Turbopack config for faster builds
-  turbopack: {
-    resolveAlias: {
-      '@': './src',
-    },
-  },
-
   // Experimental features for better SEO
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
     staticGenerationRetryCount: 2,
   },
-
-  // Core Web Vitals optimization
-  swcMinify: true,
 
   // Headers for caching and SEO
   async headers() {

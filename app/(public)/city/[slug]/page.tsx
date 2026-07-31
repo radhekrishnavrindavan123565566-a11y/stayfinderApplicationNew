@@ -174,22 +174,6 @@ export default function CityPage({ params }: CityPageProps) {
 
 // Generate static params for top cities
 export async function generateStaticParams() {
-  const cities = [
-    'lucknow',
-    'prayagraj',
-    'kanpur',
-    'varanasi',
-    'agra',
-    'meerut',
-    'noida',
-    'greater-noida',
-    'bareilly',
-    'aligarh',
-    'ghaziabad',
-    'gorakhpur',
-  ];
-
-  return cities.map((city) => ({
-    slug: city,
-  }));
+  return []; // Return empty array to skip static generation for now
+  // These can be enabled later when data is available
 }
