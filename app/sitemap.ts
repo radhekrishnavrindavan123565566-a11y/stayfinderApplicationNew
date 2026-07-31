@@ -1,79 +1,59 @@
 import { MetadataRoute } from 'next';
-import { connectDB } from '@/lib/mongodb';
-import Property from '@/models/Property';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://stayerra.com';
+const BASE_URL = 'https://stayerra.com';
 
-  try {
-    await connectDB();
+// Add your main pages here
+const mainPages = [
+  { path: '', priority: 1.0, changefreq: 'daily' as const },
+  { path: '/about', priority: 0.8, changefreq: 'monthly' as const },
+  { path: '/how-it-works', priority: 0.8, changefreq: 'monthly' as const },
+  { path: '/contact', priority: 0.7, changefreq: 'monthly' as const },
+  { path: '/faq', priority: 0.7, changefreq: 'monthly' as const },
+];
 
-    // Fetch all available properties
-    const properties = await Property.find({ isAvailable: true })
-      .select('_id updatedAt')
-      .sort({ updatedAt: -1 })
-      .limit(5000) // Sitemap limit
-      .lean();
+// City pages for better local SEO
+const cities = [
+  'lucknow',
+  'prayagraj',
+  'kanpur',
+  'varanasi',
+  'agra',
+  'meerut',
+  'noida',
+  'greater-noida',
+  'bareilly',
+  'aligarh',
+  'ghaziabad',
+  'gorakhpur',
+];
 
-    const propertyUrls = properties.map((property) => ({
-      url: `${baseUrl}/properties/${property._id}`,
-      lastModified: property.updatedAt || new Date(),
+export default function sitemap(): MetadataRoute.Sitemap {
+  // Main pages
+  const mainSitemap = mainPages.map((page) => ({
+    url: `${BASE_URL}${page.path}`,
+    lastModified: new Date(),
+    changeFrequency: page.changefreq as 'daily' | 'weekly' | 'monthly',
+    priority: page.priority,
+  }));
+
+  // City pages
+  const citySitemap = cities.map((city) => ({
+    url: `${BASE_URL}/city/${city}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.9,
+  }));
+
+  // City + category pages
+  const categories = ['pg', 'rooms', 'flats', 'hostels', 'shared-accommodation'];
+  const cityCategorySitemap = cities.flatMap((city) =>
+    categories.map((category) => ({
+      url: `${BASE_URL}/city/${city}/${category}`,
+      lastModified: new Date(),
       changeFrequency: 'daily' as const,
-      priority: 0.8,
-    }));
+      priority: 0.85,
+    }))
+  );
 
-    // Static pages
-    const staticPages = [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 1.0,
-      },
-      {
-        url: `${baseUrl}/properties`,
-        lastModified: new Date(),
-        changeFrequency: 'hourly' as const,
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/about`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.7,
-      },
-      {
-        url: `${baseUrl}/auth/login`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
-      },
-      {
-        url: `${baseUrl}/auth/register`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
-      },
-    ];
-
-    return [...staticPages, ...propertyUrls];
-  } catch (error) {
-    console.error('Error generating sitemap:', error);
-    
-    // Return static pages only if DB fails
-    return [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 1.0,
-      },
-      {
-        url: `${baseUrl}/properties`,
-        lastModified: new Date(),
-        changeFrequency: 'hourly' as const,
-        priority: 0.9,
-      },
-    ];
-  }
+  return [...mainSitemap, ...citySitemap, ...cityCategorySitemap];
 }

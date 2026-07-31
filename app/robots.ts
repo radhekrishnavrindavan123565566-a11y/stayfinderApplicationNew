@@ -1,28 +1,26 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://stayerra.com';
-
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/dashboard/',
-          '/auth/forgot-password',
-        ],
+        disallow: ['/admin/', '/api/', '/*.json$', '/search?', '/?*sort=', '/?*filter='],
+        crawlDelay: 1,
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/dashboard/'],
+        crawlDelay: 0,
+      },
+      {
+        userAgent: 'Bingbot',
+        allow: '/',
+        crawlDelay: 1,
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: 'https://stayerra.com/sitemap.xml',
+    host: 'https://stayerra.com',
   };
 }

@@ -13,40 +13,125 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display
 const BASE_URL = "https://stayerra.com";
 const OG_IMAGE = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80";
 
+// Structured Data for Rich Snippets
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "Stayerra",
+  "description": "Find verified PGs, rooms & flats across Uttar Pradesh",
+  "url": BASE_URL,
+  "logo": `${BASE_URL}/logo.png`,
+  "sameAs": [
+    "https://www.facebook.com/stayerra",
+    "https://www.instagram.com/stayerra_in",
+    "https://www.twitter.com/stayerra_in",
+    "https://www.linkedin.com/company/stayerra"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-XXXXXXXXXX",
+    "contactType": "Customer Service"
+  },
+  "areaServed": {
+    "@type": "State",
+    "name": "Uttar Pradesh"
+  }
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Stayerra – Modern Living, Grounded Search",
-    template: "%s | Stayerra",
+    default: "Stayerra – Best PG, Rooms & Flats in UP | Verified Listings",
+    template: "%s | Stayerra - Find Your Perfect Stay in Uttar Pradesh",
   },
-  description: "Find verified PGs, rooms & flats across Uttar Pradesh. Stayerra connects tenants and owners — no broker, instant booking, Aadhaar-verified listings.",
-  keywords: ["PG in Lucknow", "rooms for rent UP", "flat in Prayagraj", "PG Kanpur", "rental rooms Varanasi", "Stayerra"],
-  authors: [{ name: "Stayerra" }],
+  description: "Find verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. Best rental solutions in Lucknow, Prayagraj, Kanpur & more. No broker fees. Instant booking with Aadhaar verification.",
+  keywords: [
+    "PG in Lucknow",
+    "rooms for rent UP",
+    "flat in Prayagraj",
+    "PG Kanpur",
+    "rental rooms Varanasi",
+    "paying guest Uttar Pradesh",
+    "affordable rooms UP",
+    "verified PG listings",
+    "no broker rooms",
+    "Stayerra",
+    "best PG sites India",
+    "room rental Noida",
+    "hostel in UP",
+    "shared accommodation"
+  ],
+  authors: [{ name: "Stayerra", url: BASE_URL }],
   creator: "Stayerra",
+  publisher: "Stayerra",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Stayerra" },
   formatDetection: { telephone: false },
+  category: "Real Estate",
+  alternates: {
+    canonical: BASE_URL,
+    languages: {
+      'en-IN': `${BASE_URL}/en-IN`,
+      'hi': `${BASE_URL}/hi`,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: BASE_URL,
     siteName: "Stayerra",
-    title: "Stayerra – Modern Living, Grounded Search",
+    title: "Stayerra – Best PG, Rooms & Flats in UP",
     description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Stayerra – Rental Rooms in UP" }],
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "Stayerra – Rental Rooms in UP",
+        type: "image/jpeg",
+      },
+      {
+        url: `${BASE_URL}/og-image-square.jpg`,
+        width: 800,
+        height: 800,
+        alt: "Stayerra Logo",
+        type: "image/jpeg",
+      }
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stayerra – Modern Living, Grounded Search",
-    description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
+    title: "Stayerra – Best PG, Rooms & Flats in UP",
+    description: "Verified PGs, rooms & flats. No broker fees. Instant booking.",
     images: [OG_IMAGE],
     creator: "@stayerra_in",
+    site: "@stayerra_in",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+    "bingbot": {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
+  referrer: "strict-origin-when-cross-origin",
+  themeColor: "#f43f5e",
 };
 
 export const viewport: Viewport = {
@@ -67,11 +152,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        {/* JSON-LD Structured Data for Rich Snippets */}
+        <Script
+          id="json-ld-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd)
+          }}
+          strategy="afterInteractive"
+        />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href={BASE_URL} />
+
+        {/* Alternate Links for Multi-language */}
+        <link rel="alternate" hrefLang="en-IN" href={BASE_URL} />
+        <link rel="alternate" hrefLang="hi" href={`${BASE_URL}/hi`} />
+        <link rel="alternate" hrefLang="x-default" href={BASE_URL} />
+
         {/* Google Site Verification for Search Console */}
         <meta name="google-site-verification" content="b8Svk1MJ3qt_svlwYxpBRH1MEFQDCW0xJ83RYihTlzk" />
         
+        {/* Microsoft/Bing Verification */}
+        <meta name="msvalidate.01" content="YOUR_MSVALIDATE_KEY" />
+        
         {/* Google AdSense Account Meta Tag */}
         <meta name="google-adsense-account" content="ca-pub-6171735174915662" />
+        
+        {/* SEO Meta Tags */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+        <meta name="author" content="Stayerra" />
+        <meta name="publisher" content="Stayerra" />
+        <meta name="revisit-after" content="7 days" />
+        <meta name="language" content="English" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="bingbot" content="index, follow, max-image-preview:large" />
         
         {/* Google AdSense */}
         <Script
@@ -80,12 +196,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+
+        {/* Google Analytics 4 */}
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-XXXXXXXXXX', {
+                page_path: window.location.pathname,
+                send_page_view: true,
+              });
+            `,
+          }}
+        />
         
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
         
         {/* Preload critical font */}
         <link rel="preload" as="font" href={geist.variable} type="font/woff2" crossOrigin="anonymous" />
@@ -96,6 +236,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Stayerra" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         
         {/* Optimization: Defer non-critical CSS/JS */}
         <style dangerouslySetInnerHTML={{
