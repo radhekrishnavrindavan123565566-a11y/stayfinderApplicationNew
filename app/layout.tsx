@@ -67,6 +67,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        {/* Google Site Verification for Search Console */}
+        <meta name="google-site-verification" content="b8Svk1MJ3qt_svlwYxpBRH1MEFQDCW0xJ83RYihTlzk" />
+        
         {/* Google AdSense Account Meta Tag */}
         <meta name="google-adsense-account" content="ca-pub-6171735174915662" />
         
