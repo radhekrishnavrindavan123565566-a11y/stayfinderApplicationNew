@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-const BASE_URL = 'https://stayerra.com';
+const BASE_URL = 'https://ssthomesolutions.com';
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80';
 
 export interface SEOProps {
@@ -31,7 +31,7 @@ export function generateSEOMetadata(props: SEOProps): Metadata {
     canonicalUrl = BASE_URL,
     noindex = false,
     nofollow = false,
-    authors = [{ name: 'Stayerra', url: BASE_URL }],
+    authors = [{ name: 'SST Home Solutions', url: BASE_URL }],
     publishedDate,
     updatedDate,
     structuredData,
@@ -67,7 +67,7 @@ export function generateSEOMetadata(props: SEOProps): Metadata {
           alt: title,
         },
       ],
-      siteName: 'Stayerra',
+      siteName: 'SST Home Solutions',
       locale: 'en_IN',
     },
     twitter: {
@@ -75,7 +75,7 @@ export function generateSEOMetadata(props: SEOProps): Metadata {
       title,
       description,
       images: [ogImage],
-      creator: '@stayerra_in',
+      creator: '@ssthomesolutions',
     },
     robots,
     alternates: {
@@ -103,14 +103,14 @@ export function generateJSONLD(type: string, data: Record<string, any>) {
  * Organization structured data
  */
 export const organizationSchema = generateJSONLD('Organization', {
-  name: 'Stayerra',
+  name: 'SST Home Solutions',
   description: 'Find verified PGs, rooms & flats across Uttar Pradesh',
   url: BASE_URL,
   logo: `${BASE_URL}/logo.png`,
   sameAs: [
     'https://www.facebook.com/stayerra',
-    'https://www.instagram.com/stayerra_in',
-    'https://www.twitter.com/stayerra_in',
+    'https://www.instagram.com/ssthomesolutions',
+    'https://www.twitter.com/ssthomesolutions',
     'https://www.linkedin.com/company/stayerra',
   ],
   contactPoint: {
@@ -225,7 +225,7 @@ export function generateArticleSchema(article: {
     dateModified: article.dateModified?.toISOString(),
     author: {
       '@type': 'Person',
-      name: article.author || 'Stayerra',
+      name: article.author || 'SST Home Solutions',
     },
     articleBody: article.content,
   });
@@ -236,12 +236,12 @@ export function generateArticleSchema(article: {
  */
 export function getOpenGraphMetaTags(props: SEOProps) {
   return {
-    'og:title': props.title || 'Stayerra',
+    'og:title': props.title || 'SST Home Solutions',
     'og:description': props.description,
     'og:image': props.ogImage || DEFAULT_OG_IMAGE,
     'og:type': props.ogType || 'website',
     'og:url': props.canonicalUrl || BASE_URL,
-    'og:site_name': 'Stayerra',
+    'og:site_name': 'SST Home Solutions',
     'og:locale': 'en_IN',
   };
 }
@@ -252,11 +252,11 @@ export function getOpenGraphMetaTags(props: SEOProps) {
 export function getTwitterCardMetaTags(props: SEOProps) {
   return {
     'twitter:card': 'summary_large_image',
-    'twitter:title': props.title || 'Stayerra',
+    'twitter:title': props.title || 'SST Home Solutions',
     'twitter:description': props.description,
     'twitter:image': props.ogImage || DEFAULT_OG_IMAGE,
-    'twitter:creator': '@stayerra_in',
-    'twitter:site': '@stayerra_in',
+    'twitter:creator': '@ssthomesolutions',
+    'twitter:site': '@ssthomesolutions',
   };
 }
 
@@ -297,7 +297,7 @@ export function generateKeywords(params: {
   }
 
   keywords.push(
-    'Stayerra',
+    'SST Home Solutions',
     'PG finder India',
     'room rental India',
     'best PG sites',

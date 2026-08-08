@@ -236,7 +236,7 @@ const RentReceipt: React.FC<RentReceiptProps> = ({ payment }) => {
             This is a computer-generated receipt and does not require a physical signature.
           </Text>
           <Text style={styles.footerText}>
-            For any queries, please contact support@stayerra.com
+            For any queries, please contact support@ssthomesolutions.com
           </Text>
           <Text style={styles.footerText}>
             Generated on {formatDate(new Date().toISOString())}

@@ -1,4 +1,4 @@
-# Stayerra SEO Implementation Guide
+# SST Home Solutions SEO Implementation Guide
 
 ## ✅ Completed SEO Improvements
 
@@ -51,17 +51,17 @@
 ### 1. **Google Search Console Setup** (Priority: HIGH)
 ```
 1. Go to: https://search.google.com/search-console
-2. Add property: stayerra.com
+2. Add property: ssthomesolutions.com
 3. Verify using DNS TXT record (code in layout.tsx):
    - google-site-verification: b8Svk1MJ3qt_svlwYxpBRH1MEFQDCW0xJ83RYihTlzk
-4. Submit sitemap: https://stayerra.com/sitemap.xml
+4. Submit sitemap: https://ssthomesolutions.com/sitemap.xml
 5. Request indexing for homepage
 ```
 
 ### 2. **Bing Webmaster Tools Setup** (Priority: MEDIUM)
 ```
 1. Go to: https://www.bing.com/webmasters/about
-2. Add site: stayerra.com
+2. Add site: ssthomesolutions.com
 3. Verify ownership
 4. Submit sitemap
 5. Update msvalidate meta tag (in layout.tsx - replace YOUR_MSVALIDATE_KEY)
@@ -81,10 +81,10 @@ For each page, use the SEO utility:
 import { generateSEOMetadata } from '@/lib/seo';
 
 export const metadata = generateSEOMetadata({
-  title: 'Page Title | Stayerra',
+  title: 'Page Title | SST Home Solutions',
   description: 'Page description...',
   keywords: ['keyword1', 'keyword2'],
-  canonicalUrl: 'https://stayerra.com/page-path',
+  canonicalUrl: 'https://ssthomesolutions.com/page-path',
 });
 ```
 
@@ -94,7 +94,7 @@ Add metadata for each city page:
 import { generateLocalBusinessSchema, generateSEOMetadata } from '@/lib/seo';
 
 export const metadata = generateSEOMetadata({
-  title: `PG & Rooms in ${city} | Stayerra`,
+  title: `PG & Rooms in ${city} | SST Home Solutions`,
   description: `Find verified rooms, PGs & flats in ${city}. No broker, instant booking.`,
   keywords: [
     `PG in ${city}`,
@@ -133,7 +133,7 @@ const articleSchema = generateArticleSchema({
   image: 'https://...article-image...',
   datePublished: new Date('2024-01-15'),
   dateModified: new Date('2024-01-20'),
-  author: 'Stayerra Team',
+  author: 'SST Home Solutions Team',
   content: 'Full article content...',
 });
 ```

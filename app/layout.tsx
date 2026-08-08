@@ -7,42 +7,47 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ClientProviders from "@/components/providers/ClientProviders";
 import { Suspense } from "react";
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ScrollProgress from '@/components/ui/ScrollProgress';
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap", preload: true });
 
-const BASE_URL = "https://stayerra.com";
+const BASE_URL = "https://ssthomesolutions.com";
+const SITE_NAME = "SST Home Solutions";
 const OG_IMAGE = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&q=80";
 
-// Structured Data for Rich Snippets
+// Structured Data for Rich Snippets (JSON-LD)
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "RealEstateAgent",
-  "name": "Stayerra",
-  "description": "Find verified PGs, rooms & flats across Uttar Pradesh",
+  "name": SITE_NAME,
+  "description": "Find verified PGs, rooms & flats across Uttar Pradesh. No broker fees, instant booking.",
   "url": BASE_URL,
   "logo": `${BASE_URL}/logo.png`,
   "sameAs": [
-    "https://www.facebook.com/stayerra",
-    "https://www.instagram.com/stayerra_in",
-    "https://www.twitter.com/stayerra_in",
-    "https://www.linkedin.com/company/stayerra"
+    "https://www.facebook.com/ssthomesolutions",
+    "https://www.instagram.com/ssthomesolutions",
+    "https://www.twitter.com/ssthomesolutions",
+    "https://www.linkedin.com/company/ssthomesolutions"
   ],
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+91-XXXXXXXXXX",
-    "contactType": "Customer Service"
+    "contactType": "Customer Service",
+    "availableLanguage": ["English", "Hindi"]
   },
   "areaServed": {
     "@type": "State",
-    "name": "Uttar Pradesh"
+    "name": "Uttar Pradesh",
+    "addressCountry": "IN"
   }
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Stayerra – Best PG, Rooms & Flats in UP | Verified Listings",
-    template: "%s | Stayerra - Find Your Perfect Stay in Uttar Pradesh",
+    default: "SST Home Solutions – Best PG, Rooms & Flats in UP | Verified Listings",
+    template: "%s | SST Home Solutions",
   },
   description: "Find verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. Best rental solutions in Lucknow, Prayagraj, Kanpur & more. No broker fees. Instant booking with Aadhaar verification.",
   keywords: [
@@ -55,17 +60,18 @@ export const metadata: Metadata = {
     "affordable rooms UP",
     "verified PG listings",
     "no broker rooms",
-    "Stayerra",
+    "SST Home Solutions",
+    "ssthomesolutions",
     "best PG sites India",
     "room rental Noida",
     "hostel in UP",
-    "shared accommodation"
+    "shared accommodation UP"
   ],
-  authors: [{ name: "Stayerra", url: BASE_URL }],
-  creator: "Stayerra",
-  publisher: "Stayerra",
+  authors: [{ name: SITE_NAME, url: BASE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Stayerra" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: SITE_NAME },
   formatDetection: { telephone: false },
   category: "Real Estate",
   alternates: {
@@ -79,33 +85,33 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: BASE_URL,
-    siteName: "Stayerra",
-    title: "Stayerra – Best PG, Rooms & Flats in UP",
+    siteName: SITE_NAME,
+    title: "SST Home Solutions – Best PG, Rooms & Flats in UP",
     description: "Verified PGs, rooms & flats across 120+ cities in Uttar Pradesh. No broker. Instant booking.",
     images: [
       {
         url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Stayerra – Rental Rooms in UP",
+        alt: "SST Home Solutions – Rental Rooms in UP",
         type: "image/jpeg",
       },
       {
         url: `${BASE_URL}/og-image-square.jpg`,
         width: 800,
         height: 800,
-        alt: "Stayerra Logo",
+        alt: "SST Home Solutions Logo",
         type: "image/jpeg",
       }
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stayerra – Best PG, Rooms & Flats in UP",
+    title: "SST Home Solutions – Best PG, Rooms & Flats in UP",
     description: "Verified PGs, rooms & flats. No broker fees. Instant booking.",
     images: [OG_IMAGE],
-    creator: "@stayerra_in",
-    site: "@stayerra_in",
+    creator: "@ssthomesolutions",
+    site: "@ssthomesolutions",
   },
   robots: {
     index: true,
@@ -118,20 +124,8 @@ export const metadata: Metadata = {
       "max-snippet": -1,
       "max-video-preview": -1,
     },
-    "bingbot": {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-    },
-  },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
   },
   referrer: "strict-origin-when-cross-origin",
-  themeColor: "#f43f5e",
 };
 
 export const viewport: Viewport = {
@@ -141,55 +135,36 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-import ErrorBoundary from '@/components/ErrorBoundary';
-import ScrollProgress from '@/components/ui/ScrollProgress';
-
 function ScrollProgressWrapper() {
   return <ScrollProgress />;
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="en" className={`${geist.variable} h-full`} suppressHydrationWarning>
       <head>
-        {/* JSON-LD Structured Data for Rich Snippets */}
+        {/* JSON-LD Structured Data */}
         <Script
-          id="json-ld-schema"
+          id="json-ld-org"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd)
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           strategy="afterInteractive"
         />
 
-        {/* Canonical URL */}
+        {/* Canonical & Alternate Links */}
         <link rel="canonical" href={BASE_URL} />
-
-        {/* Alternate Links for Multi-language */}
         <link rel="alternate" hrefLang="en-IN" href={BASE_URL} />
         <link rel="alternate" hrefLang="hi" href={`${BASE_URL}/hi`} />
         <link rel="alternate" hrefLang="x-default" href={BASE_URL} />
 
-        {/* Google Site Verification for Search Console */}
+        {/* Google Search Console Verification */}
         <meta name="google-site-verification" content="b8Svk1MJ3qt_svlwYxpBRH1MEFQDCW0xJ83RYihTlzk" />
-        
-        {/* Microsoft/Bing Verification */}
-        <meta name="msvalidate.01" content="YOUR_MSVALIDATE_KEY" />
-        
-        {/* Google AdSense Account Meta Tag */}
-        <meta name="google-adsense-account" content="ca-pub-6171735174915662" />
-        
-        {/* SEO Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        <meta name="author" content="Stayerra" />
-        <meta name="publisher" content="Stayerra" />
-        <meta name="revisit-after" content="7 days" />
-        <meta name="language" content="English" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <meta name="bingbot" content="index, follow, max-image-preview:large" />
-        
+
+        {/* Bing Webmaster Verification — replace YOUR_BING_KEY after verifying */}
+        <meta name="msvalidate.01" content="YOUR_BING_KEY" />
+
         {/* Google AdSense */}
+        <meta name="google-adsense-account" content="ca-pub-6171735174915662" />
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6171735174915662"
@@ -197,7 +172,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="afterInteractive"
         />
 
-        {/* Google Analytics 4 */}
+        {/* Google Analytics 4 — replace G-XXXXXXXXXX with your real ID */}
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
@@ -211,68 +186,61 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-XXXXXXXXXX', {
-                page_path: window.location.pathname,
-                send_page_view: true,
-              });
+              gtag('config', 'G-XXXXXXXXXX', { page_path: window.location.pathname });
             `,
           }}
         />
-        
-        {/* Preconnect to external domains */}
+
+        {/* Author / Publisher */}
+        <meta name="author" content="SST Home Solutions" />
+        <meta name="publisher" content="SST Home Solutions" />
+        <meta name="revisit-after" content="7 days" />
+        <meta name="language" content="English" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+        {/* Preconnects for performance */}
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        
-        {/* Preload critical font */}
-        <link rel="preload" as="font" href={geist.variable} type="font/woff2" crossOrigin="anonymous" />
-        
-        {/* PWA Meta Tags */}
+
+        {/* Favicons & PWA */}
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Stayerra" />
-        <link rel="apple-touch-icon" href="/logo.png" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        
-        {/* Optimization: Defer non-critical CSS/JS */}
+        <meta name="apple-mobile-web-app-title" content="SST Home Solutions" />
+
+        {/* Skip-link styles */}
         <style dangerouslySetInnerHTML={{
           __html: `
             .skip-link {
-              position: absolute;
-              top: -40px;
-              left: 0;
-              background: #000;
-              color: #fff;
-              padding: 8px 16px;
-              text-decoration: none;
-              z-index: 100;
-              border-radius: 0 0 4px 0;
+              position: absolute; top: -40px; left: 0;
+              background: #000; color: #fff;
+              padding: 8px 16px; text-decoration: none;
+              z-index: 100; border-radius: 0 0 4px 0;
             }
-            .skip-link:focus {
-              top: 0;
-            }
+            .skip-link:focus { top: 0; }
           `
         }} />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col antialiased bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-        {/* Skip to main content link for accessibility */}
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        
+        <a href="#main-content" className="skip-link">Skip to main content</a>
+
         <Suspense fallback={null}>
           <ScrollProgressWrapper />
         </Suspense>
+
         <ErrorBoundary>
           <Navbar />
           <main id="main-content" className="flex-1">{children}</main>
           <Footer />
           <ClientProviders />
         </ErrorBoundary>
+
         <Toaster
           position="top-right"
           toastOptions={{

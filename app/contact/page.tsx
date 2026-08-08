@@ -6,7 +6,7 @@ import BackButton from "@/components/ui/BackButton";
 import Button from "@/components/ui/Button";
 
 const CONTACT_CARDS = [
-  { icon: Mail, title: "Email Us", value: "hello@stayerra.com", sub: "Reply within 24h", color: "from-rose-500 to-pink-600", bg: "bg-rose-50 dark:bg-rose-950/30", href: "mailto:hello@stayerra.com" },
+  { icon: Mail, title: "Email Us", value: "hello@ssthomesolutions.com", sub: "Reply within 24h", color: "from-rose-500 to-pink-600", bg: "bg-rose-50 dark:bg-rose-950/30", href: "mailto:hello@ssthomesolutions.com" },
   { icon: Phone, title: "Call Us", value: "+91 98765 43210", sub: "Mon-Sat 9am-6pm IST", color: "from-blue-500 to-cyan-600", bg: "bg-blue-50 dark:bg-blue-950/30", href: "tel:+919876543210" },
   { icon: MapPin, title: "Visit Us", value: "Prayagraj, UP", sub: "Uttar Pradesh, India", color: "from-green-500 to-emerald-600", bg: "bg-green-50 dark:bg-green-950/30", href: "#" },
   { icon: Clock, title: "Support", value: "24/7 Live Chat", sub: "Always here for you", color: "from-purple-500 to-violet-600", bg: "bg-purple-50 dark:bg-purple-950/30", href: "#" },

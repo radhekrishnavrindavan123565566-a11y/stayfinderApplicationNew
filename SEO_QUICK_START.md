@@ -1,4 +1,4 @@
-# Stayerra SEO Quick Start Guide
+# SST Home Solutions SEO Quick Start Guide
 
 ## 🚀 Getting Started in 30 Minutes
 
@@ -16,7 +16,7 @@ This will check all your SEO configurations and report any issues.
 export const SEO_CONFIG = {
   // ... existing config ...
   contact: {
-    email: 'your-email@stayerra.com',
+    email: 'your-email@ssthomesolutions.com',
     phone: '+91-XXXXXXXXXX', // Your actual phone
   },
   analytics: {
@@ -40,16 +40,16 @@ export const SEO_CONFIG = {
 1. Go to: https://search.google.com/search-console
 2. Click "Add property"
 3. Choose "Domain" option
-4. Enter: `stayerra.com`
+4. Enter: `ssthomesolutions.com`
 5. Choose DNS verification method
 6. Add this TXT record to your domain DNS:
    ```
-   v=spf1 include:_acme-challenge.stayerra.com ~all
+   v=spf1 include:_acme-challenge.ssthomesolutions.com ~all
    ```
 7. Wait for verification (can take up to 48 hours)
 8. Once verified, submit sitemap:
    ```
-   https://stayerra.com/sitemap.xml
+   https://ssthomesolutions.com/sitemap.xml
    ```
 
 ### Step 4: Set Up Google Analytics (5 minutes)
@@ -106,7 +106,7 @@ Update your homepage and key pages with compelling content:
 ### Test Indexing
 ```bash
 # Check if your homepage is indexed
-site:stayerra.com
+site:ssthomesolutions.com
 ```
 Run this in Google Search to see how many pages are indexed.
 

@@ -437,10 +437,10 @@ SEO_FILES_INDEX.md (this file)
 import { generateSEOMetadata } from '@/lib/seo';
 
 export const metadata = generateSEOMetadata({
-  title: 'Page Title | Stayerra',
+  title: 'Page Title | SST Home Solutions',
   description: 'Page description...',
   keywords: ['keyword1', 'keyword2'],
-  canonicalUrl: 'https://stayerra.com/page',
+  canonicalUrl: 'https://ssthomesolutions.com/page',
 });
 ```
 

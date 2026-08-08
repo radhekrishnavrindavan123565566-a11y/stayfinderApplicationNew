@@ -1,59 +1,46 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://stayerra.com';
+const BASE_URL = 'https://ssthomesolutions.com';
 
-// Add your main pages here
-const mainPages = [
-  { path: '', priority: 1.0, changefreq: 'daily' as const },
-  { path: '/about', priority: 0.8, changefreq: 'monthly' as const },
-  { path: '/how-it-works', priority: 0.8, changefreq: 'monthly' as const },
-  { path: '/contact', priority: 0.7, changefreq: 'monthly' as const },
-  { path: '/faq', priority: 0.7, changefreq: 'monthly' as const },
-];
-
-// City pages for better local SEO
 const cities = [
-  'lucknow',
-  'prayagraj',
-  'kanpur',
-  'varanasi',
-  'agra',
-  'meerut',
-  'noida',
-  'greater-noida',
-  'bareilly',
-  'aligarh',
-  'ghaziabad',
-  'gorakhpur',
+  'lucknow', 'prayagraj', 'kanpur', 'varanasi', 'agra',
+  'meerut', 'noida', 'greater-noida', 'bareilly', 'aligarh',
+  'ghaziabad', 'gorakhpur',
 ];
+
+const categories = ['pg', 'rooms', 'flats', 'hostels', 'shared-accommodation'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Main pages
-  const mainSitemap = mainPages.map((page) => ({
-    url: `${BASE_URL}${page.path}`,
-    lastModified: new Date(),
-    changeFrequency: page.changefreq as 'daily' | 'weekly' | 'monthly',
-    priority: page.priority,
-  }));
+  const now = new Date();
 
-  // City pages
-  const citySitemap = cities.map((city) => ({
+  // Core static pages
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: BASE_URL,                           lastModified: now, changeFrequency: 'daily',   priority: 1.0 },
+    { url: `${BASE_URL}/about`,                lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/contact`,              lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/properties`,           lastModified: now, changeFrequency: 'daily',   priority: 0.9 },
+    { url: `${BASE_URL}/how-it-works`,         lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE_URL}/faq`,                  lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE_URL}/blog`,                 lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
+  ];
+
+  // City pages — high priority for local SEO
+  const cityPages: MetadataRoute.Sitemap = cities.map((city) => ({
     url: `${BASE_URL}/city/${city}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: now,
+    changeFrequency: 'daily',
     priority: 0.9,
   }));
 
   // City + category pages
-  const categories = ['pg', 'rooms', 'flats', 'hostels', 'shared-accommodation'];
-  const cityCategorySitemap = cities.flatMap((city) =>
-    categories.map((category) => ({
-      url: `${BASE_URL}/city/${city}/${category}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
+  const cityCategoryPages: MetadataRoute.Sitemap = cities.flatMap((city) =>
+    categories.map((cat) => ({
+      url: `${BASE_URL}/city/${city}/${cat}`,
+      lastModified: now,
+      changeFrequency: 'daily',
       priority: 0.85,
     }))
   );
 
-  return [...mainSitemap, ...citySitemap, ...cityCategorySitemap];
+  return [...staticPages, ...cityPages, ...cityCategoryPages];
 }

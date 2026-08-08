@@ -5,8 +5,8 @@
 export const SEO_CONFIG = {
   // Site information
   site: {
-    name: 'Stayerra',
-    url: 'https://stayerra.com',
+    name: 'SST Home Solutions',
+    url: 'https://ssthomesolutions.com',
     description: 'Find verified PGs, rooms & flats across Uttar Pradesh. No broker fees, instant booking.',
     locale: 'en_IN',
     alternateLocales: ['hi', 'en'],
@@ -15,15 +15,15 @@ export const SEO_CONFIG = {
   // Social media
   social: {
     facebook: 'https://www.facebook.com/stayerra',
-    instagram: 'https://www.instagram.com/stayerra_in',
-    twitter: 'https://twitter.com/stayerra_in',
+    instagram: 'https://www.instagram.com/ssthomesolutions',
+    twitter: 'https://twitter.com/ssthomesolutions',
     linkedin: 'https://www.linkedin.com/company/stayerra',
     youtube: 'https://www.youtube.com/c/stayerra',
   },
 
   // Contact information
   contact: {
-    email: 'support@stayerra.com',
+    email: 'support@ssthomesolutions.com',
     phone: '+91-XXXXXXXXXX',
     address: {
       country: 'India',
@@ -115,7 +115,7 @@ export const SEO_CONFIG = {
   // Structured Data
   structuredData: {
     organization: {
-      name: 'Stayerra',
+      name: 'SST Home Solutions',
       type: 'RealEstateAgent',
       description: 'Find verified PGs, rooms & flats across Uttar Pradesh',
     },
@@ -184,8 +184,8 @@ export const SEO_CONFIG = {
   // Twitter Card defaults
   twitterCard: {
     cardType: 'summary_large_image',
-    creator: '@stayerra_in',
-    site: '@stayerra_in',
+    creator: '@ssthomesolutions',
+    site: '@ssthomesolutions',
   },
 
   // Robots rules

@@ -1,4 +1,4 @@
-# 🚀 Stayerra SEO Cheat Sheet
+# 🚀 SST Home Solutions SEO Cheat Sheet
 
 Quick reference for common SEO tasks.
 
@@ -10,10 +10,10 @@ Quick reference for common SEO tasks.
 import { generateSEOMetadata } from '@/lib/seo';
 
 export const metadata = generateSEOMetadata({
-  title: 'Page Title | Stayerra',
+  title: 'Page Title | SST Home Solutions',
   description: 'Page description (160 chars)',
   keywords: ['keyword1', 'keyword2', 'keyword3'],
-  canonicalUrl: 'https://stayerra.com/your-page',
+  canonicalUrl: 'https://ssthomesolutions.com/your-page',
   ogImage: 'https://example.com/image.jpg',
 });
 
@@ -403,10 +403,10 @@ Week 4:
 ## 💡 Pro Tips
 
 1. **Title Formula**: Primary Keyword + Modifier | Brand
-   - Example: "Best PG in Lucknow | Stayerra"
+   - Example: "Best PG in Lucknow | SST Home Solutions"
 
 2. **Description Formula**: Solution + Benefit + CTA (160 chars)
-   - Example: "Find verified PGs in Lucknow. No broker, instant booking. Browse now on Stayerra."
+   - Example: "Find verified PGs in Lucknow. No broker, instant booking. Browse now on SST Home Solutions."
 
 3. **URL Structure**: `/type/location/specific`
    - Example: `/city/lucknow/pg-for-girls`

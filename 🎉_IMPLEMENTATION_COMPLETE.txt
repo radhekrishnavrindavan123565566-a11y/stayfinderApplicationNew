@@ -291,8 +291,8 @@ Before Deploying:
   ☐ Deploy to production
 
 After Deployment:
-  ☐ Verify sitemap loads: https://stayerra.com/sitemap.xml
-  ☐ Verify robots.txt loads: https://stayerra.com/robots.txt
+  ☐ Verify sitemap loads: https://ssthomesolutions.com/sitemap.xml
+  ☐ Verify robots.txt loads: https://ssthomesolutions.com/robots.txt
   ☐ Set up Google Search Console
   ☐ Set up Google Analytics
   ☐ Submit sitemap to GSC
@@ -309,7 +309,7 @@ This Month:
                          🎉 YOU'RE READY! 🎉
 ═════════════════════════════════════════════════════════════════════════
 
-Your Stayerra website now has everything needed to rank in Google!
+Your SST Home Solutions website now has everything needed to rank in Google!
 
 ✅ Enterprise SEO setup
 ✅ All technical optimizations

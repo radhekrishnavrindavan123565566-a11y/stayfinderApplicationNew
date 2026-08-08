@@ -77,8 +77,8 @@ interface OrganizationStructuredDataProps {
 
 export function OrganizationStructuredData({
   name = 'Stayerra',
-  url = 'https://stayerra.com',
-  logo = 'https://stayerra.com/logo.png',
+  url = 'https://ssthomesolutions.com',
+  logo = 'https://ssthomesolutions.com/logo.png',
 }: OrganizationStructuredDataProps = {}) {
   const structuredData = {
     '@context': 'https://schema.org',
@@ -87,9 +87,9 @@ export function OrganizationStructuredData({
     url,
     logo,
     sameAs: [
-      'https://twitter.com/stayerra_in',
+      'https://twitter.com/ssthomesolutions',
       'https://facebook.com/stayerra',
-      'https://instagram.com/stayerra_in',
+      'https://instagram.com/ssthomesolutions',
     ],
     contactPoint: {
       '@type': 'ContactPoint',

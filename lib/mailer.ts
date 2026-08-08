@@ -22,7 +22,7 @@ function createTransporter() {
 }
 
 const FROM_NAME  = process.env.SMTP_FROM_NAME  || "Stayerra";
-const FROM_EMAIL = process.env.SMTP_USER        || "noreply@stayerra.com";
+const FROM_EMAIL = process.env.SMTP_USER        || "noreply@ssthomesolutions.com";
 
 // ── OTP email ─────────────────────────────────────────────────────────────────
 export async function sendOtpEmail(to: string, otp: string, purpose = "verification"): Promise<void> {

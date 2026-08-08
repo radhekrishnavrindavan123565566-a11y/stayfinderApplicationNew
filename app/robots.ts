@@ -6,21 +6,21 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/*.json$', '/search?', '/?*sort=', '/?*filter='],
-        crawlDelay: 1,
+        disallow: ['/admin/', '/api/', '/dashboard/', '/profile/', '/settings/'],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        crawlDelay: 0,
       },
       {
         userAgent: 'Bingbot',
         allow: '/',
-        crawlDelay: 1,
       },
     ],
-    sitemap: 'https://stayerra.com/sitemap.xml',
-    host: 'https://stayerra.com',
+    sitemap: [
+      'https://ssthomesolutions.com/sitemap.xml',
+      'https://ssthomesolutions.com/sitemap-0.xml',
+    ],
+    host: 'https://ssthomesolutions.com',
   };
 }

@@ -30,10 +30,10 @@ git push origin main
 
 ### Step 3: Verify Deployment
 After deployment completes:
-1. Visit your site: https://stayerra.com
+1. Visit your site: https://ssthomesolutions.com
 2. Check homepage meta tags
-3. Verify sitemap: https://stayerra.com/sitemap.xml
-4. Check robots.txt: https://stayerra.com/robots.txt
+3. Verify sitemap: https://ssthomesolutions.com/sitemap.xml
+4. Check robots.txt: https://ssthomesolutions.com/robots.txt
 
 ---
 
@@ -168,7 +168,7 @@ npm run start            # Production server
 
 ## 🎉 You're Ready!
 
-Your Stayerra website now has enterprise-grade SEO with:
+Your SST Home Solutions website now has enterprise-grade SEO with:
 - ✅ 94% audit score
 - ✅ All technical optimizations
 - ✅ Performance optimizations  

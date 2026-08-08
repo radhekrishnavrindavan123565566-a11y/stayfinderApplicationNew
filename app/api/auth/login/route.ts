@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitizeInput } from "@/lib/sanitize";
 
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || "admin@stayerra.com";
+const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || "admin@ssthomesolutions.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@Stayerra2025";
 
 export async function POST(req: NextRequest) {

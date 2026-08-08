@@ -1,27 +1,22 @@
-# Robots.txt for Stayerra
+# *
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /api/
-Disallow: /*.json$
-Disallow: /search?
-Disallow: /?*sort=
-Disallow: /?*filter=
+Disallow: /admin
+Disallow: /api
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
 
-# Google-specific rules
+# Googlebot
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 0
 
-# Bing-specific rules
+# Bingbot
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 1
 
-# Sitemap
-Sitemap: https://stayerra.com/sitemap.xml
-Sitemap: https://stayerra.com/sitemap-listings.xml
+# Host
+Host: https://ssthomesolutions.com
 
-# Cache settings
-Retry-After: 3600
-Request-rate: 0.5/1m
+# Sitemaps
+Sitemap: https://ssthomesolutions.com/sitemap.xml
