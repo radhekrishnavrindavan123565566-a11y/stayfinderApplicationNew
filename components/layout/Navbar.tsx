@@ -88,21 +88,28 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <motion.div
-              whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-600 to-amber-600 shadow-lg ${
-                !mounted ? "shadow-emerald-500/40" : (scrolled || !isHome ? "shadow-emerald-500/20" : "shadow-emerald-500/40")
-              }`}
+              transition={{ duration: 0.2 }}
+              className="w-10 h-10 rounded-xl overflow-hidden shadow-lg flex-shrink-0"
             >
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
+              <Image
+                src="/logo.png"
+                alt="SST Home Solutions Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-contain"
+                priority
+              />
             </motion.div>
-            <span className={`font-bold text-lg ${!mounted ? "text-white" : (scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white")}`}>
-              Stay<span className="text-amber-600">erra</span>
-            </span>
+            <div className="flex flex-col leading-tight">
+              <span className={`font-bold text-sm ${!mounted ? "text-white" : (scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white")}`}>
+                <span className="text-blue-500">SST</span> Home
+              </span>
+              <span className={`font-bold text-sm -mt-1 ${!mounted ? "text-white" : (scrolled || !isHome ? "text-zinc-900 dark:text-white" : "text-white")}`}>
+                Solutions
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Nav */}

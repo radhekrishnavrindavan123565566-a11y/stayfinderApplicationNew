@@ -163,13 +163,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Bing Webmaster Verification — replace YOUR_BING_KEY after verifying */}
         <meta name="msvalidate.01" content="YOUR_BING_KEY" />
 
-        {/* Google AdSense */}
+        {/* Google AdSense — Auto Ads enabled */}
         <meta name="google-adsense-account" content="ca-pub-6171735174915662" />
         <Script
+          id="adsense-init"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6171735174915662"
           crossOrigin="anonymous"
           strategy="afterInteractive"
+          onLoad={() => {
+            try {
+              // Enable Auto Ads — Google will automatically place ads
+              ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({
+                google_ad_client: 'ca-pub-6171735174915662',
+                enable_page_level_ads: true,
+                overlays: { bottom: true },
+              });
+            } catch (e) {}
+          }}
         />
 
         {/* Google Analytics 4 — replace G-XXXXXXXXXX with your real ID */}

@@ -70,18 +70,24 @@ export default function Footer() {
           {/* Brand */}
           <motion.div variants={fadeUp} className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4 group w-fit">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center shadow-lg">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
+              <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-white shadow-lg">
+                <img
+                  src="/logo.png"
+                  alt="SST Home Solutions Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <span className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors">
-                Stay<span className="text-amber-400">erra</span>
-              </span>
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-sm text-white group-hover:text-blue-400 transition-colors">
+                  <span className="text-blue-400">SST</span> Home
+                </span>
+                <span className="font-bold text-sm text-white group-hover:text-blue-400 transition-colors -mt-0.5">
+                  Solutions
+                </span>
+              </div>
             </Link>
             <p className="text-xs leading-relaxed mb-4 text-zinc-500 max-w-xs">
-              Modern Living, Grounded Search. Verified PGs, rooms &amp; flats.
+              Find verified PGs, rooms &amp; flats across UP. No broker fees, instant booking.
             </p>
             <div className="flex gap-3">
               {SOCIALS.map(({ Icon, label, href }) => (
@@ -90,7 +96,7 @@ export default function Footer() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.12, backgroundColor: "#f43f5e" }}
+                  whileHover={{ scale: 1.12, backgroundColor: "#3b82f6" }}
                   whileTap={{ scale: 0.95 }}
                   className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center cursor-pointer transition-colors text-zinc-400 hover:text-white"
                   aria-label={label}
@@ -155,7 +161,7 @@ export default function Footer() {
           transition={{ delay: 0.3 }}
           className="border-t border-zinc-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-zinc-500"
         >
-          <p suppressHydrationWarning>© {new Date().getFullYear()} Stayerra. All rights reserved.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} SST Home Solutions. All rights reserved.</p>
           <div className="flex gap-4 sm:gap-6">
             <Link href="/terms" className="hover:text-white transition-colors py-1">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors py-1">Terms</Link>
