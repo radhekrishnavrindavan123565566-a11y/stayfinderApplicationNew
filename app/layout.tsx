@@ -158,7 +158,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="alternate" hrefLang="x-default" href={BASE_URL} />
 
         {/* Google Search Console Verification */}
-        <meta name="google-site-verification" content="b8Svk1MJ3qt_svlwYxpBRH1MEFQDCW0xJ83RYihTlzk" />
+        <meta name="google-site-verification" content="x0s-QgWLc7N5HlnN2nIg0Jketvy-qAMhWoZKOOumXv4" />
 
         {/* Bing Webmaster Verification — replace YOUR_BING_KEY after verifying */}
         <meta name="msvalidate.01" content="YOUR_BING_KEY" />
