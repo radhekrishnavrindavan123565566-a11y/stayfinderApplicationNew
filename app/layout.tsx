@@ -9,6 +9,7 @@ import ClientProviders from "@/components/providers/ClientProviders";
 import { Suspense } from "react";
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollProgress from '@/components/ui/ScrollProgress';
+import AdsenseInit from '@/components/ads/AdsenseInit';
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap", preload: true });
 
@@ -171,16 +172,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6171735174915662"
           crossOrigin="anonymous"
           strategy="afterInteractive"
-          onLoad={() => {
-            try {
-              // Enable Auto Ads — Google will automatically place ads
-              ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({
-                google_ad_client: 'ca-pub-6171735174915662',
-                enable_page_level_ads: true,
-                overlays: { bottom: true },
-              });
-            } catch (e) {}
-          }}
         />
 
         {/* Google Analytics 4 — replace G-XXXXXXXXXX with your real ID */}
@@ -246,6 +237,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Suspense>
 
         <ErrorBoundary>
+          <AdsenseInit />
           <Navbar />
           <main id="main-content" className="flex-1">{children}</main>
           <Footer />
