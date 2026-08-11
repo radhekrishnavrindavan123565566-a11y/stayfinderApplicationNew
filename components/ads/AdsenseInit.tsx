@@ -3,21 +3,38 @@
 import { useEffect } from 'react';
 
 /**
- * Client component that initialises Google Auto Ads.
+ * Client component that initializes Google AdSense.
  * Must be a Client Component because it uses useEffect + window.
  * Placed in layout.tsx body — runs once on every page.
  */
 export default function AdsenseInit() {
   useEffect(() => {
-    try {
-      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({
-        google_ad_client: 'ca-pub-6171735174915662',
-        enable_page_level_ads: true,
-        overlays: { bottom: true },
-      });
-    } catch (e) {
-      // Silent — script may not be loaded yet
-    }
+    // Load AdSense script
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6171735174915662';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+
+    // Initialize Auto Ads
+    script.onload = () => {
+      try {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({
+          google_ad_client: 'ca-pub-6171735174915662',
+          enable_page_level_ads: true,
+          overlays: { bottom: true },
+        });
+      } catch (e) {
+        console.log('AdSense not ready yet');
+      }
+    };
+
+    return () => {
+      // Cleanup
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
   }, []);
 
   return null;

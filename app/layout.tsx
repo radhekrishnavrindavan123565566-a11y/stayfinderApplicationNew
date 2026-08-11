@@ -166,13 +166,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Google AdSense — Auto Ads enabled */}
         <meta name="google-adsense-account" content="ca-pub-6171735174915662" />
-        <Script
-          id="adsense-init"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6171735174915662"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
 
         {/* Google Analytics 4 — replace G-XXXXXXXXXX with your real ID */}
         <Script
