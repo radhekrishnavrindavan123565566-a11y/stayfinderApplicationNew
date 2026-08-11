@@ -21,6 +21,7 @@ import axios from "axios";
 import LiveActivityTicker from "@/components/home/LiveActivityTicker";
 import RecentlyViewed from "@/components/home/RecentlyViewed";
 import OwnerCTAStrip from "@/components/home/OwnerCTAStrip";
+import { BannerAd, RectangleAd, InArticleAd } from "@/components/ads/GoogleAd";
 
 /* ─── data ──────────────────────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -326,6 +327,11 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ══ TOP BANNER AD ═════════════════════════════════════════════════ */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <BannerAd slot="1234567890" className="w-full" />
+      </div>
+
       {/* ══ CATEGORIES — 3-D tilt ═════════════════════════════════════════ */}
       <section className="py-20 px-4 max-w-7xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
@@ -472,6 +478,9 @@ export default function HomePage() {
 
       <RecommendationsSection />
       <RecentlyViewed />
+
+      {/* ══ IN-CONTENT AD ════════════════════════════════════════════════ */}
+      <InArticleAd slot="9876543210" />
 
       {/* ══ WHY US — 3-D feature cards ═══════════════════════════════════ */}
       <section className="py-24 relative overflow-hidden bg-zinc-50 dark:bg-zinc-900/50">
