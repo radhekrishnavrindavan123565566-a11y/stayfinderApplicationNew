@@ -142,7 +142,7 @@ const RentReceipt: React.FC<RentReceiptProps> = ({ payment }) => {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Stayerra</Text>
+          <Text style={styles.title}>SST Home Solutions</Text>
           <Text style={styles.subtitle}>Rent Payment Receipt</Text>
           <Text style={styles.receiptNo}>Receipt No: {payment._id.slice(-8).toUpperCase()}</Text>
         </View>

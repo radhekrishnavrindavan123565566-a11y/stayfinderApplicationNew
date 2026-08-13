@@ -78,7 +78,7 @@ export default function DailyEngagementDashboard() {
   useEffect(() => {
     if (!ready || !authUser) return;
     
-    const hasSeenTour = localStorage.getItem("stayerra-daily-tour-completed");
+    const hasSeenTour = localStorage.getItem("sst-home-solutions-daily-tour-completed");
     if (!hasSeenTour) {
       // Show tour after a short delay to let the page render
       const timer = setTimeout(() => setShowTour(true), 1000);
@@ -135,7 +135,7 @@ export default function DailyEngagementDashboard() {
   ];
 
   const handleTourComplete = () => {
-    localStorage.setItem("stayerra-daily-tour-completed", "true");
+    localStorage.setItem("sst-home-solutions-daily-tour-completed", "true");
     setShowTour(false);
   };
 

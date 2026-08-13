@@ -21,7 +21,7 @@ function createTransporter() {
   });
 }
 
-const FROM_NAME  = process.env.SMTP_FROM_NAME  || "Stayerra";
+const FROM_NAME  = process.env.SMTP_FROM_NAME  || "SST Home Solutions";
 const FROM_EMAIL = process.env.SMTP_USER        || "noreply@ssthomesolutions.com";
 
 // ── OTP email ─────────────────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Stayerra OTP</title>
+  <title>Your SST Home Solutions OTP</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
@@ -44,7 +44,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#059669,#d97706);padding:32px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:-0.5px;">Stayerra</h1>
+              <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:-0.5px;">SST Home Solutions</h1>
               <p style="margin:6px 0 0;color:rgba(255,255,255,0.85);font-size:13px;">Modern Living, Grounded Search</p>
             </td>
           </tr>
@@ -71,7 +71,7 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
           <tr>
             <td style="background:#f9fafb;padding:20px 40px;border-top:1px solid #f4f4f5;text-align:center;">
               <p style="margin:0;color:#a1a1aa;font-size:12px;">
-                © ${new Date().getFullYear()} Stayerra · Uttar Pradesh, India
+                © ${new Date().getFullYear()} SST Home Solutions · Uttar Pradesh, India
               </p>
             </td>
           </tr>
@@ -90,9 +90,9 @@ export async function sendOtpEmail(to: string, otp: string, purpose = "verificat
   await transporter.sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to,
-    subject: `${otp} is your Stayerra verification code`,
+    subject: `${otp} is your SST Home Solutions verification code`,
     html,
-    text: `Your Stayerra OTP is: ${otp}\n\nValid for 10 minutes. Do not share with anyone.`,
+    text: `Your SST Home Solutions OTP is: ${otp}\n\nValid for 10 minutes. Do not share with anyone.`,
   });
 
   logger.info('[Mailer] OTP email sent', { to });

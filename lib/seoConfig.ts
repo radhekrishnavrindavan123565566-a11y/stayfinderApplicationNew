@@ -14,11 +14,11 @@ export const SEO_CONFIG = {
 
   // Social media
   social: {
-    facebook: 'https://www.facebook.com/stayerra',
+    facebook: 'https://www.facebook.com/ssthomesolutions',
     instagram: 'https://www.instagram.com/ssthomesolutions',
     twitter: 'https://twitter.com/ssthomesolutions',
-    linkedin: 'https://www.linkedin.com/company/stayerra',
-    youtube: 'https://www.youtube.com/c/stayerra',
+    linkedin: 'https://www.linkedin.com/company/ssthomesolutions',
+    youtube: 'https://www.youtube.com/c/ssthomesolutions',
   },
 
   // Contact information

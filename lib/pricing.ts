@@ -1,5 +1,5 @@
 /**
- * Stayerra — Platform Pricing & Revenue Config
+ * SST Home Solutions — Platform Pricing & Revenue Config
  * Aap yahan se saari fees ek jagah manage kar sakte ho
  */
 

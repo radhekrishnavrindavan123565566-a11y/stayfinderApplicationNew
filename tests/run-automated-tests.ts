@@ -47,7 +47,7 @@ async function checkServerRunning(): Promise<boolean> {
 
 async function main() {
   log("\n" + "=".repeat(70), COLORS.cyan);
-  log("🚀 STAYERRA - AUTOMATED TEST SUITE", COLORS.bright + COLORS.cyan);
+  log("🚀 SST HOME SOLUTIONS - AUTOMATED TEST SUITE", COLORS.bright + COLORS.cyan);
   log("=".repeat(70) + "\n", COLORS.cyan);
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:8080";

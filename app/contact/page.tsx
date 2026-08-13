@@ -14,7 +14,7 @@ const CONTACT_CARDS = [
 
 const FAQS = [
   { q: "How do I list my property?", a: "Sign up as an owner, go to your dashboard, and click 'Add New Property'. It takes less than 5 minutes." },
-  { q: "Is Stayerra free to use?", a: "Browsing and booking is free for tenants. Owners pay a small platform fee only when a booking is confirmed." },
+  { q: "Is SST Home Solutions free to use?", a: "Browsing and booking is free for tenants. Owners pay a small platform fee only when a booking is confirmed." },
   { q: "How do I get a refund?", a: "Refunds depend on the property's cancellation policy. Contact us within 48 hours of your booking for assistance." },
   { q: "How are properties verified?", a: "Our team manually reviews every listing for accuracy, quality photos, and owner identity before it goes live." },
   { q: "Can I cancel a booking?", a: "Yes. Cancellation options depend on the policy set by the owner - flexible, moderate, or strict." },

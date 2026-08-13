@@ -76,7 +76,7 @@ interface OrganizationStructuredDataProps {
 }
 
 export function OrganizationStructuredData({
-  name = 'Stayerra',
+  name = 'SST Home Solutions',
   url = 'https://ssthomesolutions.com',
   logo = 'https://ssthomesolutions.com/logo.png',
 }: OrganizationStructuredDataProps = {}) {
@@ -88,7 +88,7 @@ export function OrganizationStructuredData({
     logo,
     sameAs: [
       'https://twitter.com/ssthomesolutions',
-      'https://facebook.com/stayerra',
+      'https://facebook.com/ssthomesolutions',
       'https://instagram.com/ssthomesolutions',
     ],
     contactPoint: {

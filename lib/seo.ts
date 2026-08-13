@@ -23,7 +23,7 @@ export interface SEOProps {
  */
 export function generateSEOMetadata(props: SEOProps): Metadata {
   const {
-    title = 'Stayerra – Best PG, Rooms & Flats in UP',
+    title = 'SST Home Solutions – Best PG, Rooms & Flats in UP',
     description = 'Find verified PGs, rooms & flats across Uttar Pradesh. Best rental solutions with instant booking.',
     keywords = [],
     ogImage = DEFAULT_OG_IMAGE,
@@ -108,10 +108,10 @@ export const organizationSchema = generateJSONLD('Organization', {
   url: BASE_URL,
   logo: `${BASE_URL}/logo.png`,
   sameAs: [
-    'https://www.facebook.com/stayerra',
+    'https://www.facebook.com/ssthomesolutions',
     'https://www.instagram.com/ssthomesolutions',
     'https://www.twitter.com/ssthomesolutions',
-    'https://www.linkedin.com/company/stayerra',
+    'https://www.linkedin.com/company/ssthomesolutions',
   ],
   contactPoint: {
     '@type': 'ContactPoint',
@@ -129,7 +129,7 @@ export const organizationSchema = generateJSONLD('Organization', {
  */
 export function generateLocalBusinessSchema(city: string, postcode?: string) {
   return generateJSONLD('LocalBusiness', {
-    name: `Stayerra - ${city}`,
+    name: `SST Home Solutions - ${city}`,
     description: `Find PGs, rooms & flats in ${city}`,
     url: `${BASE_URL}/city/${city.toLowerCase().replace(/\s+/g, '-')}`,
     telephone: '+91-XXXXXXXXXX',

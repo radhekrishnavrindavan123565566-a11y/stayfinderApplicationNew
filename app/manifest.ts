@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Stayerra - Modern Living, Grounded Search',
-    short_name: 'Stayerra',
+    name: 'SST Home Solutions - Modern Living, Grounded Search',
+    short_name: 'SST Home Solutions',
     description: 'Find verified PGs, rooms & flats across Uttar Pradesh',
     start_url: '/',
     display: 'standalone',

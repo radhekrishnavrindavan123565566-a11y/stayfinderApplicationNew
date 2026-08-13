@@ -171,7 +171,7 @@ function generateAgoraToken(channelName: string, uid: number): string {
 async function createAgoraMeeting(config: VideoCallConfig): Promise<VideoRoom> {
   try {
     const appId = process.env.AGORA_APP_ID!;
-    const channelName = `stayerra-${Date.now()}`;
+    const channelName = `sst-home-solutions-${Date.now()}`;
     const uid = Math.floor(Math.random() * 32767) + 1;
 
     const token = generateAgoraToken(channelName, uid);
@@ -205,7 +205,7 @@ async function createAgoraMeeting(config: VideoCallConfig): Promise<VideoRoom> {
 async function createDailyMeeting(config: VideoCallConfig): Promise<VideoRoom> {
   try {
     const apiKey = process.env.DAILY_API_KEY!;
-    const roomName = `stayerra-${Date.now()}`;
+    const roomName = `sst-home-solutions-${Date.now()}`;
 
     const response = await axios.post(
       "https://api.daily.co/v1/rooms",
