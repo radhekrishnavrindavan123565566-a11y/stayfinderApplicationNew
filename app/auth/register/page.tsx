@@ -209,7 +209,7 @@ function RegisterForm() {
                   <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
               </div>
-              <span className="text-2xl font-bold group-hover:text-amber-200 transition-colors">Stay<span className="text-amber-400">erra</span></span>
+              <span className="text-2xl font-bold group-hover:text-amber-200 transition-colors">SST<span className="text-amber-400">Home Solutions</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Join us today</h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-10 max-w-sm">
@@ -257,7 +257,7 @@ function RegisterForm() {
                 <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </div>
-            <span className="font-bold text-zinc-900 dark:text-white">Stay<span className="text-amber-600">erra</span></span>
+            <span className="font-bold text-zinc-900 dark:text-white">SST<span className="text-amber-600">Home Solutions</span></span>
           </div>
 
           {/* Mobile step bar */}

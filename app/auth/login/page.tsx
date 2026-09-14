@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
 import { useAuthStore } from "@/store/authStore";
 import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Shield, Zap, Clock, CreditCard } from "lucide-react";
-import Image from "next/image";
 import Button from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -162,7 +161,7 @@ function LoginForm() {
                   <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
               </motion.div>
-              <span className="text-2xl font-bold group-hover:text-amber-200 transition-colors">Stay<span className="text-amber-300">erra</span></span>
+              <span className="text-2xl font-bold group-hover:text-amber-200 transition-colors">SST <span className="text-amber-300">Home Solutions</span></span>
             </Link>
             <h2 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">Welcome back!</h2>
             <p className="text-white/80 text-lg leading-relaxed mb-10 max-w-sm">
@@ -170,7 +169,7 @@ function LoginForm() {
             </p>
             <div className="space-y-3">
               {FEATURES.map((item, i) => {
-                const Icon = item.icon;
+                const Icon = item.icon; 
                 return (
                   <motion.div
                     key={item.text}
@@ -229,7 +228,7 @@ function LoginForm() {
                 <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </motion.div>
-            <span className="font-bold text-zinc-900 dark:text-white">Stay<span className="text-amber-600">erra</span></span>
+            <span className="font-bold text-zinc-900 dark:text-white">SST <span className="text-amber-600">Home Solutions</span></span>
           </Link>
         </div>
 
