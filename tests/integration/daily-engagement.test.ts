@@ -69,8 +69,6 @@ async function login(email: string, password: string): Promise<string> {
 
 // Setup authenticated clients
 beforeAll(async () => {
-  console.log("\n🔐 Authenticating all users...\n");
-
   // Login all users
   ctx.ownerToken = await login(CREDENTIALS.owner.email, CREDENTIALS.owner.password);
   ctx.tenantToken = await login(CREDENTIALS.tenant.email, CREDENTIALS.tenant.password);
@@ -80,8 +78,6 @@ beforeAll(async () => {
   ctx.ownerClient.defaults.headers.common["Authorization"] = `Bearer ${ctx.ownerToken}`;
   ctx.tenantClient.defaults.headers.common["Authorization"] = `Bearer ${ctx.tenantToken}`;
   ctx.adminClient.defaults.headers.common["Authorization"] = `Bearer ${ctx.adminToken}`;
-
-  console.log("✅ All users authenticated successfully\n");
 });
 
 describe("🏠 Daily Engagement Features - Automated Testing", () => {

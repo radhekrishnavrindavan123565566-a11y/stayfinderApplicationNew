@@ -36,10 +36,6 @@ const seedData = async () => {
   ];
 
   await Property.insertMany(properties);
-  console.log(`✅ Seeded: 3 users, ${properties.length} properties`);
-  console.log("Admin: admin@stayfinder.com / admin123");
-  console.log("Owner: owner@stayfinder.com / owner123");
-  console.log("Tenant: tenant@stayfinder.com / tenant123");
   await mongoose.disconnect();
 };
 
