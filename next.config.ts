@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Headers for security (cache headers moved to proxy.ts)
+  // Headers for security and cache control
   async headers() {
     return [
       {
@@ -46,6 +46,31 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Referrer-Policy", value: "origin-when-cross-origin" },
+          // Cache busting: force revalidation for HTML pages
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      // API routes: no caching
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
+        ],
+      },
+      // Static assets: long-term caching
+      {
+        source: "/(_next/static|public)/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      // Images: moderate caching with revalidation
+      {
+        source: "/:path*\\.(gif|jpe?g|png|webp|svg)$",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, revalidate" },
         ],
       },
     ];

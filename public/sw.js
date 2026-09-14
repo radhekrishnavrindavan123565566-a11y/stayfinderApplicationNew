@@ -1,4 +1,6 @@
-const CACHE_NAME = "sst-home-solutions-v1";
+// Use timestamp-based versioning for automatic cache busting
+const CACHE_VERSION = "v" + Math.floor(Date.now() / 3600000); // Update every hour
+const CACHE_NAME = "sst-home-solutions-" + CACHE_VERSION;
 const STATIC_ASSETS = [
   "/",
   "/properties",
@@ -14,44 +16,82 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate — clean old caches
+// Activate — clean old caches (keep last 3 versions)
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys().then((keys) => {
+      const cacheKeysToDelete = keys.filter(
+        (k) => k.startsWith("sst-home-solutions-") && !k.includes(CACHE_VERSION)
+      );
+      return Promise.all(cacheKeysToDelete.map((k) => caches.delete(k)));
+    })
   );
   self.clients.claim();
 });
 
-// Fetch — network first, fallback to cache
+// Fetch — network first strategy with version checking
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET, API routes, cross-origin, and chrome-extension requests
+  // Skip non-GET, cross-origin, and chrome-extension requests
   if (
     request.method !== "GET" ||
-    url.pathname.startsWith("/api/") ||
     url.origin !== self.location.origin ||
     url.protocol === "chrome-extension:"
   ) return;
 
+  // API routes: always network first, no caching
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" })
+        .then((response) => {
+          // Don't cache API responses
+          return response;
+        })
+        .catch(() => new Response("Offline", { status: 503 }))
+    );
+    return;
+  }
+
+  // For HTML pages: network first with fallback
+  if (url.pathname.endsWith(".html") || url.pathname === "/" || !url.pathname.includes(".")) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" })
+        .then((response) => {
+          if (response.ok) {
+            // Update cache with fresh version
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
+    );
+    return;
+  }
+
+  // For static assets (_next/static, etc.): cache first with network fallback
+  if (url.pathname.startsWith("/_next/static/") || STATIC_ASSETS.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(request)
+        .then((cached) => cached || fetch(request))
+        .catch(() => caches.match("/"))
+    );
+    return;
+  }
+
+  // Default: network first
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok && (
-          url.pathname.startsWith("/_next/static/") ||
-          STATIC_ASSETS.includes(url.pathname)
-        )) {
+        if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
       })
-      .catch(() =>
-        caches.match(request).then((cached) => cached || caches.match("/"))
-      )
+      .catch(() => caches.match(request))
   );
 });
 

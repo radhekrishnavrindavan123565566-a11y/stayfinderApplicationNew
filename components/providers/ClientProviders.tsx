@@ -10,6 +10,7 @@ const SocketProvider = dynamic(() => import("@/components/providers/SocketProvid
 const PWAProvider    = dynamic(() => import("@/components/providers/PWAProvider"),     { ssr: false });
 const FeedbackButton = dynamic(() => import("@/components/feedback/FeedbackButton"),   { ssr: false });
 const AdSenseScript  = dynamic(() => import("@/components/ads/AdSenseScript"),         { ssr: false });
+const CacheBuster    = dynamic(() => import("@/components/providers/CacheBuster"),     { ssr: false });
 
 export default function ClientProviders() {
   return (
@@ -21,6 +22,7 @@ export default function ClientProviders() {
       <PWAProvider />
       <FeedbackButton />
       <AdSenseScript />
+      <CacheBuster />
     </>
   );
 }
