@@ -46,9 +46,10 @@ async function sendSms(phone: string, otp: string): Promise<void> {
     return;
   }
 
-  // No SMS provider — log OTP to console (dev only)
-  console.log(`[PHONE OTP DEV] ${phone}: ${otp}`);
+  // No SMS provider — OTP logged for development purposes (commented for production)
+  // console.log(`[PHONE OTP DEV] ${phone}: ${otp}`);
 }
+
 
 // POST — send OTP
 export async function POST(req: NextRequest) {

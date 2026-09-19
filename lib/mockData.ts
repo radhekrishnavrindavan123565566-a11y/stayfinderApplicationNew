@@ -152,6 +152,18 @@ export const mockInquiries = [
 
 export const mockUsers = [
   {
+    _id: 'admin1',
+    username: 'admin',
+    email: 'admin@ssthomesolutions.com',
+    phone: '9999999999',
+    registrationDate: new Date(),
+    fraudRiskLevel: 'none',
+    isActive: true,
+    lastActivity: new Date(),
+    trustBadges: ['admin'],
+    role: 'admin',
+  },
+  {
     _id: 'owner1',
     username: 'rajesh_kumar',
     email: 'rajesh@example.com',

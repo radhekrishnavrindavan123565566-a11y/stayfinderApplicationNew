@@ -199,7 +199,6 @@ export async function GET(req: NextRequest) {
       }
     } catch (e) { results.weeklyReport = { error: String(e) }; }
 
-    console.log("[CRON run-all]", JSON.stringify(results));
     return successResponse({ ran: new Date().toISOString(), results });
   } catch (error) {
     return handleApiError(error);

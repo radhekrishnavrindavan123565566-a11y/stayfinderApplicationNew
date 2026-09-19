@@ -18,8 +18,6 @@ export default function EnhancedPropertiesPage() {
 
   const handleApplyFilters = (newFilters: any) => {
     setFilters(newFilters);
-    // Apply filters to property search
-    console.log("Applying filters:", newFilters);
   };
 
   return (

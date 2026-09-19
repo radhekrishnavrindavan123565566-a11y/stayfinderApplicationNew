@@ -217,7 +217,6 @@ export default function ChatPage() {
                     convo={c}
                     isActive={c.conversationId === activeConversationId}
                     onClick={() => {
-                      console.log("Conversation clicked:", c.conversationId);
                       setActiveConversation(c.conversationId);
                       setSidebarOpen(false);
                     }}

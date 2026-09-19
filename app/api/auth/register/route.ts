@@ -7,6 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/apiRespons
 import bcrypt from "bcryptjs";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitizeInput } from "@/lib/sanitize";
+import { verifyAccessToken } from "@/lib/jwt";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +19,22 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
     const body = await req.json();
+    
+    // Check if request is from admin (by verifying the Authorization header)
+    const authHeader = req.headers.get('Authorization');
+    let isAdminCreated = false;
+    
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const payload = verifyAccessToken(token) as any;
+        // If the token is valid and role is admin, this is an admin-created user
+        isAdminCreated = payload?.role === 'admin';
+      } catch (err) {
+        // Token verification failed, treat as regular registration
+        isAdminCreated = false;
+      }
+    }
     
     // Sanitize input
     const sanitized = sanitizeInput(body);
@@ -36,7 +53,8 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       role,
       phone: body.phone || "",
-      phoneVerified: body.phoneVerified === true,
+      // Skip OTP verification if admin-created user (mark as phoneVerified = true)
+      phoneVerified: isAdminCreated ? true : false,
     });
     const payload = { userId: user._id.toString(), email: user.email, role: user.role };
     const accessToken = signAccessToken(payload);
@@ -45,7 +63,12 @@ export async function POST(req: NextRequest) {
     // Use updateOne to avoid triggering any pre-save hooks
     await User.updateOne({ _id: user._id }, { $set: { refreshToken } });
 
-    const response = successResponse({ user, accessToken, refreshToken }, 201);
+    const response = successResponse({ 
+      user, 
+      accessToken, 
+      refreshToken, 
+      message: isAdminCreated ? "User created by admin (no OTP required)" : "User registered successfully" 
+    }, 201);
     response.cookies.set("accessToken", accessToken, { 
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production',

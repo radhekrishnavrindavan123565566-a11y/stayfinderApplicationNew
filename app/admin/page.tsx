@@ -61,27 +61,40 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (!ready || !authUser) return;
-    loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, authUser]);
+    const timer = setTimeout(() => {
+      loadData();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const loadData = async () => {
     try {
       const [statsRes, usersRes, disputesRes] = await Promise.all([
         axios.get("/api/admin/stats", authHeaders()),
-        axios.get("/api/admin/users", authHeaders()),
+        axios.get("/api/admin/users?page=1&limit=1000", authHeaders()),
         axios.get("/api/disputes", authHeaders()),
       ]);
-      setStats(statsRes.data.data);
-      const allUsers = usersRes.data.data.users;
+      
+      setStats(statsRes.data || statsRes.data?.data || {});
+      
+      let allUsers = [];
+      if (usersRes?.data?.users) {
+        allUsers = usersRes.data.users;
+      } else if (usersRes?.data?.data?.users) {
+        allUsers = usersRes.data.data.users;
+      } else if (Array.isArray(usersRes?.data)) {
+        allUsers = usersRes.data;
+      }
+      
       setUsers(allUsers);
+      
       setPendingVerifications(
-        allUsers.filter((u: { role: string; ownerVerified: boolean; verificationDoc?: string }) =>
+        allUsers.filter((u: { role: string; ownerVerified?: boolean; verificationDoc?: string }) =>
           u.role === "owner" && !u.ownerVerified && u.verificationDoc
         )
       );
-      setDisputes(disputesRes.data.data?.disputes || []);
+      
+      setDisputes((disputesRes?.data?.disputes) || (disputesRes?.data?.data?.disputes) || []);
     } finally {
       setLoading(false);
     }

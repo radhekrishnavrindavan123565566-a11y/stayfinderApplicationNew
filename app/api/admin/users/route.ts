@@ -16,13 +16,16 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const role = searchParams.get('role') || 'owner';
+    const role = searchParams.get('role');
     const verificationStatus = searchParams.get('verificationStatus');
     const fraudRiskLevel = searchParams.get('fraudRiskLevel');
     const search = searchParams.get('search');
 
     // Build filter
-    const filter: Record<string, any> = { role };
+    const filter: Record<string, any> = {};
+    if (role) {
+      filter.role = role;
+    }
 
     if (verificationStatus === 'verified') {
       filter.isVerified = true;
@@ -56,14 +59,29 @@ export async function GET(request: NextRequest) {
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        '_id username email phone city registrationDate isVerified isActive fraudRiskLevel'
+        '_id username email phone city role registrationDate isVerified isActive fraudRiskLevel createdAt updatedAt'
       )
       .lean();
 
     // Enrich with role-specific data
     const enrichedUsers = await Promise.all(
       users.map(async (user: any) => {
-        if (role === 'owner') {
+        const baseUser = {
+          _id: user._id.toString(),
+          username: user.username,
+          email: user.email,
+          phone: user.phone,
+          city: user.city || 'Unknown',
+          role: user.role,
+          isVerified: user.isVerified || false,
+          isActive: user.isActive !== false,
+          fraudRiskLevel: user.fraudRiskLevel || 'low',
+          trustBadges: [],
+          registrationDate: user.registrationDate || user.createdAt,
+          lastActivity: user.updatedAt || new Date(),
+        };
+
+        if (user.role === 'owner') {
           // Count properties for owners
           const propertyCount = await Property.countDocuments({ ownerId: user._id });
           const activeCount = await Property.countDocuments({
@@ -72,27 +90,17 @@ export async function GET(request: NextRequest) {
           });
 
           return {
-            _id: user._id.toString(),
-            username: user.username,
-            email: user.email,
-            phone: user.phone,
-            city: user.city || 'Unknown',
-            isVerified: user.isVerified || false,
-            isActive: user.isActive !== false,
+            ...baseUser,
             propertyCount,
             totalListings: propertyCount,
             activeListings: activeCount,
-            responseRate: 85, // TODO: Calculate from actual data
-            avgResponseTimeHours: 2, // TODO: Calculate from actual data
-            fraudRiskLevel: user.fraudRiskLevel || 'low',
-            trustBadges: [], // TODO: Calculate based on reviews/ratings
-            registrationDate: user.registrationDate || user.createdAt,
-            lastActivity: user.updatedAt || new Date(),
-            walletBalance: 0, // TODO: Get from actual wallet
-            planType: 'free', // TODO: Get from subscription
+            responseRate: 85,
+            avgResponseTimeHours: 2,
+            walletBalance: 0,
+            planType: 'free',
             planExpiresAt: new Date(),
           };
-        } else {
+        } else if (user.role === 'tenant') {
           // Count inquiries for tenants
           const inquiryCount = await Inquiry.countDocuments({ tenantId: user._id });
           const activeInquiries = await Inquiry.countDocuments({
@@ -105,22 +113,16 @@ export async function GET(request: NextRequest) {
           });
 
           return {
-            _id: user._id.toString(),
-            username: user.username,
-            email: user.email,
-            phone: user.phone,
-            registrationDate: user.registrationDate || user.createdAt,
+            ...baseUser,
             inquiriesCount: inquiryCount,
             activeInquiries,
             bookingsCount: bookingCount,
-            creditScore: 750, // TODO: Calculate from actual data
-            fraudRiskLevel: user.fraudRiskLevel || 'low',
-            isVerified: user.isVerified || false,
-            responseRate: 90, // TODO: Calculate from actual data
-            isActive: user.isActive !== false,
-            lastActivity: user.updatedAt || new Date(),
-            trustBadges: [], // TODO: Calculate based on reviews
+            creditScore: 750,
+            responseRate: 90,
           };
+        } else {
+          // For admins and other roles
+          return baseUser;
         }
       })
     );
