@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ClientProviders from "@/components/providers/ClientProviders";
@@ -10,6 +9,7 @@ import { Suspense } from "react";
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ScrollProgress from '@/components/ui/ScrollProgress';
 import AdsenseInit from '@/components/ads/AdsenseInit';
+import ToasterProvider from '@/components/providers/ToasterProvider';
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap", preload: true });
 
@@ -235,15 +235,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main-content" className="flex-1">{children}</main>
           <Footer />
           <ClientProviders />
+          <ToasterProvider />
         </ErrorBoundary>
-
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: { borderRadius: "12px", background: "#1a1a1a", color: "#fff", fontSize: "14px" },
-            success: { iconTheme: { primary: "#f43f5e", secondary: "#fff" } },
-          }}
-        />
       </body>
     </html>
   );

@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
  * />
  */
 export function useReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean | null>(null);
 
   useEffect(() => {
     // Check if window is defined (SSR safety)
@@ -41,5 +41,6 @@ export function useReducedMotion(): boolean {
     return () => mediaQuery.removeListener(handleChange);
   }, []);
 
-  return prefersReducedMotion;
+  // Return false on server/initial render, true value on client after hydration
+  return prefersReducedMotion ?? false;
 }
