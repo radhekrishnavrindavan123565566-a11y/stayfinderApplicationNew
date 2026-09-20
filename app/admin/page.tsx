@@ -75,26 +75,48 @@ export default function AdminPage() {
         axios.get("/api/disputes", authHeaders()),
       ]);
       
-      setStats(statsRes.data || statsRes.data?.data || {});
+      // Handle stats (returns data directly, no success wrapper)
+      const rawStats = statsRes?.data || {};
+      const transformedStats = {
+        totalUsers: (rawStats.users?.totalTenants || 0) + (rawStats.users?.totalOwners || 0),
+        ownerCount: rawStats.users?.totalOwners || 0,
+        tenantCount: rawStats.users?.totalTenants || 0,
+        totalProperties: rawStats.properties?.total || 0,
+        totalBookings: (rawStats.bookings?.confirmed || 0) + (rawStats.bookings?.ongoing || 0) + (rawStats.bookings?.completed || 0),
+        revenue: rawStats.revenue?.totalRevenue || 0,
+        platformRevenue: 0,
+        boostedProperties: 0,
+        recentBookings: rawStats.recentActivity || [],
+      };
+      setStats(transformedStats);
       
+      // Handle users (returns data directly, no success wrapper)
       let allUsers = [];
-      if (usersRes?.data?.users) {
+      if (usersRes?.data?.users && Array.isArray(usersRes.data.users)) {
         allUsers = usersRes.data.users;
-      } else if (usersRes?.data?.data?.users) {
+      } else if (usersRes?.data?.data?.users && Array.isArray(usersRes.data.data.users)) {
         allUsers = usersRes.data.data.users;
-      } else if (Array.isArray(usersRes?.data)) {
-        allUsers = usersRes.data;
       }
-      
-      setUsers(allUsers);
+      setUsers(allUsers || []);
       
       setPendingVerifications(
-        allUsers.filter((u: { role: string; ownerVerified?: boolean; verificationDoc?: string }) =>
+        (allUsers || []).filter((u: { role: string; ownerVerified?: boolean; verificationDoc?: string }) =>
           u.role === "owner" && !u.ownerVerified && u.verificationDoc
         )
       );
       
-      setDisputes((disputesRes?.data?.disputes) || (disputesRes?.data?.data?.disputes) || []);
+      // Handle disputes (returns with successResponse wrapper: { success: true, data: { disputes: [] } })
+      let disputes = [];
+      if (disputesRes?.data?.data?.disputes && Array.isArray(disputesRes.data.data.disputes)) {
+        disputes = disputesRes.data.data.disputes;
+      } else if (disputesRes?.data?.disputes && Array.isArray(disputesRes.data.disputes)) {
+        disputes = disputesRes.data.disputes;
+      }
+      setDisputes(disputes || []);
+    } catch (error) {
+      setUsers([]);
+      setDisputes([]);
+      setStats({});
     } finally {
       setLoading(false);
     }
