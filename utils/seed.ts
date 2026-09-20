@@ -10,7 +10,6 @@ const MONGODB_URI = process.env.MONGODB_URI || "";
 
 const seedData = async () => {
   await mongoose.connect(MONGODB_URI);
-  console.log("Connected to MongoDB");
 
   // Dynamic imports to avoid module issues
   const User = (await import("../models/User")).default;

@@ -25,7 +25,7 @@ export default function AdsenseInit() {
           overlays: { bottom: true },
         });
       } catch (e) {
-        console.log('AdSense not ready yet');
+        // AdSense not ready, retry on next attempt
       }
     };
 

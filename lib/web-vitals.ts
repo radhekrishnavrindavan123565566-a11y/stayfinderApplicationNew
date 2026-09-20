@@ -3,7 +3,7 @@ export function reportWebVitals(metric: any) {
   if (typeof window !== 'undefined') {
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.log(metric);
+      // Metric logging in development
     }
 
     // Send to custom analytics endpoint

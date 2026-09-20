@@ -24,6 +24,4 @@ export async function initializeIntegrations(): Promise<void> {
 
   // Initialize error monitoring first to catch any initialization errors
   initializeSentryMonitoring();
-
-  console.log("[Integrations] All services initialized");
 }

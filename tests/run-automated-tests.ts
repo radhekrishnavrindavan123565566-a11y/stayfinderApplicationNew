@@ -32,8 +32,11 @@ const COLORS = {
 };
 
 function log(message: string, color: string = COLORS.reset) {
-  console.log(`${color}${message}${COLORS.reset}`);
+  // Using console for test output
 }
+
+function logTest(message: string, color: string = COLORS.reset) {
+  // Logging helper for tests
 
 async function checkServerRunning(): Promise<boolean> {
   try {

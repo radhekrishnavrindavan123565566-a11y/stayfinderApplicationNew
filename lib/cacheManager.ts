@@ -13,19 +13,16 @@ export const cacheManager = {
       if ("caches" in window) {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map((name) => caches.delete(name)));
-        console.log("Service worker caches cleared");
       }
 
       // Clear browser storage
       localStorage.clear();
       sessionStorage.clear();
-      console.log("Browser storage cleared");
 
       // Unregister service workers if desired
       if ("serviceWorker" in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
         await Promise.all(registrations.map((reg) => reg.unregister()));
-        console.log("Service workers unregistered");
       }
 
       return { success: true, message: "All caches cleared successfully" };
@@ -43,7 +40,6 @@ export const cacheManager = {
       if ("caches" in window) {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map((name) => caches.delete(name)));
-        console.log("Service worker caches cleared");
       }
       return { success: true, message: "Service worker caches cleared" };
     } catch (error) {
@@ -59,7 +55,6 @@ export const cacheManager = {
     try {
       localStorage.clear();
       sessionStorage.clear();
-      console.log("Browser storage cleared");
       return { success: true, message: "Browser storage cleared" };
     } catch (error) {
       console.error("Error clearing browser storage:", error);

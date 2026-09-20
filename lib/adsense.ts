@@ -90,7 +90,7 @@ export function initializeAds(): void {
     try {
       ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
     } catch (e) {
-      console.log('AdSense initialization error:', e);
+      // AdSense initialization handled silently
     }
   }
 }
@@ -100,7 +100,7 @@ export function initializeAds(): void {
  */
 export function logAdImpression(slotName: string, slotId: string): void {
   if (typeof window !== 'undefined') {
-    console.log(`[AdSense] Ad impression: ${slotName} (${slotId})`);
+    // Ad impression tracking
     
     // You can send this to your analytics service
     if ((window as any).gtag) {
