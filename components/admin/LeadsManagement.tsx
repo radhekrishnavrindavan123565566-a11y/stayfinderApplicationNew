@@ -130,7 +130,30 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
       };
 
       const response = await axios.get('/api/admin/inquiries', { params, ...authHeaders() });
-      setLeads(response.data.leads || response.data.inquiries || []);
+      
+      // Transform API response to match component expectations
+      const transformedLeads = (response.data.inquiries || []).map((inquiry: any) => ({
+        _id: inquiry._id,
+        tenantId: inquiry.tenantId?._id || inquiry.tenantId,
+        tenantName: inquiry.tenantId?.username || inquiry.tenantName,
+        tenantPhone: inquiry.tenantId?.phone || inquiry.tenantPhone,
+        propertyId: inquiry.propertyId?._id || inquiry.propertyId,
+        propertyTitle: inquiry.propertyId?.title || inquiry.propertyTitle,
+        ownerId: inquiry.ownerId?._id || inquiry.ownerId,
+        ownerName: inquiry.ownerId?.username || inquiry.ownerName,
+        inquiryDate: inquiry.inquiryDate,
+        inquiryTime: inquiry.inquiryTime,
+        status: inquiry.status,
+        priority: inquiry.priority,
+        tags: inquiry.tags,
+        followUpDate: inquiry.followUpDate,
+        notes: inquiry.notes,
+        lastContactDate: inquiry.lastContactDate,
+        contactAttempts: inquiry.contactAttempts,
+        conversionValue: inquiry.conversionValue,
+      }));
+      
+      setLeads(transformedLeads);
       setTotal(response.data.total || 0);
     } catch (err) {
       setError('Failed to load leads');
@@ -513,7 +536,7 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                  {leads.map((lead) => (
+                  {(leads || []).map((lead) => (
                     <motion.tr
                       key={lead._id}
                       variants={fadeUp}

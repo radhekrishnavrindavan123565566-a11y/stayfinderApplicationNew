@@ -21,13 +21,16 @@ import toast from 'react-hot-toast';
 interface Property {
   _id: string;
   title: string;
-  city: string;
-  roomType: string;
-  rent: number;
+  location?: { address: string; city: string; state: string };
+  propertyType?: string;
+  bedrooms?: number;
+  price?: number;
+  ownerId?: string;
   ownerName: string;
-  ownerEmail: string;
-  status: 'available' | 'booked' | 'hidden' | 'pending';
-  isApproved: boolean;
+  status: 'available' | 'booked' | 'hidden' | 'pending' | 'active';
+  isVerified?: boolean;
+  viewCount?: number;
+  averageRating?: number;
   createdAt: string;
 }
 
@@ -45,7 +48,23 @@ export default function PropertyListings() {
     try {
       setLoading(true);
       const response = await axios.get('/api/admin/properties');
-      setProperties(response.data.properties || []);
+      const properties = response.data.properties || [];
+      
+      // Map API response to component structure
+      const mappedProperties = properties.map((p: any) => ({
+        _id: p._id,
+        title: p.title,
+        city: p.location?.city || 'N/A',
+        roomType: p.propertyType || 'N/A',
+        rent: p.price || 0,
+        ownerName: p.ownerName || 'Unknown',
+        ownerEmail: 'N/A',
+        status: p.status === 'active' ? 'available' : (p.status || 'pending'),
+        isApproved: p.isVerified || false,
+        createdAt: p.createdAt,
+      }));
+      
+      setProperties(mappedProperties);
     } catch (error) {
       console.error('Failed to fetch properties:', error);
       toast.error('Failed to load properties');
@@ -299,7 +318,7 @@ export default function PropertyListings() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                {filteredProperties.map((property) => (
+                {(filteredProperties || []).map((property) => (
                   <motion.tr
                     key={property._id}
                     initial={{ opacity: 0 }}

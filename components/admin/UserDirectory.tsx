@@ -41,7 +41,6 @@ interface User {
   lastActivity: string;
   isActive: boolean;
   isVerified?: boolean;
-  ownerVerified?: boolean;
   role: 'owner' | 'tenant' | 'admin';
   propertyCount?: number;
   totalListings?: number;
@@ -122,9 +121,9 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
     let filtered = users;
 
     if (verifiedFilter === 'verified') {
-      filtered = filtered.filter((u) => u.isVerified || u.ownerVerified);
+      filtered = filtered.filter((u) => u.isVerified);
     } else if (verifiedFilter === 'unverified') {
-      filtered = filtered.filter((u) => !u.isVerified && !u.ownerVerified);
+      filtered = filtered.filter((u) => !u.isVerified);
     }
 
     if (statusFilter === 'active') {
@@ -206,7 +205,7 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
         ? [
             u.propertyCount || 0,
             u.activeListings || 0,
-            u.ownerVerified ? 'Yes' : 'No',
+            u.isVerified ? 'Yes' : 'No',
             `${u.responseRate || 0}%`,
           ]
         : [
@@ -461,7 +460,7 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                  {filteredUsers.map((user) => (
+                  {(filteredUsers || []).map((user) => (
                     <motion.tr
                       key={user._id}
                       variants={fadeUp}
@@ -733,12 +732,12 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Verification</p>
                     <span
                       className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium mt-1 ${
-                        selectedUser.isVerified || selectedUser.ownerVerified
+                        selectedUser.isVerified
                           ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'
                           : 'bg-gray-100 text-gray-700 dark:bg-gray-950/30 dark:text-gray-400'
                       }`}
                     >
-                      {selectedUser.isVerified || selectedUser.ownerVerified ? 'Verified' : 'Unverified'}
+                      {selectedUser.isVerified ? 'Verified' : 'Unverified'}
                     </span>
                   </div>
                   <div>

@@ -19,6 +19,8 @@ import {
   X,
   Calendar,
   Clock,
+  Upload,
+  Link as LinkIcon,
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -30,10 +32,16 @@ interface Banner {
   title: string;
   description?: string;
   imageUrl: string;
+  imageAlt?: string;
+  actionUrl?: string;
+  actionType?: string;
   link?: string;
   isActive: boolean;
-  displayOrder: number;
+  displayOrder?: number;
+  position?: number;
   createdAt: string;
+  impressions?: number;
+  clicks?: number;
   viewCount?: number;
   clickCount?: number;
 }
@@ -75,6 +83,8 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledNotification, setScheduledNotification] = useState<string | null>(null);
+  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('url');
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState<any>({
     title: '',
     description: '',
@@ -122,6 +132,43 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
   useEffect(() => {
     fetchContent();
   }, [page, limit, contentType, searchQuery]);
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await axios.post('/api/upload', formDataUpload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        ...authHeaders(),
+      });
+
+      const imageUrl = response.data.url || response.data.urls?.[0];
+      if (imageUrl) {
+        setFormData({ ...formData, imageUrl });
+        setImagePreview(imageUrl);
+        toast.success('Image uploaded successfully');
+      }
+    } catch (err) {
+      console.error('Image upload error:', err);
+      toast.error('Failed to upload image');
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Show preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // Upload file
+      handleImageUpload(file);
+    }
+  };
 
   const handleSaveContent = async () => {
     try {
@@ -247,7 +294,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
   };
 
   const totalPages = Math.ceil(total / limit);
-  const currentItems = contentType === 'banner' ? banners : notifications;
+  const currentItems = (contentType === 'banner' ? banners : notifications) || [];
 
   return (
     <motion.div
@@ -276,6 +323,8 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
           onClick={() => {
             setShowForm(true);
             setEditingId(null);
+            setUploadMethod('url');
+            setImagePreview('');
             setFormData({
               title: '',
               description: '',
@@ -284,6 +333,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
               link: '',
               channels: [],
               targetAudience: 'all',
+              scheduledAt: '',
             });
           }}
           className="flex items-center gap-2 bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors"
@@ -388,7 +438,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
         ) : contentType === 'banner' ? (
           // Banner Grid
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {banners.map((banner) => (
+            {(banners || []).map((banner) => (
               <motion.div
                 key={banner._id}
                 variants={fadeUp}
@@ -417,8 +467,8 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                     </p>
                   )}
                   <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-4">
-                    <span>{banner.viewCount || 0} views</span>
-                    <span>{banner.clickCount || 0} clicks</span>
+                    <span>{banner.impressions || banner.viewCount || 0} views</span>
+                    <span>{banner.clicks || banner.clickCount || 0} clicks</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -469,7 +519,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                  {notifications.map((notif) => (
+                  {(notifications || []).map((notif) => (
                     <motion.tr
                       key={notif._id}
                       variants={fadeUp}
@@ -649,20 +699,89 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                       rows={3}
                     />
                   </div>
+                  
+                  {/* Image Upload Method Tabs */}
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                      Image URL
+                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      Image Upload Method
                     </label>
-                    <input
-                      type="url"
-                      value={formData.imageUrl}
-                      onChange={(e) =>
-                        setFormData({ ...formData, imageUrl: e.target.value })
-                      }
-                      className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
+                    <div className="flex gap-2 mb-3">
+                      <button
+                        onClick={() => setUploadMethod('file')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                          uploadMethod === 'file'
+                            ? 'bg-rose-500 text-white'
+                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                        }`}
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload File
+                      </button>
+                      <button
+                        onClick={() => setUploadMethod('url')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                          uploadMethod === 'url'
+                            ? 'bg-rose-500 text-white'
+                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                        }`}
+                      >
+                        <LinkIcon className="w-4 h-4" />
+                        URL
+                      </button>
+                    </div>
+
+                    {uploadMethod === 'file' ? (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                          Upload Image
+                        </label>
+                        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-6 text-center cursor-pointer hover:border-rose-500 transition-colors"
+                          onClick={() => document.getElementById('file-input')?.click()}
+                        >
+                          <Upload className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-500">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                          <input
+                            id="file-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </div>
+                        {imagePreview && (
+                          <div className="mt-3">
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Preview:</p>
+                            <img
+                              src={imagePreview}
+                              alt="Preview"
+                              className="max-h-40 rounded-lg mx-auto"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                          Image URL
+                        </label>
+                        <input
+                          type="url"
+                          value={formData.imageUrl}
+                          onChange={(e) =>
+                            setFormData({ ...formData, imageUrl: e.target.value })
+                          }
+                          className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                      </div>
+                    )}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                       Link (Optional)
