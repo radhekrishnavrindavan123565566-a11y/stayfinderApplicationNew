@@ -1,64 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { logger } from '@/lib/logger';
-import { ObjectId } from 'mongodb';
+
+interface Banner {
+  _id?: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  link?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+  impressions?: number;
+  clicks?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// In-memory storage for banners (replace with MongoDB in production)
+let banners: Banner[] = [
+  {
+    _id: '1',
+    title: 'Welcome to SST Home Solutions',
+    description: 'Find your perfect home today',
+    imageUrl: 'https://via.placeholder.com/1200x400?text=Welcome+Banner',
+    link: '/',
+    isActive: true,
+    displayOrder: 1,
+    impressions: 245,
+    clicks: 12,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
 
 /**
  * GET /api/admin/banners
- * Get all promotional banners with pagination
- * Note: Auth check should be done in middleware
+ * Get paginated list of banners
  */
 export async function GET(request: NextRequest) {
   try {
-    await connectDB();
-
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search');
+    const search = searchParams.get('search') || '';
 
-    const filter: Record<string, any> = {};
+    // Filter banners
+    let filtered = banners;
     if (search) {
-      filter.title = { $regex: search, $options: 'i' };
+      filtered = filtered.filter((b) =>
+        b.title.toLowerCase().includes(search.toLowerCase()) ||
+        b.description?.toLowerCase().includes(search.toLowerCase())
+      );
     }
 
-    const { default: Banner } = await import('@/models/Banner');
-
-    const total = await Banner.countDocuments(filter);
-    const banners = await Banner.find(filter)
-      .sort({ position: 1, createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+    // Paginate
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginated = filtered.slice(start, end);
 
     return NextResponse.json({
-      banners: banners.map((b: any) => ({
-        _id: b._id.toString(),
-        title: b.title,
-        description: b.description,
-        imageUrl: b.imageUrl,
-        imageAlt: b.imageAlt,
-        actionUrl: b.actionUrl,
-        actionType: b.actionType,
-        position: b.position,
-        isActive: b.isActive,
-        startDate: b.startDate,
-        endDate: b.endDate,
-        targetAudience: b.targetAudience,
-        displayPlatform: b.displayPlatform,
-        impressions: b.impressions || 0,
-        clicks: b.clicks || 0,
-        createdAt: b.createdAt,
-        updatedAt: b.updatedAt,
-      })),
-      total,
+      banners: paginated,
+      total: filtered.length,
       page,
       limit,
+      totalPages: Math.ceil(filtered.length / limit),
     });
   } catch (error) {
-    logger.error('[Admin Banners] Error:', error);
+    logger.error('[Admin Banners GET] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch banners' },
       { status: 500 }
     );
   }
@@ -67,56 +77,47 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/admin/banners
  * Create a new banner
- * Requires: Admin role
  */
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
+    const body = await request.json();
 
-    if (!data.title || !data.imageUrl) {
+    // Validate required fields
+    if (!body.title || !body.title.trim()) {
       return NextResponse.json(
-        { error: 'Title and image URL are required' },
+        { error: 'Title is required' },
         { status: 400 }
       );
     }
 
-    await connectDB();
+    if (!body.imageUrl || !body.imageUrl.trim()) {
+      return NextResponse.json(
+        { error: 'Image URL is required' },
+        { status: 400 }
+      );
+    }
 
-    const { default: Banner } = await import('@/models/Banner');
-    const { default: AdminAuditLog } = await import('@/models/AdminAuditLog');
-
-    const banner = await Banner.create({
-      ...data,
-      createdBy: new ObjectId('000000000000000000000000'),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    const newBanner: Banner = {
+      _id: Date.now().toString(),
+      title: body.title.trim(),
+      description: body.description?.trim() || '',
+      imageUrl: body.imageUrl.trim(),
+      link: body.link?.trim() || '/',
+      isActive: true,
+      displayOrder: banners.length + 1,
       impressions: 0,
       clicks: 0,
-    });
-
-    await AdminAuditLog.create({
-      adminId: new ObjectId('000000000000000000000000'),
-      action: 'banner_created',
-      entityType: 'banner',
-      entityId: banner._id,
-      metadata: { title: data.title },
       createdAt: new Date(),
-    });
+      updatedAt: new Date(),
+    };
 
-    return NextResponse.json(
-      {
-        success: true,
-        banner: {
-          _id: banner._id.toString(),
-          ...data,
-        },
-      },
-      { status: 201 }
-    );
+    banners.push(newBanner);
+
+    return NextResponse.json(newBanner, { status: 201 });
   } catch (error) {
-    logger.error('[Admin Banner Create] Error:', error);
+    logger.error('[Admin Banners POST] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create banner' },
       { status: 500 }
     );
   }

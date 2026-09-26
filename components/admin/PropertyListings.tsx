@@ -21,16 +21,13 @@ import toast from 'react-hot-toast';
 interface Property {
   _id: string;
   title: string;
-  location?: { address: string; city: string; state: string };
-  propertyType?: string;
-  bedrooms?: number;
-  price?: number;
-  ownerId?: string;
+  city: string;
+  roomType: string;
+  rent: number;
   ownerName: string;
+  ownerEmail: string;
   status: 'available' | 'booked' | 'hidden' | 'pending' | 'active';
-  isVerified?: boolean;
-  viewCount?: number;
-  averageRating?: number;
+  isApproved: boolean;
   createdAt: string;
 }
 
@@ -42,7 +39,7 @@ export default function PropertyListings() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [approvalFilter, setApprovalFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<Partial<Property>>({});
+  const [editForm, setEditForm] = useState<Partial<Property> & { rent?: number; roomType?: string; city?: string }>({});
 
   const fetchProperties = async () => {
     try {
@@ -326,22 +323,22 @@ export default function PropertyListings() {
                     className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                   >
                     <td className="px-6 py-4">
-                      {editingId === property._id ? (
+                      {editingId === property?._id ? (
                         <input
                           type="text"
-                          value={editForm.title || property.title}
+                          value={editForm?.title || property?.title || ''}
                           onChange={(e) =>
                             setEditForm({ ...editForm, title: e.target.value })
                           }
-                          className="w-full px-3 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                          className="w-full px-3 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
                         />
                       ) : (
                         <div>
                           <p className="font-semibold text-zinc-900 dark:text-white">
-                            {property.title}
+                            {property?.title || 'N/A'}
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {property.city}
+                            {property?.city || 'N/A'}
                           </p>
                         </div>
                       )}
@@ -349,60 +346,60 @@ export default function PropertyListings() {
                     <td className="px-6 py-4">
                       <div>
                         <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                          {property.ownerName}
+                          {property?.ownerName || 'Unknown'}
                         </p>
                         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {property.ownerEmail}
+                          {property?.ownerEmail || 'N/A'}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-zinc-700 dark:text-zinc-300">
-                        {property.roomType}
+                        {property?.roomType || 'N/A'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {editingId === property._id ? (
+                      {editingId === property?._id ? (
                         <input
                           type="number"
-                          value={editForm.rent || property.rent}
+                          value={editForm?.rent !== undefined ? editForm.rent : (property?.rent || 0)}
                           onChange={(e) =>
                             setEditForm({ ...editForm, rent: Number(e.target.value) })
                           }
-                          className="w-20 px-3 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                          className="w-20 px-3 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
                         />
                       ) : (
                         <span className="font-semibold text-zinc-900 dark:text-white">
-                          ₹{(property.rent || 0).toLocaleString()}
+                          ₹{(property?.rent || 0).toLocaleString()}
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() =>
-                          handleToggleApproval(property._id, property.isApproved)
+                          handleToggleApproval(property?._id || '', property?.isApproved || false)
                         }
                         className="text-sm transition-colors"
                       >
-                        {getApprovalBadge(property.isApproved)}
+                        {getApprovalBadge(property?.isApproved || false)}
                       </button>
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleToggleStatus(property._id, property.status)}
+                        onClick={() => handleToggleStatus(property?._id || '', property?.status || 'pending')}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold ${getStatusColor(
-                          property.status
+                          property?.status || 'pending'
                         )}`}
                       >
-                        {property.status}
+                        {property?.status || 'pending'}
                       </button>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {editingId === property._id ? (
+                        {editingId === property?._id ? (
                           <>
                             <button
-                              onClick={() => handleSaveEdit(property._id)}
+                              onClick={() => handleSaveEdit(property?._id || '')}
                               className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors"
                             >
                               <CheckCircle className="w-4 h-4" />
@@ -418,15 +415,15 @@ export default function PropertyListings() {
                           <>
                             <button
                               onClick={() => {
-                                setEditingId(property._id);
-                                setEditForm(property);
+                                setEditingId(property?._id || null);
+                                setEditForm(property || {});
                               }}
                               className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDelete(property._id)}
+                              onClick={() => handleDelete(property?._id || '')}
                               className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />

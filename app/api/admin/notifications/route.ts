@@ -1,59 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
 import { logger } from '@/lib/logger';
-import { ObjectId } from 'mongodb';
+
+interface Notification {
+  _id?: string;
+  title: string;
+  message: string;
+  channels: ('sms' | 'whatsapp' | 'push' | 'email')[];
+  targetAudience: 'all' | 'owners' | 'tenants';
+  status: 'draft' | 'scheduled' | 'sent' | 'failed';
+  sentCount?: number;
+  scheduledAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// In-memory storage for notifications
+let notifications: Notification[] = [];
 
 /**
  * GET /api/admin/notifications
- * Get all notifications with pagination
- * Note: Auth check should be done in middleware
+ * Get paginated list of notifications
  */
 export async function GET(request: NextRequest) {
   try {
-    await connectDB();
-
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search');
+    const search = searchParams.get('search') || '';
 
-    const filter: Record<string, any> = {};
+    // Filter notifications
+    let filtered = notifications;
     if (search) {
-      filter.title = { $regex: search, $options: 'i' };
+      filtered = filtered.filter((n) =>
+        n.title.toLowerCase().includes(search.toLowerCase()) ||
+        n.message.toLowerCase().includes(search.toLowerCase())
+      );
     }
 
-    const { default: Notification } = await import('@/models/Notification');
-
-    const total = await Notification.countDocuments(filter);
-    const notifications = await Notification.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+    // Paginate
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginated = filtered.slice(start, end);
 
     return NextResponse.json({
-      notifications: notifications.map((n: any) => ({
-        _id: n._id.toString(),
-        title: n.title,
-        message: n.message,
-        notificationType: n.notificationType,
-        channel: n.channel,
-        targetAudience: n.targetAudience,
-        scheduledDate: n.scheduledDate,
-        sentAt: n.sentAt,
-        status: n.status,
-        deliveryStats: n.deliveryStats,
-        createdAt: n.createdAt,
-        updatedAt: n.updatedAt,
-      })),
-      total,
+      notifications: paginated,
+      total: filtered.length,
       page,
       limit,
+      totalPages: Math.ceil(filtered.length / limit),
     });
   } catch (error) {
-    logger.error('[Admin Notifications] Error:', error);
+    logger.error('[Admin Notifications GET] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch notifications' },
       { status: 500 }
     );
   }
@@ -62,59 +61,45 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/admin/notifications
  * Create a new notification
- * Requires: Admin role
  */
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
+    const body = await request.json();
 
-    if (!data.title || !data.message || !data.channel || data.channel.length === 0) {
+    // Validate required fields
+    if (!body.title || !body.title.trim()) {
       return NextResponse.json(
-        { error: 'Title, message, and at least one channel are required' },
+        { error: 'Title is required' },
         { status: 400 }
       );
     }
 
-    await connectDB();
+    if (!body.message || !body.message.trim()) {
+      return NextResponse.json(
+        { error: 'Message is required' },
+        { status: 400 }
+      );
+    }
 
-    const { default: Notification } = await import('@/models/Notification');
-    const { default: AdminAuditLog } = await import('@/models/AdminAuditLog');
-
-    const notification = await Notification.create({
-      ...data,
-      status: data.scheduledDate ? 'scheduled' : 'draft',
+    const newNotification: Notification = {
+      _id: Date.now().toString(),
+      title: body.title.trim(),
+      message: body.message.trim(),
+      channels: body.channels || ['push'],
+      targetAudience: body.targetAudience || 'all',
+      status: 'draft',
+      sentCount: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
-      deliveryStats: {
-        total: 0,
-        delivered: 0,
-        failed: 0,
-      },
-    });
+    };
 
-    await AdminAuditLog.create({
-      adminId: new ObjectId('000000000000000000000000'),
-      action: 'notification_sent',
-      entityType: 'notification',
-      entityId: notification._id,
-      metadata: { title: data.title },
-      createdAt: new Date(),
-    });
+    notifications.push(newNotification);
 
-    return NextResponse.json(
-      {
-        success: true,
-        notification: {
-          _id: notification._id.toString(),
-          ...data,
-        },
-      },
-      { status: 201 }
-    );
+    return NextResponse.json(newNotification, { status: 201 });
   } catch (error) {
-    logger.error('[Admin Notification Create] Error:', error);
+    logger.error('[Admin Notifications POST] Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create notification' },
       { status: 500 }
     );
   }

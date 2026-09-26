@@ -538,47 +538,47 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                   {(leads || []).map((lead) => (
                     <motion.tr
-                      key={lead._id}
+                      key={lead?._id}
                       variants={fadeUp}
                       className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-zinc-900 dark:text-white">
-                            {lead.tenantName}
+                            {lead?.tenantName || 'N/A'}
                           </p>
                           <a
-                            href={`tel:${lead.tenantPhone}`}
+                            href={`tel:${lead?.tenantPhone || ''}`}
                             className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                           >
                             <Phone className="w-3 h-3" />
-                            {lead.tenantPhone}
+                            {lead?.tenantPhone || 'N/A'}
                           </a>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-medium text-zinc-900 dark:text-white text-sm">
-                            {lead.propertyTitle}
+                            {lead?.propertyTitle || 'N/A'}
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            Property ID: {lead.propertyId}
+                            Property ID: {lead?.propertyId || 'N/A'}
                           </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <p className="font-medium text-zinc-900 dark:text-white text-sm">
-                          {lead.ownerName}
+                          {lead?.ownerName || 'N/A'}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <select
-                          value={lead.status}
-                          onChange={(e) => handleStatusChange(lead._id, e.target.value)}
-                          disabled={actionLoading[lead._id]}
+                          value={lead?.status || 'new_lead'}
+                          onChange={(e) => handleStatusChange(lead?._id || '', e.target.value)}
+                          disabled={actionLoading[lead?._id || '']}
                           className={`px-3 py-1 rounded-lg text-xs font-medium border-0 cursor-pointer disabled:opacity-50 ${
-                            statusConfig[lead.status as keyof typeof statusConfig]?.bgColor
-                          } ${statusConfig[lead.status as keyof typeof statusConfig]?.color}`}
+                            statusConfig[(lead?.status || 'new_lead') as keyof typeof statusConfig]?.bgColor
+                          } ${statusConfig[(lead?.status || 'new_lead') as keyof typeof statusConfig]?.color}`}
                         >
                           <option value="new_lead">New Lead</option>
                           <option value="call_done">Call Done</option>
@@ -589,12 +589,12 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                       </td>
                       <td className="px-6 py-4">
                         <select
-                          value={lead.priority || 'medium'}
-                          onChange={(e) => handlePriorityChange(lead._id, e.target.value)}
-                          disabled={actionLoading[`${lead._id}-priority`]}
+                          value={lead?.priority || 'medium'}
+                          onChange={(e) => handlePriorityChange(lead?._id || '', e.target.value)}
+                          disabled={actionLoading[`${lead?._id || ''}-priority`]}
                           className={`px-3 py-1 rounded-lg text-xs font-medium border-0 cursor-pointer disabled:opacity-50 ${
-                            priorityConfig[lead.priority as keyof typeof priorityConfig]?.bg
-                          } ${priorityConfig[lead.priority as keyof typeof priorityConfig]?.color}`}
+                            priorityConfig[(lead?.priority || 'medium') as keyof typeof priorityConfig]?.bg
+                          } ${priorityConfig[(lead?.priority || 'medium') as keyof typeof priorityConfig]?.color}`}
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -670,10 +670,10 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
             <div className="flex items-center justify-between mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-800">
               <div>
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                  {selectedLead.tenantName}
+                  {selectedLead?.tenantName || 'Lead'}
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                  Interested in: {selectedLead.propertyTitle}
+                  Interested in: {selectedLead?.propertyTitle || 'N/A'}
                 </p>
               </div>
               <button
@@ -721,12 +721,12 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                   <div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium mb-2">Status</p>
                     <select
-                      value={selectedLead.status}
-                      onChange={(e) => handleStatusChange(selectedLead._id, e.target.value)}
-                      disabled={actionLoading[selectedLead._id]}
+                      value={selectedLead?.status || 'new_lead'}
+                      onChange={(e) => handleStatusChange(selectedLead?._id || '', e.target.value)}
+                      disabled={actionLoading[selectedLead?._id || '']}
                       className={`w-full px-3 py-2 rounded-lg text-sm font-medium border-0 cursor-pointer disabled:opacity-50 ${
-                        statusConfig[selectedLead.status as keyof typeof statusConfig]?.bgColor
-                      } ${statusConfig[selectedLead.status as keyof typeof statusConfig]?.color}`}
+                        statusConfig[(selectedLead?.status || 'new_lead') as keyof typeof statusConfig]?.bgColor
+                      } ${statusConfig[(selectedLead?.status || 'new_lead') as keyof typeof statusConfig]?.color}`}
                     >
                       <option value="new_lead">New Lead</option>
                       <option value="call_done">Call Done / Discussion</option>
@@ -738,12 +738,12 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                   <div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium mb-2">Priority</p>
                     <select
-                      value={selectedLead.priority || 'medium'}
-                      onChange={(e) => handlePriorityChange(selectedLead._id, e.target.value)}
-                      disabled={actionLoading[`${selectedLead._id}-priority`]}
+                      value={selectedLead?.priority || 'medium'}
+                      onChange={(e) => handlePriorityChange(selectedLead?._id || '', e.target.value)}
+                      disabled={actionLoading[`${selectedLead?._id || ''}-priority`]}
                       className={`w-full px-3 py-2 rounded-lg text-sm font-medium border-0 cursor-pointer disabled:opacity-50 ${
-                        priorityConfig[selectedLead.priority as keyof typeof priorityConfig]?.bg
-                      } ${priorityConfig[selectedLead.priority as keyof typeof priorityConfig]?.color}`}
+                        priorityConfig[(selectedLead?.priority || 'medium') as keyof typeof priorityConfig]?.bg
+                      } ${priorityConfig[(selectedLead?.priority || 'medium') as keyof typeof priorityConfig]?.color}`}
                     >
                       <option value="low">Low Priority</option>
                       <option value="medium">Medium Priority</option>
@@ -808,11 +808,11 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                 rows={4}
               />
               <button
-                onClick={() => handleSaveNotes(selectedLead._id)}
-                disabled={actionLoading[`notes-${selectedLead._id}`]}
+                onClick={() => handleSaveNotes(selectedLead?._id || '')}
+                disabled={actionLoading[`notes-${selectedLead?._id || ''}`]}
                 className="mt-2 w-full px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors disabled:opacity-50"
               >
-                {actionLoading[`notes-${selectedLead._id}`] ? (
+                {actionLoading[`notes-${selectedLead?._id || ''}`] ? (
                   <Loader className="w-4 h-4 animate-spin mx-auto" />
                 ) : (
                   'Save Notes'

@@ -672,15 +672,20 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  Title
+                  Title <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
                   type="text"
-                  value={formData.title}
+                  value={formData?.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
-                  placeholder="Enter title"
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    !formData?.title && formData !== undefined ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'border-zinc-200 dark:border-zinc-700'
+                  } bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500`}
+                  placeholder="Enter title (required)"
                 />
+                {!formData?.title && formData !== undefined && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">Title is required</p>
+                )}
               </div>
 
               {contentType === 'banner' ? (
@@ -767,17 +772,22 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                     ) : (
                       <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                          Image URL
+                          Image URL <span className="text-red-500 font-bold">*</span>
                         </label>
                         <input
                           type="url"
-                          value={formData.imageUrl}
+                          value={formData?.imageUrl || ''}
                           onChange={(e) =>
                             setFormData({ ...formData, imageUrl: e.target.value })
                           }
-                          className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
-                          placeholder="https://example.com/image.jpg"
+                          className={`w-full px-4 py-2 rounded-lg border ${
+                            !formData?.imageUrl && formData !== undefined ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'border-zinc-200 dark:border-zinc-700'
+                          } bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500`}
+                          placeholder="https://example.com/image.jpg (required)"
                         />
+                        {!formData?.imageUrl && formData !== undefined && (
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">Image URL is required</p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -877,8 +887,23 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
               </button>
               <button
                 onClick={handleSaveContent}
-                disabled={actionLoading.save}
-                className="flex-1 px-4 py-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition-colors disabled:opacity-50"
+                disabled={
+                  actionLoading.save ||
+                  !formData?.title ||
+                  (contentType === 'banner' && !formData?.imageUrl)
+                }
+                className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors ${
+                  !formData?.title || (contentType === 'banner' && !formData?.imageUrl)
+                    ? 'bg-zinc-400 dark:bg-zinc-700 cursor-not-allowed'
+                    : 'bg-rose-500 hover:bg-rose-600'
+                } disabled:opacity-50`}
+                title={
+                  !formData?.title
+                    ? 'Title is required'
+                    : contentType === 'banner' && !formData?.imageUrl
+                    ? 'Image URL is required'
+                    : 'Save'
+                }
               >
                 {actionLoading.save ? <Loader className="w-4 h-4 animate-spin mx-auto" /> : 'Save'}
               </button>

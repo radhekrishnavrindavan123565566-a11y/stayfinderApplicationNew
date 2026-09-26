@@ -462,19 +462,19 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                   {(filteredUsers || []).map((user) => (
                     <motion.tr
-                      key={user._id}
+                      key={user?._id}
                       variants={fadeUp}
                       className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-zinc-900 dark:text-white">
-                            {user.username}
+                            {user?.username || 'N/A'}
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {user.email}
+                            {user?.email || 'N/A'}
                           </p>
-                          {user.trustBadges && user.trustBadges.length > 0 && (
+                          {user?.trustBadges && (user?.trustBadges?.length || 0) > 0 && (
                             <div className="flex items-center gap-1 mt-1">
                               {user.trustBadges.map((badge) => (
                                 <span
@@ -585,18 +585,18 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                             <MessageSquare className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleBlockUser(user._id, user.isActive)}
-                            disabled={actionLoading[user._id]}
+                            onClick={() => handleBlockUser(user?._id || '', user?.isActive || false)}
+                            disabled={actionLoading[user?._id || '']}
                             className={`p-2 rounded-lg transition-colors ${
-                              user.isActive
+                              user?.isActive
                                 ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30'
                                 : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30'
                             } disabled:opacity-50`}
-                            title={user.isActive ? 'Block user' : 'Unblock user'}
+                            title={user?.isActive ? 'Block user' : 'Unblock user'}
                           >
-                            {actionLoading[user._id] ? (
+                            {actionLoading[user?._id || ''] ? (
                               <Loader className="w-4 h-4 animate-spin" />
-                            ) : user.isActive ? (
+                            ) : user?.isActive ? (
                               <Ban className="w-4 h-4" />
                             ) : (
                               <CheckCircle className="w-4 h-4" />
@@ -651,10 +651,10 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
             <div className="flex items-center justify-between mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-800">
               <div>
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                  {selectedUser.username}
+                  {selectedUser?.username || 'User'}
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                  {selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)} Account
+                  {selectedUser?.role ? selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1) : 'User'} Account
                 </p>
               </div>
               <button
@@ -676,23 +676,23 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Email</p>
-                    <p className="text-sm text-zinc-900 dark:text-white mt-1">{selectedUser.email}</p>
+                    <p className="text-sm text-zinc-900 dark:text-white mt-1">{selectedUser?.email || 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Phone</p>
                     <a
-                      href={`tel:${selectedUser.phone}`}
+                      href={`tel:${selectedUser?.phone || ''}`}
                       className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1"
                     >
-                      {selectedUser.phone || 'N/A'}
+                      {selectedUser?.phone || 'N/A'}
                     </a>
                   </div>
-                  {selectedUser.city && (
+                  {selectedUser?.city && (
                     <div>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">City</p>
                       <p className="text-sm text-zinc-900 dark:text-white mt-1 flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
-                        {selectedUser.city}
+                        {selectedUser?.city}
                       </p>
                     </div>
                   )}
@@ -875,19 +875,19 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
               </button>
               <button
                 onClick={() => {
-                  handleBlockUser(selectedUser._id, selectedUser.isActive);
+                  handleBlockUser(selectedUser?._id || '', selectedUser?.isActive || false);
                   setSelectedUser(null);
                 }}
-                disabled={actionLoading[selectedUser._id]}
+                disabled={actionLoading[selectedUser?._id || '']}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  selectedUser.isActive
+                  selectedUser?.isActive
                     ? 'bg-red-500 text-white hover:bg-red-600'
                     : 'bg-green-500 text-white hover:bg-green-600'
                 } disabled:opacity-50`}
               >
-                {actionLoading[selectedUser._id] ? (
+                {actionLoading[selectedUser?._id || ''] ? (
                   <Loader className="w-4 h-4 animate-spin" />
-                ) : selectedUser.isActive ? (
+                ) : selectedUser?.isActive ? (
                   <>
                     <Ban className="w-4 h-4" />
                     Block User
