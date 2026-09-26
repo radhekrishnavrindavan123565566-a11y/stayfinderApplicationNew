@@ -13,13 +13,17 @@ import {
 } from "lucide-react";
 import OccupancyChart from "@/components/admin/OccupancyChart";
 import LateFeeCalculator from "@/components/admin/LateFeeCalculator";
+import PropertyListings from "@/components/admin/PropertyListings";
+import UserDirectory from "@/components/admin/UserDirectory";
+import LeadsManagement from "@/components/admin/LeadsManagement";
+import ContentManagement from "@/components/admin/ContentManagement";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import toast from "react-hot-toast";
 import { confirmDelete, notifySuccess, notifyError } from "@/lib/notifications";
 import { format } from "date-fns";
 
-type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing" | "add-user" | "late-fee";
+type Tab = "overview" | "users" | "verifications" | "disputes" | "reminders" | "marketing" | "add-user" | "late-fee" | "properties" | "user-directory" | "leads" | "content";
 
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const fadeUp: Variants = {
@@ -54,7 +58,7 @@ export default function AdminPage() {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
       const tabParam = searchParams.get('tab') as Tab | null;
-      if (tabParam && ["overview", "users", "verifications", "disputes", "reminders", "marketing", "add-user", "late-fee"].includes(tabParam)) {
+      if (tabParam && ["overview", "users", "verifications", "disputes", "reminders", "marketing", "add-user", "late-fee", "properties", "user-directory", "leads", "content"].includes(tabParam)) {
         setTab(tabParam);
       }
     }
@@ -284,6 +288,10 @@ export default function AdminPage() {
 
   const tabs: { key: Tab; label: string; badge?: number }[] = [
     { key: "overview", label: "Overview" },
+    { key: "properties", label: "Properties" },
+    { key: "user-directory", label: "Directory" },
+    { key: "leads", label: "Leads", badge: 0 },
+    { key: "content", label: "Content & Banners" },
     { key: "users", label: "Users", badge: users.length },
     { key: "add-user", label: "Add User" },
     { key: "verifications", label: "Verifications", badge: pendingVerifications.length },
@@ -506,7 +514,18 @@ export default function AdminPage() {
                               </span>
                             </div>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                              by {b.tenantId?.username || "User"} • {format(new Date(b.createdAt), "MMM d, yyyy")}
+                              by {b.tenantId?.username || "User"} • {
+                                (() => {
+                                  try {
+                                    if (!b.createdAt) return "N/A";
+                                    const date = new Date(b.createdAt);
+                                    if (isNaN(date.getTime())) return "N/A";
+                                    return format(date, "MMM d, yyyy");
+                                  } catch {
+                                    return "N/A";
+                                  }
+                                })()
+                              }
                             </p>
                             {(b.escrowStatus || b.paymentStatus) && (
                               <div className="flex items-center gap-2 mt-1">
@@ -765,6 +784,34 @@ export default function AdminPage() {
                     })()}
                   </motion.div>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Properties */}
+            {tab === "properties" && (
+              <motion.div key="properties" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <PropertyListings />
+              </motion.div>
+            )}
+
+            {/* User Directory */}
+            {tab === "user-directory" && (
+              <motion.div key="user-directory" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <UserDirectory />
+              </motion.div>
+            )}
+
+            {/* Leads & Inquiries */}
+            {tab === "leads" && (
+              <motion.div key="leads" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <LeadsManagement />
+              </motion.div>
+            )}
+
+            {/* Content & Banners */}
+            {tab === "content" && (
+              <motion.div key="content" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
+                <ContentManagement />
               </motion.div>
             )}
 

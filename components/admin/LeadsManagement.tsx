@@ -17,12 +17,33 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  Users,
 } from 'lucide-react';
 import axios from 'axios';
-import type { InquiryRow, LeadFilter, LeadStatus } from '@/lib/admin/models';
+import toast from 'react-hot-toast';
+import { useApi } from '@/hooks/useApi';
+import { format } from 'date-fns';
+
+interface Inquiry {
+  _id: string;
+  tenantId: string;
+  tenantName: string;
+  tenantPhone: string;
+  propertyId: string;
+  propertyTitle: string;
+  ownerId: string;
+  ownerName: string;
+  inquiryDate: string;
+  inquiryTime?: string;
+  status: 'new_lead' | 'call_done' | 'visit_scheduled' | 'closed_booked' | 'closed_not_interested';
+  priority?: 'low' | 'medium' | 'high';
+  tags?: string[];
+  followUpDate?: string;
+  notes?: string;
+}
 
 interface LeadsManagementProps {
-  onLeadSelect?: (lead: InquiryRow) => void;
+  onLeadSelect?: (lead: Inquiry) => void;
 }
 
 const fadeUp = {
@@ -30,55 +51,59 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-const statusConfig: Record<LeadStatus, { color: string; bgColor: string; icon: React.ReactNode }> = {
+const statusConfig = {
   new_lead: {
     color: 'text-blue-600 dark:text-blue-400',
     bgColor: 'bg-blue-50 dark:bg-blue-950/30',
     icon: <Clock className="w-4 h-4" />,
+    label: 'New Lead',
   },
   call_done: {
     color: 'text-purple-600 dark:text-purple-400',
     bgColor: 'bg-purple-50 dark:bg-purple-950/30',
     icon: <Phone className="w-4 h-4" />,
+    label: 'Call Done',
   },
   visit_scheduled: {
     color: 'text-amber-600 dark:text-amber-400',
     bgColor: 'bg-amber-50 dark:bg-amber-950/30',
     icon: <Calendar className="w-4 h-4" />,
+    label: 'Visit Scheduled',
   },
   closed_booked: {
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-50 dark:bg-green-950/30',
     icon: <CheckCircle2 className="w-4 h-4" />,
+    label: 'Booked',
   },
   closed_not_interested: {
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-50 dark:bg-red-950/30',
     icon: <XCircle className="w-4 h-4" />,
+    label: 'Not Interested',
   },
 };
 
-const priorityConfig: Record<string, { color: string; label: string }> = {
-  low: { color: 'text-zinc-600 dark:text-zinc-400', label: 'Low' },
-  medium: { color: 'text-amber-600 dark:text-amber-400', label: 'Medium' },
-  high: { color: 'text-red-600 dark:text-red-400', label: 'High' },
+const priorityConfig = {
+  low: { color: 'text-zinc-600 dark:text-zinc-400', label: 'Low', bg: 'bg-zinc-100 dark:bg-zinc-800' },
+  medium: { color: 'text-amber-600 dark:text-amber-400', label: 'Medium', bg: 'bg-amber-100 dark:bg-amber-900/30' },
+  high: { color: 'text-red-600 dark:text-red-400', label: 'High', bg: 'bg-red-100 dark:bg-red-900/30' },
 };
 
 export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) {
-  const [leads, setLeads] = useState<InquiryRow[]>([]);
+  const [leads, setLeads] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<LeadFilter>({
-    status: undefined,
-    priority: undefined,
-    sortBy: 'newest',
-  });
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
+  const { authHeaders } = useApi();
 
   const fetchLeads = async () => {
     try {
@@ -88,15 +113,15 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
       const params = {
         page,
         limit,
-        status: filters.status,
-        priority: filters.priority,
-        sortBy: filters.sortBy,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        priority: priorityFilter !== 'all' ? priorityFilter : undefined,
+        sortBy,
         search: searchQuery,
       };
 
-      const response = await axios.get('/api/admin/inquiries', { params });
-      setLeads(response.data.leads);
-      setTotal(response.data.total);
+      const response = await axios.get('/api/admin/inquiries', { params, ...authHeaders() });
+      setLeads(response.data.leads || response.data.inquiries || []);
+      setTotal(response.data.total || 0);
     } catch (err) {
       setError('Failed to load leads');
       console.error('Leads fetch error:', err);
@@ -107,336 +132,430 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
 
   useEffect(() => {
     setPage(1);
-  }, [filters, searchQuery]);
+  }, [statusFilter, searchQuery, sortBy, priorityFilter]);
 
   useEffect(() => {
     fetchLeads();
-  }, [page, limit, filters, searchQuery]);
+  }, [page, limit, statusFilter, searchQuery, sortBy, priorityFilter]);
 
-  const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
+  const handleStatusChange = async (leadId: string, newStatus: string) => {
+    setActionLoading((prev) => ({ ...prev, [leadId]: true }));
     try {
-      setActionLoading((prev) => ({ ...prev, [leadId]: true }));
-      
-      let reasonData = {};
-      if (newStatus === 'closed_not_interested') {
-        const reason = window.prompt(
-          'Please provide reason for closure:\n\n' +
-          '1. Price too high\n' +
-          '2. Location mismatch\n' +
-          '3. Property already taken\n' +
-          '4. No response from tenant\n' +
-          '5. Better option found\n' +
-          '6. Other'
-        );
-        if (!reason) {
-          setActionLoading((prev) => ({ ...prev, [leadId]: false }));
-          return;
-        }
-        reasonData = { closureReason: reason };
-      }
-
-      await axios.patch(`/api/admin/inquiries/${leadId}/status`, {
-        newStatus,
-        ...reasonData,
-      });
-      fetchLeads();
+      await axios.patch(
+        `/api/admin/inquiries/${leadId}`,
+        { status: newStatus },
+        authHeaders()
+      );
+      setLeads((prev) =>
+        prev.map((l) =>
+          l._id === leadId ? { ...l, status: newStatus as Inquiry['status'] } : l
+        )
+      );
+      toast.success(`Lead status updated to ${statusConfig[newStatus as keyof typeof statusConfig]?.label}`);
     } catch (err) {
-      console.error('Error updating lead status:', err);
-      alert('Failed to update lead status');
+      toast.error('Failed to update lead status');
+      console.error('Status update error:', err);
     } finally {
       setActionLoading((prev) => ({ ...prev, [leadId]: false }));
     }
   };
 
-  const handleExport = async () => {
+  const handlePriorityChange = async (leadId: string, newPriority: string) => {
+    setActionLoading((prev) => ({ ...prev, [`${leadId}-priority`]: true }));
     try {
-      setExporting(true);
-      const response = await axios.post('/api/admin/inquiries/export', {
-        format: 'csv',
-        filters,
-      });
-
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `leads-export-${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentElement?.removeChild(link);
+      await axios.patch(
+        `/api/admin/inquiries/${leadId}`,
+        { priority: newPriority },
+        authHeaders()
+      );
+      setLeads((prev) =>
+        prev.map((l) =>
+          l._id === leadId ? { ...l, priority: newPriority as Inquiry['priority'] } : l
+        )
+      );
+      toast.success('Priority updated');
     } catch (err) {
-      console.error('Error exporting leads:', err);
-      alert('Failed to export leads');
+      toast.error('Failed to update priority');
     } finally {
-      setExporting(false);
+      setActionLoading((prev) => ({ ...prev, [`${leadId}-priority`]: false }));
     }
+  };
+
+  const downloadLeadsCSV = () => {
+    if (leads.length === 0) {
+      toast.error('No leads to download');
+      return;
+    }
+
+    const headers = [
+      'Tenant Name',
+      'Phone',
+      'Property',
+      'Owner',
+      'Inquiry Date',
+      'Status',
+      'Priority',
+      'Follow Up',
+    ];
+
+    const rows = leads.map((l) => [
+      l.tenantName || '',
+      l.tenantPhone || '',
+      l.propertyTitle || '',
+      l.ownerName || '',
+      l.inquiryDate ? format(new Date(l.inquiryDate), 'MMM d, yyyy') : '',
+      statusConfig[l.status as keyof typeof statusConfig]?.label || l.status,
+      priorityConfig[l.priority as keyof typeof priorityConfig]?.label || 'N/A',
+      l.followUpDate ? format(new Date(l.followUpDate), 'MMM d, yyyy') : '',
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) =>
+        row
+          .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+          .join(',')
+      ),
+    ].join('\n');
+
+    const element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent)
+    );
+    element.setAttribute(
+      'download',
+      `leads_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.csv`
+    );
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    toast.success(`Downloaded ${leads.length} leads as CSV`);
+  };
+
+  const downloadLeadsExcel = () => {
+    if (leads.length === 0) {
+      toast.error('No leads to download');
+      return;
+    }
+
+    const data = leads.map((l) => ({
+      'Tenant Name': l.tenantName || '',
+      'Phone': l.tenantPhone || '',
+      'Property': l.propertyTitle || '',
+      'Owner': l.ownerName || '',
+      'Inquiry Date': l.inquiryDate ? format(new Date(l.inquiryDate), 'MMM d, yyyy') : '',
+      'Status': statusConfig[l.status as keyof typeof statusConfig]?.label || l.status,
+      'Priority': priorityConfig[l.priority as keyof typeof priorityConfig]?.label || 'N/A',
+      'Follow Up': l.followUpDate ? format(new Date(l.followUpDate), 'MMM d, yyyy') : '',
+      'Notes': l.notes || '',
+    }));
+
+    const jsonContent = JSON.stringify(data, null, 2);
+
+    const element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:application/json;charset=utf-8,' + encodeURIComponent(jsonContent)
+    );
+    element.setAttribute(
+      'download',
+      `leads_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.json`
+    );
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    toast.success(`Downloaded ${leads.length} leads as JSON`);
   };
 
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
       {/* Header */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp} className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-black text-zinc-900 dark:text-white">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div>
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
             Leads & Inquiries
           </h1>
-          <div className="flex gap-2">
-            <button
-              onClick={handleExport}
-              disabled={exporting || leads.length === 0}
-              className="flex items-center gap-2 bg-green-600 dark:bg-green-700 text-white rounded-lg px-4 py-2 hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-4 h-4" />
-              {exporting ? 'Exporting...' : 'Export CSV'}
-            </button>
-            <button
-              onClick={() => fetchLeads()}
-              className="flex items-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </button>
-          </div>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Track and manage all tenant inquiries and lead conversions
+          </p>
         </div>
-
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="Search by tenant name, phone, property..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={downloadLeadsCSV}
+            disabled={exporting}
+            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            CSV
+          </button>
+          <button
+            onClick={downloadLeadsExcel}
+            disabled={exporting}
+            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            JSON
+          </button>
         </div>
+      </motion.div>
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Status
-            </label>
-            <select
-              value={filters.status || ''}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: (e.target.value as LeadStatus) || undefined,
-                }))
-              }
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Statuses</option>
-              <option value="new_lead">New Lead</option>
-              <option value="call_done">Call Done</option>
-              <option value="visit_scheduled">Visit Scheduled</option>
-              <option value="visit_completed">Visit Completed</option>
-              <option value="closed_booked">Closed - Booked</option>
-              <option value="closed_not_interested">Closed - Not Interested</option>
-            </select>
+      {/* Filters */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search tenant, property..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Priority
-            </label>
-            <select
-              value={filters.priority || ''}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  priority: (e.target.value as any) || undefined,
-                }))
-              }
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Priorities</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
+          {/* Status Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          >
+            <option value="all">All Status</option>
+            <option value="new_lead">New Leads</option>
+            <option value="call_done">Call Done</option>
+            <option value="visit_scheduled">Visit Scheduled</option>
+            <option value="closed_booked">Booked</option>
+            <option value="closed_not_interested">Not Interested</option>
+          </select>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Sort By
-            </label>
-            <select
-              value={filters.sortBy || 'newest'}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  sortBy: e.target.value as any,
-                }))
-              }
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="newest">Newest First</option>
-              <option value="priority">Priority</option>
-              <option value="status">Status</option>
-              <option value="dueDate">Due Date</option>
-            </select>
-          </div>
+          {/* Priority Filter */}
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          >
+            <option value="all">All Priority</option>
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+
+          {/* Sort */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
+            className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+
+          {/* Refresh */}
+          <button
+            onClick={fetchLeads}
+            disabled={loading}
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
         </div>
       </motion.div>
 
       {/* Leads Table */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
+      >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader className="w-6 h-6 animate-spin text-blue-500" />
+            <Loader className="w-8 h-8 text-rose-500 animate-spin" />
           </div>
         ) : error ? (
-          <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-6 border border-red-200 dark:border-red-800">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-              <p className="text-red-800 dark:text-red-200">{error}</p>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+              <p className="text-zinc-600 dark:text-zinc-400">{error}</p>
+              <button
+                onClick={fetchLeads}
+                className="mt-4 px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600"
+              >
+                Retry
+              </button>
             </div>
           </div>
         ) : leads.length === 0 ? (
-          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-12 text-center border border-zinc-200 dark:border-zinc-800">
+          <div className="text-center py-12">
+            <AlertTriangle className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
             <p className="text-zinc-600 dark:text-zinc-400">No leads found</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Tenant & Property
+                <thead>
+                  <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                      Tenant
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                      Property
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                       Owner
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Date & Status
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                      Status
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                       Priority
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Action
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                      Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                  {leads.map((lead) => {
-                    const statusConfig_ = statusConfig[lead.status as LeadStatus];
-                    const priorityConfig_ = priorityConfig[lead.priority];
-
-                    return (
-                      <tr
-                        key={lead._id}
-                        className="hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                        onClick={() => onLeadSelect?.(lead)}
-                      >
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="font-medium text-zinc-900 dark:text-white">
-                              {lead.tenantName}
-                            </p>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
-                              <Phone className="w-3 h-3" />
-                              {lead.tenantPhone}
-                            </p>
-                            <p className="text-sm text-blue-600 dark:text-blue-400">
-                              {lead.propertyTitle}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                              {lead.ownerName}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="space-y-2">
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                              {new Date(lead.inquiryDate).toLocaleDateString()}
-                            </p>
-                            <span
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${statusConfig_.bgColor} ${statusConfig_.color}`}
-                            >
-                              {statusConfig_.icon}
-                              {lead.status.replace('_', ' ')}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1">
-                            <Flag className={`w-4 h-4 ${priorityConfig_.color}`} />
-                            <span className={`text-sm font-medium ${priorityConfig_.color}`}>
-                              {priorityConfig_.label}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div
-                            className="flex items-center gap-2"
-                            onClick={(e) => e.stopPropagation()}
+                  {leads.map((lead) => (
+                    <motion.tr
+                      key={lead._id}
+                      variants={fadeUp}
+                      className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="font-semibold text-zinc-900 dark:text-white">
+                            {lead.tenantName}
+                          </p>
+                          <a
+                            href={`tel:${lead.tenantPhone}`}
+                            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                           >
-                            <select
-                              value={lead.status}
-                              onChange={(e) =>
-                                handleStatusChange(lead._id, e.target.value as LeadStatus)
-                              }
-                              disabled={actionLoading[lead._id]}
-                              className="text-xs px-2 py-1 border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white disabled:opacity-50"
-                            >
-                              <option value="new_lead">New Lead</option>
-                              <option value="call_done">Call Done / Discussion</option>
-                              <option value="visit_scheduled">Visit Scheduled</option>
-                              <option value="visit_completed">Visit Completed</option>
-                              <option value="closed_booked">Closed - Booked</option>
-                              <option value="closed_not_interested">Closed - Not Interested</option>
-                            </select>
-                            <button className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900 rounded transition-colors">
-                              <MessageSquare className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                            <Phone className="w-3 h-3" />
+                            {lead.tenantPhone}
+                          </a>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="font-medium text-zinc-900 dark:text-white text-sm">
+                            {lead.propertyTitle}
+                          </p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            Property ID: {lead.propertyId}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-zinc-900 dark:text-white text-sm">
+                          {lead.ownerName}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <select
+                          value={lead.status}
+                          onChange={(e) => handleStatusChange(lead._id, e.target.value)}
+                          disabled={actionLoading[lead._id]}
+                          className={`px-3 py-1 rounded-lg text-xs font-medium border-0 cursor-pointer disabled:opacity-50 ${
+                            statusConfig[lead.status as keyof typeof statusConfig]?.bgColor
+                          } ${statusConfig[lead.status as keyof typeof statusConfig]?.color}`}
+                        >
+                          <option value="new_lead">New Lead</option>
+                          <option value="call_done">Call Done</option>
+                          <option value="visit_scheduled">Visit Scheduled</option>
+                          <option value="closed_booked">Booked</option>
+                          <option value="closed_not_interested">Not Interested</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-4">
+                        <select
+                          value={lead.priority || 'medium'}
+                          onChange={(e) => handlePriorityChange(lead._id, e.target.value)}
+                          disabled={actionLoading[`${lead._id}-priority`]}
+                          className={`px-3 py-1 rounded-lg text-xs font-medium border-0 cursor-pointer disabled:opacity-50 ${
+                            priorityConfig[lead.priority as keyof typeof priorityConfig]?.bg
+                          } ${priorityConfig[lead.priority as keyof typeof priorityConfig]?.color}`}
+                        >
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                          <p>{lead.inquiryDate ? format(new Date(lead.inquiryDate), 'MMM d, yyyy') : 'N/A'}</p>
+                          {lead.followUpDate && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400">
+                              Follow up: {format(new Date(lead.followUpDate), 'MMM d')}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => onLeadSelect?.(lead)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors"
+                          title="View details"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-              <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}{' '}
-                leads
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="p-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-sm font-medium text-zinc-900 dark:text-white">
-                  Page {page} of {totalPages || 1}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Page {page} of {totalPages} • {total} total leads
                 </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages || totalPages === 0}
-                  className="p-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+          </>
         )}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

@@ -3,421 +3,423 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
+  Home,
   Search,
-  Filter,
-  Edit2,
+  Edit,
   Trash2,
   Eye,
   EyeOff,
-  CheckCircle,
+  Filter,
+  Plus,
   AlertCircle,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  Loader,
+  CheckCircle,
+  Clock,
 } from 'lucide-react';
 import axios from 'axios';
-import type { PropertyListingRow, PropertyFilter } from '@/lib/admin/models';
+import toast from 'react-hot-toast';
 
-interface PropertyListingsProps {
-  onPropertySelect?: (property: PropertyListingRow) => void;
+interface Property {
+  _id: string;
+  title: string;
+  city: string;
+  roomType: string;
+  rent: number;
+  ownerName: string;
+  ownerEmail: string;
+  status: 'available' | 'booked' | 'hidden' | 'pending';
+  isApproved: boolean;
+  createdAt: string;
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-const statusConfig: Record<string, { color: string; bgColor: string; icon: string }> = {
-  pending: {
-    color: 'text-amber-600 dark:text-amber-400',
-    bgColor: 'bg-amber-50 dark:bg-amber-950/30',
-    icon: '⏳',
-  },
-  active: {
-    color: 'text-green-600 dark:text-green-400',
-    bgColor: 'bg-green-50 dark:bg-green-950/30',
-    icon: '✓',
-  },
-  booked: {
-    color: 'text-blue-600 dark:text-blue-400',
-    bgColor: 'bg-blue-50 dark:bg-blue-950/30',
-    icon: '📅',
-  },
-  hidden: {
-    color: 'text-zinc-600 dark:text-zinc-400',
-    bgColor: 'bg-zinc-50 dark:bg-zinc-950/30',
-    icon: '👁️‍🗨️',
-  },
-  archived: {
-    color: 'text-red-600 dark:text-red-400',
-    bgColor: 'bg-red-50 dark:bg-red-950/30',
-    icon: '🗂️',
-  },
-};
-
-export default function PropertyListings({ onPropertySelect }: PropertyListingsProps) {
-  const [properties, setProperties] = useState<PropertyListingRow[]>([]);
+export default function PropertyListings() {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState<PropertyFilter>({
-    status: undefined,
-    city: undefined,
-    sortBy: 'newest',
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
-
-  const handleReject = async (propertyId: string) => {
-    const reason = window.prompt('Please provide a reason for rejection:\n\n1. Poor quality images\n2. Incomplete information\n3. Price mismatch\n4. Location not matching\n5. Other (please specify)');
-    if (!reason) return;
-
-    try {
-      setActionLoading((prev) => ({ ...prev, [propertyId]: true }));
-      await axios.patch(`/api/admin/properties/${propertyId}/status`, {
-        status: 'rejected',
-        rejectionReason: reason,
-      });
-      fetchProperties();
-      alert('Property rejected and owner notified');
-    } catch (err) {
-      console.error('Error rejecting property:', err);
-      alert('Failed to reject property');
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [propertyId]: false }));
-    }
-  };
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [approvalFilter, setApprovalFilter] = useState<string>('all');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Property>>({});
 
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      setError(null);
-
-      const params = {
-        page,
-        limit,
-        status: filters.status,
-        city: filters.city,
-        sortBy: filters.sortBy,
-        search: searchQuery,
-      };
-
-      const response = await axios.get('/api/admin/properties', { params });
-      setProperties(response.data.properties);
-      setTotal(response.data.total);
-    } catch (err) {
-      setError('Failed to load properties');
-      console.error('Properties fetch error:', err);
+      const response = await axios.get('/api/admin/properties');
+      setProperties(response.data.properties || []);
+    } catch (error) {
+      console.error('Failed to fetch properties:', error);
+      toast.error('Failed to load properties');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    setPage(1);
-  }, [filters, searchQuery]);
+    fetchProperties();
+  }, []);
 
   useEffect(() => {
-    fetchProperties();
-  }, [page, limit, filters, searchQuery]);
+    let filtered = properties;
 
-  const handleStatusChange = async (propertyId: string, newStatus: string) => {
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (p) =>
+          p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.ownerName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((p) => p.status === statusFilter);
+    }
+
+    if (approvalFilter === 'approved') {
+      filtered = filtered.filter((p) => p.isApproved);
+    } else if (approvalFilter === 'pending') {
+      filtered = filtered.filter((p) => !p.isApproved);
+    }
+
+    setFilteredProperties(filtered);
+  }, [properties, searchTerm, statusFilter, approvalFilter]);
+
+  const handleToggleApproval = async (id: string, currentApproval: boolean) => {
     try {
-      setActionLoading((prev) => ({ ...prev, [propertyId]: true }));
-      await axios.patch(`/api/admin/properties/${propertyId}/status`, {
-        status: newStatus,
+      await axios.patch(`/api/admin/properties/${id}`, {
+        isApproved: !currentApproval,
       });
-      fetchProperties();
-    } catch (err) {
-      console.error('Error updating property status:', err);
-      alert('Failed to update property status');
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [propertyId]: false }));
+      setProperties((prev) =>
+        prev.map((p) =>
+          p._id === id ? { ...p, isApproved: !currentApproval } : p
+        )
+      );
+      toast.success(
+        !currentApproval ? 'Property approved' : 'Property approval removed'
+      );
+    } catch (error) {
+      console.error('Failed to update approval:', error);
+      toast.error('Failed to update property');
     }
   };
 
-  const handleDelete = async (propertyId: string) => {
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const statuses = ['available', 'booked', 'hidden'];
+    const nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
+
+    try {
+      await axios.patch(`/api/admin/properties/${id}`, {
+        status: nextStatus,
+      });
+      setProperties((prev) =>
+        prev.map((p) =>
+          p._id === id ? { ...p, status: nextStatus as any } : p
+        )
+      );
+      toast.success(`Property marked as ${nextStatus}`);
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this property?')) {
       return;
     }
+
     try {
-      setActionLoading((prev) => ({ ...prev, [propertyId]: true }));
-      await axios.delete(`/api/admin/properties/${propertyId}`);
-      fetchProperties();
-    } catch (err) {
-      console.error('Error deleting property:', err);
-      alert('Failed to delete property');
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [propertyId]: false }));
+      await axios.delete(`/api/admin/properties/${id}`);
+      setProperties((prev) => prev.filter((p) => p._id !== id));
+      toast.success('Property deleted');
+    } catch (error) {
+      console.error('Failed to delete property:', error);
+      toast.error('Failed to delete property');
     }
   };
 
-  const totalPages = Math.ceil(total / limit);
+  const handleSaveEdit = async (id: string) => {
+    try {
+      await axios.patch(`/api/admin/properties/${id}`, editForm);
+      setProperties((prev) =>
+        prev.map((p) => (p._id === id ? { ...p, ...editForm } : p))
+      );
+      setEditingId(null);
+      toast.success('Property updated');
+    } catch (error) {
+      console.error('Failed to update property:', error);
+      toast.error('Failed to update property');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-100 text-green-800 dark:bg-green-950/30 dark:text-green-400';
+      case 'booked':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400';
+      case 'hidden':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-950/30 dark:text-gray-400';
+      case 'pending':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400';
+      default:
+        return 'bg-zinc-100 text-zinc-800';
+    }
+  };
+
+  const getApprovalBadge = (approved: boolean) => {
+    return approved ? (
+      <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+        <CheckCircle className="w-4 h-4" />
+        Approved
+      </span>
+    ) : (
+      <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+        <Clock className="w-4 h-4" />
+        Pending Review
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header & Filters */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp} className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-black text-zinc-900 dark:text-white">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div>
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white mb-2">
             Property Listings
           </h1>
-          <button
-            onClick={() => fetchProperties()}
-            className="flex items-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </button>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Manage all property listings and reviews
+          </p>
         </div>
+        <button className="flex items-center gap-2 bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors">
+          <Plus className="w-4 h-4" />
+          Add Property
+        </button>
+      </motion.div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="Search properties by title, address..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Filters */}
+      {/* Filters */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800"
+      >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Status
-            </label>
-            <select
-              value={filters.status || ''}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: (e.target.value as any) || undefined,
-                }))
-              }
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Statuses</option>
-              <option value="pending">Pending Approval</option>
-              <option value="active">Active</option>
-              <option value="booked">Booked/Occupied</option>
-              <option value="hidden">Hidden</option>
-              <option value="under_review">Under Review</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Price Range
-            </label>
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-zinc-400" />
             <input
               type="text"
-              placeholder="e.g., 5000-15000"
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search properties..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Date Range
-            </label>
-            <input
-              type="date"
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          {/* Status Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="available">Available</option>
+            <option value="booked">Booked</option>
+            <option value="hidden">Hidden</option>
+            <option value="pending">Pending</option>
+          </select>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Sort By
-            </label>
-            <select
-              value={filters.sortBy || 'newest'}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  sortBy: e.target.value as any,
-                }))
-              }
-              className="w-full px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="newest">Newest First</option>
-              <option value="views">Most Views</option>
-              <option value="price">Price</option>
-              <option value="rating">Rating</option>
-            </select>
+          {/* Approval Filter */}
+          <select
+            value={approvalFilter}
+            onChange={(e) => setApprovalFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          >
+            <option value="all">All Reviews</option>
+            <option value="approved">Approved</option>
+            <option value="pending">Pending Review</option>
+          </select>
+
+          {/* Count Badge */}
+          <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-medium">{filteredProperties.length} results</span>
           </div>
         </div>
       </motion.div>
 
       {/* Properties Table */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
+      >
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader className="w-6 h-6 animate-spin text-blue-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-500 border-t-transparent" />
           </div>
-        ) : error ? (
-          <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-6 border border-red-200 dark:border-red-800">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <p className="text-red-800 dark:text-red-200">{error}</p>
-            </div>
-          </div>
-        ) : properties.length === 0 ? (
-          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-12 text-center border border-zinc-200 dark:border-zinc-800">
+        ) : filteredProperties.length === 0 ? (
+          <div className="text-center py-12">
+            <AlertCircle className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
             <p className="text-zinc-600 dark:text-zinc-400">No properties found</p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Property
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Owner
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Location
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Price
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                  {properties.map((property) => {
-                    const status = statusConfig[property.status];
-                    return (
-                      <tr
-                        key={property._id}
-                        className="hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                        onClick={() => onPropertySelect?.(property)}
-                      >
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="font-medium text-zinc-900 dark:text-white">
-                              {property.title}
-                            </p>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                              {property.bedrooms}BHK • {property.bathrooms} Bath
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="font-medium text-zinc-900 dark:text-white">
-                              {property.ownerName}
-                            </p>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                              {property.isVerified ? '✓ Verified' : 'Unverified'}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                              {property.location.address}
-                            </p>
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                              {property.location.city}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Property
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Owner
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Rent
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Approval
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                {filteredProperties.map((property) => (
+                  <motion.tr
+                    key={property._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      {editingId === property._id ? (
+                        <input
+                          type="text"
+                          value={editForm.title || property.title}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, title: e.target.value })
+                          }
+                          className="w-full px-3 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                        />
+                      ) : (
+                        <div>
                           <p className="font-semibold text-zinc-900 dark:text-white">
-                            ₹{property.price.toLocaleString()}
+                            {property.title}
                           </p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${status.bgColor} ${status.color}`}
-                          >
-                            {status.icon} {property.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div
-                            className="flex items-center gap-2"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <select
-                              value={property.status}
-                              onChange={(e) => {
-                                if (e.target.value === 'rejected') {
-                                  handleReject(property._id);
-                                } else {
-                                  handleStatusChange(property._id, e.target.value);
-                                }
-                              }}
-                              disabled={actionLoading[property._id]}
-                              className="text-xs px-2 py-1 border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white disabled:opacity-50"
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            {property.city}
+                          </p>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                          {property.ownerName}
+                        </p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                          {property.ownerEmail}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                        {property.roomType}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {editingId === property._id ? (
+                        <input
+                          type="number"
+                          value={editForm.rent || property.rent}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, rent: Number(e.target.value) })
+                          }
+                          className="w-20 px-3 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                        />
+                      ) : (
+                        <span className="font-semibold text-zinc-900 dark:text-white">
+                          ₹{property.rent.toLocaleString()}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() =>
+                          handleToggleApproval(property._id, property.isApproved)
+                        }
+                        className="text-sm transition-colors"
+                      >
+                        {getApprovalBadge(property.isApproved)}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleToggleStatus(property._id, property.status)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold ${getStatusColor(
+                          property.status
+                        )}`}
+                      >
+                        {property.status}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {editingId === property._id ? (
+                          <>
+                            <button
+                              onClick={() => handleSaveEdit(property._id)}
+                              className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors"
                             >
-                              <option value="pending">Pending</option>
-                              <option value="active">Active (Approve)</option>
-                              <option value="booked">Booked</option>
-                              <option value="under_review">Under Review</option>
-                              <option value="hidden">Hidden</option>
-                              <option value="rejected">Reject</option>
-                            </select>
-                            <button className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900 rounded transition-colors">
-                              <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="p-2 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            >
+                              ✕
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditingId(property._id);
+                                setEditForm(property);
+                              }}
+                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(property._id)}
-                              disabled={actionLoading[property._id]}
-                              className="p-1 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors disabled:opacity-50"
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
                             >
-                              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-              <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of{' '}
-                {total} properties
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="p-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-sm font-medium text-zinc-900 dark:text-white">
-                  Page {page} of {totalPages || 1}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages || totalPages === 0}
-                  className="p-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </motion.div>
