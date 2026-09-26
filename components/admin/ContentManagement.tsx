@@ -17,6 +17,8 @@ import {
   Eye,
   Send,
   X,
+  Calendar,
+  Clock,
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -71,6 +73,8 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showScheduler, setShowScheduler] = useState(false);
+  const [scheduledNotification, setScheduledNotification] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({
     title: '',
     description: '',
@@ -79,6 +83,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
     link: '',
     channels: [],
     targetAudience: 'all',
+    scheduledAt: '',
   });
   const { authHeaders } = useApi();
 
@@ -520,13 +525,26 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {notif.status === 'draft' && (
-                            <button
-                              onClick={() => handleSendNotification(notif._id)}
-                              disabled={actionLoading[`send-${notif._id}`]}
-                              className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors disabled:opacity-50"
-                            >
-                              <Send className="w-4 h-4" />
-                            </button>
+                            <>
+                              <button
+                                onClick={() => {
+                                  setScheduledNotification(notif._id);
+                                  setShowScheduler(true);
+                                }}
+                                className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-lg transition-colors"
+                                title="Schedule notification"
+                              >
+                                <Clock className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleSendNotification(notif._id)}
+                                disabled={actionLoading[`send-${notif._id}`]}
+                                className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors disabled:opacity-50"
+                                title="Send now"
+                              >
+                                <Send className="w-4 h-4" />
+                              </button>
+                            </>
                           )}
                           <button
                             onClick={() => handleEdit(notif)}
@@ -744,6 +762,97 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                 className="flex-1 px-4 py-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition-colors disabled:opacity-50"
               >
                 {actionLoading.save ? <Loader className="w-4 h-4 animate-spin mx-auto" /> : 'Save'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Notification Scheduler Modal */}
+      {showScheduler && scheduledNotification && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-amber-600" />
+                Schedule Notification
+              </h2>
+              <button
+                onClick={() => {
+                  setShowScheduler(false);
+                  setScheduledNotification(null);
+                }}
+                className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Schedule Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg p-3">
+                <p className="text-sm text-blue-700 dark:text-blue-400">
+                  💡 Notification will be automatically sent at the scheduled time to all selected audience members via their preferred channels.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <button
+                onClick={() => {
+                  setShowScheduler(false);
+                  setScheduledNotification(null);
+                }}
+                className="flex-1 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    setActionLoading((prev) => ({ ...prev, schedule: true }));
+                    await axios.patch(
+                      `/api/admin/notifications/${scheduledNotification}`,
+                      {
+                        status: 'scheduled',
+                        scheduledAt: formData.scheduledAt,
+                      },
+                      authHeaders()
+                    );
+                    toast.success('Notification scheduled successfully');
+                    setShowScheduler(false);
+                    setScheduledNotification(null);
+                    setFormData({ ...formData, scheduledAt: '' });
+                    fetchContent();
+                  } catch (err) {
+                    toast.error('Failed to schedule notification');
+                  } finally {
+                    setActionLoading((prev) => ({ ...prev, schedule: false }));
+                  }
+                }}
+                disabled={actionLoading.schedule || !formData.scheduledAt}
+                className="flex-1 px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50"
+              >
+                {actionLoading.schedule ? (
+                  <Loader className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  'Schedule'
+                )}
               </button>
             </div>
           </motion.div>

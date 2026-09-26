@@ -40,6 +40,9 @@ interface Inquiry {
   tags?: string[];
   followUpDate?: string;
   notes?: string;
+  lastContactDate?: string;
+  contactAttempts?: number;
+  conversionValue?: number;
 }
 
 interface LeadsManagementProps {
@@ -57,30 +60,35 @@ const statusConfig = {
     bgColor: 'bg-blue-50 dark:bg-blue-950/30',
     icon: <Clock className="w-4 h-4" />,
     label: 'New Lead',
+    order: 1,
   },
   call_done: {
     color: 'text-purple-600 dark:text-purple-400',
     bgColor: 'bg-purple-50 dark:bg-purple-950/30',
     icon: <Phone className="w-4 h-4" />,
-    label: 'Call Done',
+    label: 'Call Done / Discussion',
+    order: 2,
   },
   visit_scheduled: {
     color: 'text-amber-600 dark:text-amber-400',
     bgColor: 'bg-amber-50 dark:bg-amber-950/30',
     icon: <Calendar className="w-4 h-4" />,
     label: 'Visit Scheduled',
+    order: 3,
   },
   closed_booked: {
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-50 dark:bg-green-950/30',
     icon: <CheckCircle2 className="w-4 h-4" />,
-    label: 'Booked',
+    label: 'Closed / Booked',
+    order: 4,
   },
   closed_not_interested: {
     color: 'text-red-600 dark:text-red-400',
     bgColor: 'bg-red-50 dark:bg-red-950/30',
     icon: <XCircle className="w-4 h-4" />,
-    label: 'Not Interested',
+    label: 'Closed / Not Interested',
+    order: 5,
   },
 };
 
@@ -103,6 +111,8 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
   const [exporting, setExporting] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Inquiry | null>(null);
+  const [notesText, setNotesText] = useState('');
   const { authHeaders } = useApi();
 
   const fetchLeads = async () => {
@@ -173,11 +183,40 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
           l._id === leadId ? { ...l, priority: newPriority as Inquiry['priority'] } : l
         )
       );
+      if (selectedLead?._id === leadId) {
+        setSelectedLead((prev) =>
+          prev ? { ...prev, priority: newPriority as Inquiry['priority'] } : null
+        );
+      }
       toast.success('Priority updated');
     } catch (err) {
       toast.error('Failed to update priority');
     } finally {
       setActionLoading((prev) => ({ ...prev, [`${leadId}-priority`]: false }));
+    }
+  };
+
+  const handleSaveNotes = async (leadId: string) => {
+    setActionLoading((prev) => ({ ...prev, [`notes-${leadId}`]: true }));
+    try {
+      await axios.patch(
+        `/api/admin/inquiries/${leadId}`,
+        { notes: notesText },
+        authHeaders()
+      );
+      setLeads((prev) =>
+        prev.map((l) =>
+          l._id === leadId ? { ...l, notes: notesText } : l
+        )
+      );
+      if (selectedLead?._id === leadId) {
+        setSelectedLead((prev) => (prev ? { ...prev, notes: notesText } : null));
+      }
+      toast.success('Notes saved');
+    } catch (err) {
+      toast.error('Failed to save notes');
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [`notes-${leadId}`]: false }));
     }
   };
 
@@ -380,6 +419,41 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
         </div>
       </motion.div>
 
+      {/* Leads Pipeline Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800"
+      >
+        <h3 className="font-semibold text-zinc-900 dark:text-white mb-4">Pipeline Status</h3>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {Object.entries(statusConfig).map(([key, config]) => {
+            const count = leads.filter((l) => l.status === key).length;
+            return (
+              <motion.div
+                key={key}
+                whileHover={{ scale: 1.05 }}
+                onClick={() => setStatusFilter(statusFilter === key ? 'all' : key)}
+                className={`p-3 rounded-lg cursor-pointer transition-all ${
+                  statusFilter === key
+                    ? config.bgColor
+                    : 'bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {config.icon}
+                  <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    {config.label}
+                  </span>
+                </div>
+                <p className={`text-2xl font-bold ${config.color}`}>{count}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+
       {/* Leads Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -516,7 +590,10 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
-                          onClick={() => onLeadSelect?.(lead)}
+                          onClick={() => {
+                            setSelectedLead(lead);
+                            setNotesText(lead.notes || '');
+                          }}
                           className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors"
                           title="View details"
                         >
@@ -556,6 +633,196 @@ export default function LeadsManagement({ onLeadSelect }: LeadsManagementProps) 
           </>
         )}
       </motion.div>
+
+      {/* Lead Details Modal */}
+      {selectedLead && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white dark:bg-zinc-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+              <div>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  {selectedLead.tenantName}
+                </h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                  Interested in: {selectedLead.propertyTitle}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedLead(null)}
+                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-zinc-600 dark:text-zinc-400" />
+              </button>
+            </div>
+
+            {/* Main Content */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Tenant Information */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Tenant Details</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Name</p>
+                    <p className="text-sm text-zinc-900 dark:text-white mt-1">{selectedLead.tenantName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Phone</p>
+                    <a
+                      href={`tel:${selectedLead.tenantPhone}`}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1"
+                    >
+                      {selectedLead.tenantPhone}
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Inquiry Date</p>
+                    <p className="text-sm text-zinc-900 dark:text-white mt-1">
+                      {selectedLead.inquiryDate
+                        ? format(new Date(selectedLead.inquiryDate), 'MMM d, yyyy • h:mm a')
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Property & Status */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Lead Status</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium mb-2">Status</p>
+                    <select
+                      value={selectedLead.status}
+                      onChange={(e) => handleStatusChange(selectedLead._id, e.target.value)}
+                      disabled={actionLoading[selectedLead._id]}
+                      className={`w-full px-3 py-2 rounded-lg text-sm font-medium border-0 cursor-pointer disabled:opacity-50 ${
+                        statusConfig[selectedLead.status as keyof typeof statusConfig]?.bgColor
+                      } ${statusConfig[selectedLead.status as keyof typeof statusConfig]?.color}`}
+                    >
+                      <option value="new_lead">New Lead</option>
+                      <option value="call_done">Call Done / Discussion</option>
+                      <option value="visit_scheduled">Visit Scheduled</option>
+                      <option value="closed_booked">Closed / Booked</option>
+                      <option value="closed_not_interested">Closed / Not Interested</option>
+                    </select>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium mb-2">Priority</p>
+                    <select
+                      value={selectedLead.priority || 'medium'}
+                      onChange={(e) => handlePriorityChange(selectedLead._id, e.target.value)}
+                      disabled={actionLoading[`${selectedLead._id}-priority`]}
+                      className={`w-full px-3 py-2 rounded-lg text-sm font-medium border-0 cursor-pointer disabled:opacity-50 ${
+                        priorityConfig[selectedLead.priority as keyof typeof priorityConfig]?.bg
+                      } ${priorityConfig[selectedLead.priority as keyof typeof priorityConfig]?.color}`}
+                    >
+                      <option value="low">Low Priority</option>
+                      <option value="medium">Medium Priority</option>
+                      <option value="high">High Priority</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Owner & Property Info */}
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800">
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-3">Property Details</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Property</p>
+                  <p className="text-sm text-zinc-900 dark:text-white mt-1">{selectedLead.propertyTitle}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">ID: {selectedLead.propertyId}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Owner</p>
+                  <p className="text-sm text-zinc-900 dark:text-white mt-1">{selectedLead.ownerName}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Statistics */}
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800">
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-3">Contact Tracking</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-lg">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Last Contact</p>
+                  <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                    {selectedLead.lastContactDate
+                      ? format(new Date(selectedLead.lastContactDate), 'MMM d')
+                      : 'Never'}
+                  </p>
+                </div>
+                <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-lg">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Attempts</p>
+                  <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                    {selectedLead.contactAttempts || 0}
+                  </p>
+                </div>
+                <div className="bg-zinc-50 dark:bg-zinc-800 p-3 rounded-lg">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Value</p>
+                  <p className="text-lg font-semibold text-green-600 dark:text-green-400 mt-1">
+                    ₹{(selectedLead.conversionValue || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800">
+              <h3 className="font-semibold text-zinc-900 dark:text-white mb-3">Internal Notes</h3>
+              <textarea
+                value={notesText}
+                onChange={(e) => setNotesText(e.target.value)}
+                placeholder="Add notes about this lead..."
+                className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                rows={4}
+              />
+              <button
+                onClick={() => handleSaveNotes(selectedLead._id)}
+                disabled={actionLoading[`notes-${selectedLead._id}`]}
+                className="mt-2 w-full px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors disabled:opacity-50"
+              >
+                {actionLoading[`notes-${selectedLead._id}`] ? (
+                  <Loader className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  'Save Notes'
+                )}
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2">
+              <button
+                onClick={() => window.location.href = `tel:${selectedLead.tenantPhone}`}
+                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                <Phone className="w-4 h-4" />
+                Call Tenant
+              </button>
+              <button
+                onClick={() => window.location.href = `sms:${selectedLead.tenantPhone}`}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Send SMS
+              </button>
+              <button
+                onClick={() => setSelectedLead(null)}
+                className="ml-auto px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }

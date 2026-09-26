@@ -19,6 +19,12 @@ import {
   Home,
   MessageSquare,
   Clock,
+  Eye,
+  X,
+  Mail,
+  Star,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
 import axios from 'axios';
 import { useApi } from '@/hooks/useApi';
@@ -71,6 +77,7 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
   const [verifiedFilter, setVerifiedFilter] = useState<'all' | 'verified' | 'unverified'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { authHeaders } = useApi();
 
   const fetchUsers = async () => {
@@ -434,13 +441,13 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                 <thead>
                   <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
                     <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                      User
+                      {userType === 'owners' ? 'Owner' : 'Tenant'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                       Contact
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                      {userType === 'owners' ? 'Properties' : 'Activity'}
+                      {userType === 'owners' ? 'City & Properties' : 'Registration & Activity'}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                       Status
@@ -485,24 +492,16 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                       </td>
                       <td className="px-6 py-4">
                         <div className="space-y-1">
-                          {user.phone && (
-                            <div className="flex items-center gap-1 text-sm text-zinc-600 dark:text-zinc-400">
-                              <Phone className="w-3 h-3" />
-                              {user.phone}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1 text-sm text-zinc-600 dark:text-zinc-400">
+                            <Phone className="w-3 h-3" />
+                            {user.phone || 'N/A'}
+                          </div>
                           {user.city && (
                             <div className="flex items-center gap-1 text-sm text-zinc-600 dark:text-zinc-400">
                               <MapPin className="w-3 h-3" />
                               {user.city}
                             </div>
                           )}
-                          <div className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-500">
-                            <Calendar className="w-3 h-3" />
-                            {user.registrationDate
-                              ? format(new Date(user.registrationDate), 'MMM d, yyyy')
-                              : 'N/A'}
-                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -515,28 +514,25 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                                   {user.propertyCount || 0}
                                 </span>
                                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                                  total
+                                  properties
                                 </span>
                               </div>
                               <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                                {user.activeListings || 0} active · {user.responseRate || 0}%
-                                response
+                                {user.activeListings || 0} active · {user.responseRate || 0}% response
                               </div>
                             </>
                           ) : (
                             <>
                               <div className="flex items-center gap-2">
-                                <MessageSquare className="w-3 h-3 text-zinc-400" />
-                                <span className="font-medium text-zinc-900 dark:text-white">
-                                  {user.inquiriesCount || 0}
-                                </span>
-                                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                                  inquiries
+                                <Calendar className="w-3 h-3 text-zinc-400" />
+                                <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                                  {user.registrationDate
+                                    ? format(new Date(user.registrationDate), 'MMM d, yyyy')
+                                    : 'N/A'}
                                 </span>
                               </div>
                               <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                                {user.activeInquiries || 0} active · {user.bookingsCount || 0}{' '}
-                                bookings
+                                {user.inquiriesCount || 0} inquiries · {user.activeInquiries || 0} active
                               </div>
                             </>
                           )}
@@ -569,15 +565,22 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleCallUser(user.phone)}
+                            onClick={() => setSelectedUser(user)}
                             className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-colors"
+                            title="View details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleCallUser(user.phone)}
+                            className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors"
                             title="Call user"
                           >
                             <Phone className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleMessageUser(user.phone)}
-                            className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors"
+                            className="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/30 rounded-lg transition-colors"
                             title="Send SMS"
                           >
                             <MessageSquare className="w-4 h-4" />
@@ -635,6 +638,278 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
           </>
         )}
       </motion.div>
+
+      {/* User Details Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white dark:bg-zinc-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+              <div>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  {selectedUser.username}
+                </h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                  {selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)} Account
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-zinc-600 dark:text-zinc-400" />
+              </button>
+            </div>
+
+            {/* Main Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-rose-500" />
+                  Personal Information
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Email</p>
+                    <p className="text-sm text-zinc-900 dark:text-white mt-1">{selectedUser.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Phone</p>
+                    <a
+                      href={`tel:${selectedUser.phone}`}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1"
+                    >
+                      {selectedUser.phone || 'N/A'}
+                    </a>
+                  </div>
+                  {selectedUser.city && (
+                    <div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">City</p>
+                      <p className="text-sm text-zinc-900 dark:text-white mt-1 flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {selectedUser.city}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Account Status */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-rose-500" />
+                  Account Status
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Status</p>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium mt-1 ${
+                        selectedUser.isActive
+                          ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+                          : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+                      }`}
+                    >
+                      {selectedUser.isActive ? (
+                        <>
+                          <CheckCircle className="w-3 h-3" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <Ban className="w-3 h-3" />
+                          Blocked
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Verification</p>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium mt-1 ${
+                        selectedUser.isVerified || selectedUser.ownerVerified
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'
+                          : 'bg-gray-100 text-gray-700 dark:bg-gray-950/30 dark:text-gray-400'
+                      }`}
+                    >
+                      {selectedUser.isVerified || selectedUser.ownerVerified ? 'Verified' : 'Unverified'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Risk Level</p>
+                    <div className="mt-1">{getRiskBadge(selectedUser.fraudRiskLevel)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Activity & Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-rose-500" />
+                  Timeline
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Registered</p>
+                    <p className="text-sm text-zinc-900 dark:text-white mt-1">
+                      {selectedUser.registrationDate
+                        ? format(new Date(selectedUser.registrationDate), 'MMM d, yyyy • h:mm a')
+                        : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Last Activity</p>
+                    <p className="text-sm text-zinc-900 dark:text-white mt-1">
+                      {selectedUser.lastActivity
+                        ? format(new Date(selectedUser.lastActivity), 'MMM d, yyyy • h:mm a')
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {selectedUser.role === 'owner' ? (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <Home className="w-4 h-4 text-rose-500" />
+                    Properties
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Total Properties</p>
+                      <p className="text-2xl font-bold text-zinc-900 dark:text-white mt-1">
+                        {selectedUser.propertyCount || 0}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Active</p>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                          {selectedUser.activeListings || 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Response Rate</p>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                          {selectedUser.responseRate || 0}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-rose-500" />
+                    Activity
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Inquiries</p>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                          {selectedUser.inquiriesCount || 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Active</p>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                          {selectedUser.activeInquiries || 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase font-medium">Bookings</p>
+                        <p className="text-lg font-semibold text-zinc-900 dark:text-white mt-1">
+                          {selectedUser.bookingsCount || 0}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Trust Badges */}
+            {selectedUser.trustBadges && selectedUser.trustBadges.length > 0 && (
+              <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800">
+                <h3 className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2 mb-3">
+                  <Star className="w-4 h-4 text-rose-500" />
+                  Trust Badges
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedUser.trustBadges.map((badge) => (
+                    <span
+                      key={badge}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400"
+                    >
+                      <CheckCircle className="w-3 h-3" />
+                      {badge.charAt(0).toUpperCase() + badge.slice(1)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => handleCallUser(selectedUser.phone)}
+                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                <Phone className="w-4 h-4" />
+                Call
+              </button>
+              <button
+                onClick={() => handleMessageUser(selectedUser.phone)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Send SMS
+              </button>
+              <button
+                onClick={() => {
+                  handleBlockUser(selectedUser._id, selectedUser.isActive);
+                  setSelectedUser(null);
+                }}
+                disabled={actionLoading[selectedUser._id]}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  selectedUser.isActive
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-green-500 text-white hover:bg-green-600'
+                } disabled:opacity-50`}
+              >
+                {actionLoading[selectedUser._id] ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : selectedUser.isActive ? (
+                  <>
+                    <Ban className="w-4 h-4" />
+                    Block User
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Unblock User
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="ml-auto px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }

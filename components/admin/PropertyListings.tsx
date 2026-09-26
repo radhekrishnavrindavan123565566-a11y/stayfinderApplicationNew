@@ -354,7 +354,7 @@ export default function PropertyListings() {
                         />
                       ) : (
                         <span className="font-semibold text-zinc-900 dark:text-white">
-                          ₹{property.rent.toLocaleString()}
+                          ₹{(property.rent || 0).toLocaleString()}
                         </span>
                       )}
                     </td>

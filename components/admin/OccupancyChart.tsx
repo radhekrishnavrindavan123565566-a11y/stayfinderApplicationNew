@@ -48,7 +48,13 @@ export default function OccupancyChart() {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-zinc-100 dark:border-zinc-800">
+        <p className="text-zinc-500 dark:text-zinc-400">No occupancy data available</p>
+      </div>
+    );
+  }
 
   const maxOccupancy = Math.max(...data.monthlyData.map((m) => m.occupied + m.vacant));
 
