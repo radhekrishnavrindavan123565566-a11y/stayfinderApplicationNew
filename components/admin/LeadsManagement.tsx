@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { useApi } from '@/hooks/useApi';
 import { format } from 'date-fns';
 

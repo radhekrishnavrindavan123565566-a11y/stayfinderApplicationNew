@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { useApi } from '@/hooks/useApi';
 import { format } from 'date-fns';
 
@@ -179,6 +180,11 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
         return;
       }
 
+      if (contentType === 'banner' && !formData.imageUrl?.trim()) {
+        toast.error('Image URL is required');
+        return;
+      }
+
       const endpoint =
         contentType === 'banner'
           ? editingId
@@ -190,26 +196,28 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
 
       const method = editingId ? 'PATCH' : 'POST';
 
-      await axios({
+      const response = await axios({
         method,
         url: endpoint,
         data: contentType === 'banner'
           ? {
-              title: formData.title,
-              description: formData.description,
-              imageUrl: formData.imageUrl,
-              link: formData.link,
+              title: formData.title.trim(),
+              description: formData.description?.trim() || '',
+              imageUrl: formData.imageUrl?.trim() || '',
+              link: formData.link?.trim() || '/',
             }
           : {
-              title: formData.title,
-              message: formData.message,
-              channels: formData.channels,
-              targetAudience: formData.targetAudience,
+              title: formData.title.trim(),
+              message: formData.message?.trim() || '',
+              channels: formData.channels || ['push'],
+              targetAudience: formData.targetAudience || 'all',
             },
         ...authHeaders(),
       });
 
-      toast.success(editingId ? 'Content updated' : 'Content created');
+      toast.success(editingId ? 'Content updated successfully' : 'Content created successfully');
+      
+      // Reset form state
       setShowForm(false);
       setEditingId(null);
       setFormData({
@@ -220,10 +228,16 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
         link: '',
         channels: [],
         targetAudience: 'all',
+        scheduledAt: '',
       });
+      setImagePreview('');
+      setUploadMethod('url');
+      
+      // Refresh content list
       fetchContent();
-    } catch (err) {
-      toast.error('Failed to save content');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.error || 'Failed to save content';
+      toast.error(errorMsg);
       console.error('Save error:', err);
     } finally {
       setActionLoading((prev) => ({ ...prev, save: false }));
@@ -231,7 +245,20 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this content?')) return;
+    const result = await Swal.fire({
+      title: 'Delete Content?',
+      text: 'This action cannot be undone. Are you sure you want to delete this content?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       setActionLoading((prev) => ({ ...prev, [id]: true }));
@@ -241,7 +268,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
 
       await axios.delete(endpoint, authHeaders());
 
-      toast.success('Content deleted');
+      toast.success('Content deleted successfully');
       fetchContent();
     } catch (err) {
       toast.error('Failed to delete content');
@@ -254,23 +281,26 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
   const handleEdit = (item: Banner | Notification) => {
     if ('imageUrl' in item) {
       setFormData({
-        title: item.title,
+        title: item.title || '',
         description: item.description || '',
-        imageUrl: item.imageUrl,
+        imageUrl: item.imageUrl || '',
         link: item.link || '',
         channels: [],
         targetAudience: 'all',
       });
+      setImagePreview(item.imageUrl || '');
+      setUploadMethod(item.imageUrl ? 'url' : 'file');
     } else {
       setFormData({
-        title: item.title,
-        message: item.message,
-        channels: item.channels,
-        targetAudience: item.targetAudience,
+        title: item.title || '',
+        message: item.message || '',
+        channels: item.channels || [],
+        targetAudience: item.targetAudience || 'all',
         description: '',
         imageUrl: '',
         link: '',
       });
+      setImagePreview('');
     }
     setEditingId(item._id);
     setShowForm(true);
@@ -647,12 +677,12 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 space-y-4"
+            className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-6 space-y-4 my-8"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
@@ -669,7 +699,7 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="max-h-[70vh] overflow-y-auto space-y-4 pr-2">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Title <span className="text-red-500 font-bold">*</span>

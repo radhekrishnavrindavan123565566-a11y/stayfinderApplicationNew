@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle, Trash2, Edit2, Star, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import Link from 'next/link';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
@@ -50,11 +51,24 @@ export default function FeedbackPage() {
   }, [ready, user]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this feedback?')) return;
+    const result = await Swal.fire({
+      title: 'Delete Feedback?',
+      text: 'This feedback will be permanently deleted and cannot be recovered.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await axios.delete(`/api/feedback/${id}`);
-      toast.success('Feedback deleted');
+      toast.success('Feedback deleted successfully');
       setFeedback(feedback.filter((f) => f._id !== id));
     } catch (error) {
       toast.error('Failed to delete feedback');

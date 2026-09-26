@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Home,
@@ -55,6 +56,7 @@ const fadeUp = {
 };
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [inquiryCounts, setInquiryCounts] = useState<InquiryCount>({ today: 0, thisWeek: 0 });
   const [activityFeed, setActivityFeed] = useState<ActivityItem[]>([]);
@@ -388,7 +390,10 @@ export default function AdminDashboard() {
 
             {activityFeed.length > 0 && (
               <div className="px-6 py-3 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-100 dark:border-zinc-800 text-center">
-                <button className="text-sm font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors">
+                <button
+                  onClick={() => router.push('/admin/activity')}
+                  className="text-sm font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors"
+                >
                   View All Activity →
                 </button>
               </div>

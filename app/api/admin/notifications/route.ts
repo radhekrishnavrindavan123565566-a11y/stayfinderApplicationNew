@@ -1,21 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-
-interface Notification {
-  _id?: string;
-  title: string;
-  message: string;
-  channels: ('sms' | 'whatsapp' | 'push' | 'email')[];
-  targetAudience: 'all' | 'owners' | 'tenants';
-  status: 'draft' | 'scheduled' | 'sent' | 'failed';
-  sentCount?: number;
-  scheduledAt?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-// In-memory storage for notifications
-let notifications: Notification[] = [];
+import { adminStore } from '@/lib/adminStore';
 
 /**
  * GET /api/admin/notifications
@@ -28,8 +13,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
 
+    // Get notifications from store
+    const allNotifications = adminStore.getNotifications();
+
     // Filter notifications
-    let filtered = notifications;
+    let filtered = allNotifications;
     if (search) {
       filtered = filtered.filter((n) =>
         n.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -81,7 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newNotification: Notification = {
+    const newNotification = {
       _id: Date.now().toString(),
       title: body.title.trim(),
       message: body.message.trim(),
@@ -93,9 +81,9 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date(),
     };
 
-    notifications.push(newNotification);
+    const added = adminStore.addNotification(newNotification);
 
-    return NextResponse.json(newNotification, { status: 201 });
+    return NextResponse.json(added, { status: 201 });
   } catch (error) {
     logger.error('[Admin Notifications POST] Error:', error);
     return NextResponse.json(

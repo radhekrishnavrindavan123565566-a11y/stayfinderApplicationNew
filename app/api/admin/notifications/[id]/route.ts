@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { adminStore } from '@/lib/adminStore';
 
 /**
  * PATCH /api/admin/notifications/[id]
@@ -20,16 +21,23 @@ export async function PATCH(
       );
     }
 
-    const updatedNotification = {
-      _id: id,
-      title: body.title || 'Notification',
-      message: body.message || '',
-      channels: body.channels || ['push'],
-      targetAudience: body.targetAudience || 'all',
-      status: body.status || 'draft',
-      sentCount: body.sentCount || 0,
-      updatedAt: new Date(),
-    };
+    // Update notification using the store
+    const updatedNotification = adminStore.updateNotification(id, {
+      title: body.title,
+      message: body.message,
+      channels: body.channels,
+      targetAudience: body.targetAudience,
+      status: body.status,
+      sentCount: body.sentCount,
+      scheduledAt: body.scheduledAt,
+    });
+
+    if (!updatedNotification) {
+      return NextResponse.json(
+        { error: 'Notification not found' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(updatedNotification);
   } catch (error) {
@@ -56,6 +64,16 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Notification ID is required' },
         { status: 400 }
+      );
+    }
+
+    // Delete notification using the store
+    const deleted = adminStore.deleteNotification(id);
+
+    if (!deleted) {
+      return NextResponse.json(
+        { error: 'Notification not found' },
+        { status: 404 }
       );
     }
 
@@ -93,12 +111,25 @@ export async function POST(
 
     // Check if this is a send request
     if (url.pathname.includes('/send')) {
+      // Update notification status
+      const updated = adminStore.updateNotification(id, {
+        status: 'sent',
+        sentCount: Math.floor(Math.random() * 1000) + 50,
+      });
+
+      if (!updated) {
+        return NextResponse.json(
+          { error: 'Notification not found' },
+          { status: 404 }
+        );
+      }
+
       return NextResponse.json(
         {
           message: 'Notification sent successfully',
           _id: id,
           status: 'sent',
-          sentCount: Math.floor(Math.random() * 1000) + 50,
+          sentCount: updated.sentCount,
         },
         { status: 200 }
       );
@@ -116,3 +147,4 @@ export async function POST(
     );
   }
 }
+

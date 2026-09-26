@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-
-// This would connect to your actual database
-// For now, using in-memory storage (see parent route.ts)
+import { adminStore } from '@/lib/adminStore';
 
 /**
  * PATCH /api/admin/banners/[id]
@@ -31,20 +29,20 @@ export async function PATCH(
       );
     }
 
-    // Update logic would go here
-    // For now, return success response
-    const updatedBanner = {
-      _id: id,
-      title: body.title || 'Banner',
-      description: body.description || '',
-      imageUrl: body.imageUrl || '',
-      link: body.link || '/',
-      isActive: true,
-      displayOrder: 1,
-      impressions: 0,
-      clicks: 0,
-      updatedAt: new Date(),
-    };
+    // Update banner using the store
+    const updatedBanner = adminStore.updateBanner(id, {
+      title: body.title,
+      description: body.description,
+      imageUrl: body.imageUrl,
+      link: body.link,
+    });
+
+    if (!updatedBanner) {
+      return NextResponse.json(
+        { error: 'Banner not found' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(updatedBanner);
   } catch (error) {
@@ -74,8 +72,15 @@ export async function DELETE(
       );
     }
 
-    // Delete logic would go here
-    // For now, return success response
+    // Delete banner using the store
+    const deleted = adminStore.deleteBanner(id);
+
+    if (!deleted) {
+      return NextResponse.json(
+        { error: 'Banner not found' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(
       { message: 'Banner deleted successfully', _id: id },
@@ -89,3 +94,4 @@ export async function DELETE(
     );
   }
 }
+

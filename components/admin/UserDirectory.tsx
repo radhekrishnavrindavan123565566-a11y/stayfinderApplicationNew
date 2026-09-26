@@ -29,6 +29,7 @@ import {
 import axios from 'axios';
 import { useApi } from '@/hooks/useApi';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { format } from 'date-fns';
 
 interface User {
@@ -136,6 +137,28 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
   }, [users, verifiedFilter, statusFilter]);
 
   const handleBlockUser = async (userId: string, currentStatus: boolean) => {
+    const action = currentStatus ? 'block' : 'unblock';
+    const title = currentStatus ? 'Block User?' : 'Unblock User?';
+    const message = currentStatus
+      ? 'This user will be blocked and cannot access the platform.'
+      : 'This user will be unblocked and can access the platform again.';
+    const confirmText = currentStatus ? 'Yes, block user!' : 'Yes, unblock user!';
+
+    const result = await Swal.fire({
+      title,
+      text: message,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: currentStatus ? '#ef4444' : '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: confirmText,
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+
+    if (!result.isConfirmed) return;
+
     setActionLoading((prev) => ({ ...prev, [userId]: true }));
     try {
       await axios.patch(
@@ -145,7 +168,7 @@ export default function UserDirectory({ onUserSelect }: UserDirectoryProps) {
       );
       setUsers((prev) =>
         prev.map((u) =>
-          u._id === userId ? { ...u, isActive: !currentStatus } : u
+          u?._id === userId ? { ...u, isActive: !currentStatus } : u
         )
       );
       toast.success(

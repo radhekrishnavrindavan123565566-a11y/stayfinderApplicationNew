@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Swal from 'sweetalert2';
 import { useAuthStore } from "@/store/authStore";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useApi } from "@/hooks/useApi";
@@ -82,12 +83,26 @@ export default function MyPropertiesPage() {
   };
 
   const deleteProperty = async (id: string) => {
-    if (!confirm("Delete this property? This cannot be undone.")) return;
+    const result = await Swal.fire({
+      title: 'Delete Property?',
+      text: 'This property will be permanently deleted and cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+
+    if (!result.isConfirmed) return;
+
     setDeletingId(id);
     try {
       await axios.delete(`/api/properties/${id}`, authHeaders());
       setProperties((prev) => prev.filter((p) => p._id !== id));
-      toast.success("Property deleted");
+      toast.success("Property deleted successfully");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const serverError = err.response?.data?.error;

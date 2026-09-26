@@ -1,37 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { logger } from '@/lib/logger';
-
-interface Banner {
-  _id?: string;
-  title: string;
-  description?: string;
-  imageUrl: string;
-  link?: string;
-  isActive?: boolean;
-  displayOrder?: number;
-  impressions?: number;
-  clicks?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-// In-memory storage for banners (replace with MongoDB in production)
-let banners: Banner[] = [
-  {
-    _id: '1',
-    title: 'Welcome to SST Home Solutions',
-    description: 'Find your perfect home today',
-    imageUrl: 'https://via.placeholder.com/1200x400?text=Welcome+Banner',
-    link: '/',
-    isActive: true,
-    displayOrder: 1,
-    impressions: 245,
-    clicks: 12,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+import { adminStore } from '@/lib/adminStore';
 
 /**
  * GET /api/admin/banners
@@ -44,8 +14,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
 
+    // Get banners from store
+    const allBanners = adminStore.getBanners();
+
     // Filter banners
-    let filtered = banners;
+    let filtered = allBanners;
     if (search) {
       filtered = filtered.filter((b) =>
         b.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -97,23 +70,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newBanner: Banner = {
+    const newBanner = {
       _id: Date.now().toString(),
       title: body.title.trim(),
       description: body.description?.trim() || '',
       imageUrl: body.imageUrl.trim(),
       link: body.link?.trim() || '/',
       isActive: true,
-      displayOrder: banners.length + 1,
+      displayOrder: adminStore.getBanners().length + 1,
       impressions: 0,
       clicks: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    banners.push(newBanner);
+    const added = adminStore.addBanner(newBanner);
 
-    return NextResponse.json(newBanner, { status: 201 });
+    return NextResponse.json(added, { status: 201 });
   } catch (error) {
     logger.error('[Admin Banners POST] Error:', error);
     return NextResponse.json(

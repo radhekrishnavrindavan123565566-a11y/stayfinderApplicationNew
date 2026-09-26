@@ -36,6 +36,22 @@ export function useRequireAuth(
       useAuthStore.getState().setHasHydrated(true);
     }
 
+    // 3. In development mode, allow admin access without auth for testing
+    if (!resolvedUser && process.env.NODE_ENV === "development") {
+      resolvedUser = {
+        _id: "000000000000000000000000",
+        username: "admin",
+        email: "admin@ssthomesolutions.com",
+        role: "admin",
+        avatar: "https://via.placeholder.com/150",
+        wishlist: [],
+      };
+      useAuthStore.getState().setUser(resolvedUser);
+      setUser(resolvedUser);
+      setReady(true);
+      return;
+    }
+
     if (!resolvedUser) {
       window.location.href = redirectTo;
       return;

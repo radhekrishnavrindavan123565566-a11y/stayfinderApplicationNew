@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 interface Property {
   _id: string;
@@ -139,14 +140,25 @@ export default function PropertyListings() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this property?')) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: 'Delete Property?',
+      text: 'This property will be permanently deleted. This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete property!',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await axios.delete(`/api/admin/properties/${id}`);
-      setProperties((prev) => prev.filter((p) => p._id !== id));
-      toast.success('Property deleted');
+      setProperties((prev) => prev.filter((p) => p?._id !== id));
+      toast.success('Property deleted successfully');
     } catch (error) {
       console.error('Failed to delete property:', error);
       toast.error('Failed to delete property');

@@ -17,6 +17,7 @@ import {
   Calendar,
   HardDrive,
 } from "lucide-react";
+import Swal from 'sweetalert2';
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
@@ -170,7 +171,21 @@ export default function DocumentVaultPage() {
   };
 
   const handleDelete = async (docId: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+    const result = await Swal.fire({
+      title: 'Delete Document?',
+      text: 'This document will be permanently deleted and cannot be recovered.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+
+    if (!result.isConfirmed) return;
+
     if (!accessToken) return;
 
     try {
