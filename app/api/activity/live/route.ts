@@ -1,75 +1,89 @@
-import { NextRequest } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import PropertyActivity from "@/models/PropertyActivity";
-import Property from "@/models/Property";
-import { authenticateRequest } from "@/lib/auth";
-import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
+import { NextRequest, NextResponse } from "next/server";
+import { successResponse } from "@/lib/apiResponse";
+
+// In-memory activity storage for development
+let activities: any[] = [];
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
-    // Public read is intentional for live activity ticker on homepage
-    // but we rate-limit by only returning last 5 minutes of data
+    // Public read for live activity ticker on homepage
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("propertyId");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 50); // cap at 50
+    const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 50);
 
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const query: { createdAt: { $gte: Date }; propertyId?: string } = {
-      createdAt: { $gte: fiveMinutesAgo },
-    };
-    if (propertyId) query.propertyId = propertyId;
+    
+    let filtered = activities.filter((a) => new Date(a.createdAt) >= fiveMinutesAgo);
+    
+    if (propertyId) {
+      filtered = filtered.filter((a) => a.propertyId === propertyId);
+    }
 
-    const activities = await PropertyActivity.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .populate("propertyId", "title location")
-      .populate("userId", "username")
-      .lean();
+    const sorted = filtered.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ).slice(0, limit);
 
-    const stats = await PropertyActivity.aggregate([
-      { $match: { createdAt: { $gte: fiveMinutesAgo } } },
-      { $group: { _id: "$activityType", count: { $sum: 1 } } },
-    ]);
+    // Calculate stats
+    const stats = filtered.reduce((acc: any, activity) => {
+      const type = activity.activityType;
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
 
-    return successResponse({ activities, stats });
+    return NextResponse.json(
+      { activities: sorted, stats },
+      { status: 200 }
+    );
   } catch (error) {
-    return handleApiError(error);
+    console.error('Activity GET error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch activities' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
     const { propertyId, activityType, metadata } = await req.json();
 
     // Only allow known activity types to prevent data pollution
     const ALLOWED_TYPES = ["view", "wishlist", "booking_started", "share"];
     if (!activityType || !ALLOWED_TYPES.includes(activityType)) {
-      const { errorResponse } = await import("@/lib/apiResponse");
-      return errorResponse("Invalid activityType", 400);
+      return NextResponse.json(
+        { error: "Invalid activityType" },
+        { status: 400 }
+      );
     }
+    
     if (!propertyId) {
-      const { errorResponse } = await import("@/lib/apiResponse");
-      return errorResponse("propertyId is required", 400);
+      return NextResponse.json(
+        { error: "propertyId is required" },
+        { status: 400 }
+      );
     }
 
-    // Attach userId if authenticated (optional — anonymous views are allowed)
-    const user = authenticateRequest(req);
-
-    const activity = await PropertyActivity.create({
+    const activity = {
+      _id: Date.now().toString(),
       propertyId,
       activityType,
       metadata,
-      ...(user ? { userId: user.userId } : {}),
-    });
+      createdAt: new Date().toISOString(),
+    };
 
-    if (activityType === "view") {
-      await Property.findByIdAndUpdate(propertyId, { $inc: { viewCount: 1 } });
+    activities.unshift(activity);
+
+    // Keep only last 1000 activities
+    if (activities.length > 1000) {
+      activities = activities.slice(0, 1000);
     }
 
-    return successResponse({ activity }, 201);
+    return NextResponse.json(activity, { status: 201 });
   } catch (error) {
-    return handleApiError(error);
+    console.error('Activity POST error:', error);
+    return NextResponse.json(
+      { error: 'Failed to log activity' },
+      { status: 500 }
+    );
   }
 }

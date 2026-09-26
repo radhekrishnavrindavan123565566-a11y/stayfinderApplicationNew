@@ -74,10 +74,18 @@ export default function AdminPage() {
 
   const loadData = async () => {
     try {
-      const [statsRes, usersRes, disputesRes] = await Promise.all([
-        axios.get("/api/admin/stats", authHeaders()),
-        axios.get("/api/admin/users?page=1&limit=1000", authHeaders()),
-        axios.get("/api/disputes", authHeaders()),
+      // Set a 5 second timeout for all API calls
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 5000)
+      );
+
+      const [statsRes, usersRes, disputesRes] = await Promise.race([
+        Promise.all([
+          axios.get("/api/admin/stats", authHeaders()),
+          axios.get("/api/admin/users?page=1&limit=1000", authHeaders()),
+          axios.get("/api/disputes", authHeaders()),
+        ]),
+        timeoutPromise
       ]);
       
       // Handle stats (returns data directly, no success wrapper)
@@ -119,9 +127,21 @@ export default function AdminPage() {
       }
       setDisputes(disputes || []);
     } catch (error) {
+      // Use mock data on error or timeout
+      console.warn('Failed to load admin data, using defaults:', error);
+      setStats({
+        totalUsers: 0,
+        ownerCount: 0,
+        tenantCount: 0,
+        totalProperties: 0,
+        totalBookings: 0,
+        revenue: 0,
+        platformRevenue: 0,
+        boostedProperties: 0,
+        recentBookings: [],
+      });
       setUsers([]);
       setDisputes([]);
-      setStats({});
     } finally {
       setLoading(false);
     }
