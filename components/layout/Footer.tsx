@@ -163,7 +163,7 @@ export default function Footer() {
         >
           <p suppressHydrationWarning>© {new Date().getFullYear()} SST Home Solutions. All rights reserved.</p>
           <div className="flex gap-4 sm:gap-6">
-            <Link href="/terms" className="hover:text-white transition-colors py-1">Privacy</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors py-1">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors py-1">Terms</Link>
             <Link href="/contact" className="hover:text-white transition-colors py-1">Contact</Link>
           </div>
