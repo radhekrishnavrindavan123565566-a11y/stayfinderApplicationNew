@@ -8,6 +8,9 @@ import bcrypt from "bcryptjs";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitizeInput } from "@/lib/sanitize";
 import { verifyAccessToken } from "@/lib/jwt";
+import { sendEmail } from "@/lib/mailer";
+import { welcomeEmail } from "@/lib/emailTemplates";
+import { logActivity } from "@/lib/activityLogger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,6 +72,23 @@ export async function POST(req: NextRequest) {
       refreshToken, 
       message: isAdminCreated ? "User created by admin (no OTP required)" : "User registered successfully" 
     }, 201);
+
+    // Send welcome email (non-blocking)
+    sendEmail(user.email, `Welcome to SST Home Solutions, ${user.username}!`, welcomeEmail(user.username, user.role))
+      .catch((err) => console.error('[register] welcome email error:', err));
+
+    // Log activity
+    logActivity({
+      type: 'user_registered',
+      title: 'New User Registered',
+      description: `${user.username} joined as ${user.role}`,
+      metadata: { userId: user._id.toString(), username: user.username, role: user.role, email: user.email },
+      severity: 'low',
+      actorId: user._id.toString(),
+      targetId: user._id.toString(),
+      targetType: 'user',
+    });
+
     response.cookies.set("accessToken", accessToken, { 
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production',

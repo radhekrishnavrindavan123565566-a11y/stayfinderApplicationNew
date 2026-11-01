@@ -4,10 +4,14 @@ import Property from "@/models/Property";
 import Booking from "@/models/Booking";
 import SavedSearch from "@/models/SavedSearch";
 import Notification from "@/models/Notification";
+import User from "@/models/User";
 import { requireRole } from "@/lib/auth";
 import { propertySchema } from "@/lib/validations";
 import { successResponse, errorResponse, handleApiError } from "@/lib/apiResponse";
 import { emit } from "@/lib/chatEvents";
+import { sendEmail } from "@/lib/mailer";
+import { propertyCreatedEmail } from "@/lib/emailTemplates";
+import { logActivity } from "@/lib/activityLogger";
 
 // Increase body size limit for property creation (images as base64)
 export const maxDuration = 30;
@@ -122,6 +126,40 @@ export async function POST(req: NextRequest) {
         await SavedSearch.findByIdAndUpdate(s._id, { lastNotifiedAt: new Date() });
       }
     }
+
+    // Send email to owner & log activity (non-blocking)
+    const owner = await User.findById(user.userId).select('email username').lean() as { email?: string; username?: string } | null;
+    if (owner?.email) {
+      sendEmail(
+        owner.email,
+        `Property Listed: ${property.title}`,
+        propertyCreatedEmail({
+          ownerName: owner.username || 'Owner',
+          propertyTitle: property.title,
+          propertyCity: property.location?.city || '',
+          rent: property.price,
+          propertyId: property._id.toString(),
+        })
+      ).catch((err) => console.error('[properties POST] email error:', err));
+    }
+
+    logActivity({
+      type: 'property_added',
+      title: 'New Property Listed',
+      description: `"${property.title}" in ${property.location?.city} listed by ${owner?.username || 'owner'}`,
+      metadata: {
+        propertyId: property._id.toString(),
+        propertyTitle: property.title,
+        city: property.location?.city,
+        rent: property.price,
+        ownerId: user.userId,
+        ownerName: owner?.username,
+      },
+      severity: 'low',
+      actorId: user.userId,
+      targetId: property._id.toString(),
+      targetType: 'property',
+    });
 
     return successResponse({ property }, 201);
   } catch (error) {

@@ -24,3 +24,5 @@ import "@/models/RentalDocument";
 import "@/models/DocumentShare";
 import "@/models/SharedExpense";
 import "@/models/ExpenseSettlement";
+import "@/models/ActivityLog";
+import "@/models/Inquiry";

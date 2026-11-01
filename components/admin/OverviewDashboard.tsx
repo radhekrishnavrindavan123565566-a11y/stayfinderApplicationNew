@@ -91,8 +91,22 @@ export default function OverviewDashboard({ onRefresh }: OverviewDashboardProps)
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('/api/admin/stats');
-      setStats(response.data);
+      const [statsRes, activityRes] = await Promise.all([
+        axios.get('/api/admin/stats'),
+        axios.get('/api/admin/activities?limit=8&page=1'),
+      ]);
+      const data = statsRes.data;
+      // Merge recent activity from the ActivityLog collection
+      if (activityRes.data?.activities?.length) {
+        data.recentActivity = activityRes.data.activities.map((a: any) => ({
+          _id: a._id,
+          description: a.description || a.title,
+          timestamp: a.timestamp || a.createdAt,
+          type: a.type,
+          severity: a.severity,
+        }));
+      }
+      setStats(data);
     } catch (err) {
       setError('Failed to load dashboard stats');
       console.error('Dashboard stats error:', err);

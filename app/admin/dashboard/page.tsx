@@ -8,6 +8,7 @@ import {
   Users,
   MessageSquare,
   Settings,
+  Activity,
   ChevronDown,
 } from 'lucide-react';
 import OverviewDashboard from '@/components/admin/OverviewDashboard';
@@ -15,32 +16,41 @@ import PropertyListings from '@/components/admin/PropertyListings';
 import UserDirectory from '@/components/admin/UserDirectory';
 import LeadsManagement from '@/components/admin/LeadsManagement';
 import ContentManagement from '@/components/admin/ContentManagement';
+import RealTimeActivityFeed from '@/components/admin/RealTimeActivityFeed';
 
-type DashboardTab = 'overview' | 'properties' | 'users' | 'leads' | 'content';
+type DashboardTab = 'overview' | 'activity' | 'properties' | 'users' | 'leads' | 'content';
 
 const tabs: Array<{
   id: DashboardTab;
   name: string;
   icon: React.ReactNode;
   description: string;
+  badge?: string;
 }> = [
   {
     id: 'overview',
     name: 'Overview',
     icon: <BarChart3 className="w-5 h-5" />,
-    description: 'Dashboard stats & activity',
+    description: 'Dashboard stats & metrics',
+  },
+  {
+    id: 'activity',
+    name: 'Live Activity',
+    icon: <Activity className="w-5 h-5" />,
+    description: 'Real-time event feed',
+    badge: 'LIVE',
   },
   {
     id: 'properties',
     name: 'Properties',
     icon: <Home className="w-5 h-5" />,
-    description: 'Manage all property listings',
+    description: 'Manage all listings',
   },
   {
     id: 'users',
     name: 'Users',
     icon: <Users className="w-5 h-5" />,
-    description: 'Owners & tenants directory',
+    description: 'Owners & tenants',
   },
   {
     id: 'leads',
@@ -64,6 +74,8 @@ export default function AdminDashboardPage() {
     switch (activeTab) {
       case 'overview':
         return <OverviewDashboard />;
+      case 'activity':
+        return <RealTimeActivityFeed />;
       case 'properties':
         return <PropertyListings />;
       case 'users':
@@ -104,8 +116,15 @@ export default function AdminDashboardPage() {
               }`}
             >
               {tab.icon}
-              <div className="text-left">
-                <div className="font-semibold text-sm">{tab.name}</div>
+              <div className="text-left flex-1">
+                <div className="font-semibold text-sm flex items-center gap-2">
+                  {tab.name}
+                  {tab.badge && (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-rose-500 text-white animate-pulse">
+                      {tab.badge}
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs opacity-70">{tab.description}</div>
               </div>
             </button>
