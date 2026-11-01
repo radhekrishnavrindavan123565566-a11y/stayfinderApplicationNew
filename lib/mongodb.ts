@@ -25,7 +25,14 @@ export async function connectDB() {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI, { bufferCommands: false })
+      .connect(MONGODB_URI, {
+        bufferCommands: false,
+        maxPoolSize: 20,          // up from default 5
+        minPoolSize: 5,           // keep warm connections ready
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        heartbeatFrequencyMS: 10000,
+      })
       .catch((err) => {
         // Clear cache so next request retries instead of reusing the failed promise
         cached.promise = null;

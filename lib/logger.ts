@@ -1,91 +1,143 @@
 /**
- * Centralized logging utility
- * Replaces console.log with environment-aware logging
+ * Structured JSON logger for SST Home Solutions.
+ *
+ * Outputs newline-delimited JSON so log aggregators (Datadog, CloudWatch,
+ * Loki, Sentry breadcrumbs) can parse fields without regex.
+ *
+ * Usage:
+ *   import { logger } from '@/lib/logger';
+ *   logger.info('Properties fetched', { count: 12, city: 'Noida' });
+ *   logger.error('DB connection failed', err);
+ *
+ *   // With a request-scoped child logger that auto-attaches requestId:
+ *   const log = logger.child({ requestId: req.headers.get('x-request-id') });
+ *   log.info('Handling request');
  */
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-interface LogEntry {
-  level: LogLevel;
-  message: string;
-  timestamp: string;
-  data?: any;
+const LEVEL_NUM: Record<LogLevel, number> = {
+  debug: 10,
+  info: 20,
+  warn: 30,
+  error: 40,
+};
+
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_TEST = process.env.NODE_ENV === 'test';
+
+// In production only emit warn+ to keep log volume low and cost down.
+// In development/test emit everything.
+const MIN_LEVEL: LogLevel = IS_PRODUCTION ? 'warn' : 'debug';
+
+function serializeError(err: unknown): Record<string, unknown> | undefined {
+  if (!err) return undefined;
+  if (err instanceof Error) {
+    return {
+      name: err.name,
+      message: err.message,
+      stack: IS_PRODUCTION ? undefined : err.stack,
+    };
+  }
+  if (typeof err === 'object') return err as Record<string, unknown>;
+  return { raw: String(err) };
+}
+
+function emit(
+  level: LogLevel,
+  message: string,
+  data?: unknown,
+  context?: Record<string, unknown>
+): void {
+  if (LEVEL_NUM[level] < LEVEL_NUM[MIN_LEVEL]) return;
+  if (IS_TEST) return; // silence in unit tests
+
+  const entry: Record<string, unknown> = {
+    ts: new Date().toISOString(),
+    level,
+    msg: message,
+    service: 'sst-home-solutions',
+    env: process.env.NODE_ENV,
+    ...context,
+  };
+
+  if (data !== undefined) {
+    if (data instanceof Error || (data && typeof data === 'object' && 'message' in (data as object) && 'stack' in (data as object))) {
+      entry.err = serializeError(data);
+    } else {
+      entry.data = data;
+    }
+  }
+
+  const line = JSON.stringify(entry);
+
+  // Route to appropriate stdio stream
+  if (level === 'error' || level === 'warn') {
+    process.stderr.write(line + '\n');
+  } else {
+    process.stdout.write(line + '\n');
+  }
+
+  // Forward errors to Sentry when DSN is configured (server-side safe)
+  if (level === 'error' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
+    try {
+      // Dynamic require avoids issues when @sentry/nextjs is not installed
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const Sentry = require('@sentry/nextjs');
+      if (data instanceof Error) {
+        Sentry.captureException(data, { extra: { message, ...context } });
+      } else {
+        Sentry.captureMessage(message, { level: 'error', extra: { data, ...context } });
+      }
+    } catch {
+      /* Sentry not available — ignore */
+    }
+  }
 }
 
 class Logger {
-  private isDevelopment = process.env.NODE_ENV === 'development';
-  private isProduction = process.env.NODE_ENV === 'production';
+  private context: Record<string, unknown>;
 
-  private formatMessage(level: LogLevel, message: string, data?: any): string {
-    const timestamp = new Date().toISOString();
-    const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
-    
-    if (data) {
-      return `${prefix} ${message} ${JSON.stringify(data)}`;
-    }
-    
-    return `${prefix} ${message}`;
+  constructor(context: Record<string, unknown> = {}) {
+    this.context = context;
   }
 
-  private log(level: LogLevel, message: string, data?: any): void {
-    const formatted = this.formatMessage(level, message, data);
-
-    // In production, you might want to send logs to a service like:
-    // - Sentry
-    // - LogRocket
-    // - Datadog
-    // - CloudWatch
-    
-    if (this.isProduction) {
-      // Only log errors and warnings in production
-      if (level === 'error' || level === 'warn') {
-        console[level](formatted);
-        // TODO: Send to error tracking service
-      }
-    } else {
-      // Log everything in development
-      console[level === 'debug' ? 'log' : level](formatted);
-    }
+  /** Create a child logger that merges additional context into every entry. */
+  child(extraContext: Record<string, unknown>): Logger {
+    return new Logger({ ...this.context, ...extraContext });
   }
 
-  /**
-   * Debug level - only in development
-   */
-  debug(message: string, data?: any): void {
-    if (this.isDevelopment) {
-      this.log('debug', message, data);
-    }
+  debug(message: string, data?: unknown): void {
+    emit('debug', message, data, this.context);
   }
 
-  /**
-   * Info level - general information
-   */
-  info(message: string, data?: any): void {
-    this.log('info', message, data);
+  info(message: string, data?: unknown): void {
+    emit('info', message, data, this.context);
   }
 
-  /**
-   * Warning level - something unexpected but not critical
-   */
-  warn(message: string, data?: any): void {
-    this.log('warn', message, data);
+  warn(message: string, data?: unknown): void {
+    emit('warn', message, data, this.context);
   }
 
-  /**
-   * Error level - critical issues
-   */
-  error(message: string, error?: Error | any): void {
-    this.log('error', message, error);
-    
-    // In production, send to error tracking
-    if (this.isProduction && typeof window !== 'undefined') {
-      // TODO: Integrate with Sentry or similar
-      // Sentry.captureException(error);
+  error(message: string, data?: unknown): void {
+    emit('error', message, data, this.context);
+  }
+
+  /** Convenience: log duration of an async operation. */
+  async time<T>(label: string, fn: () => Promise<T>, extra?: Record<string, unknown>): Promise<T> {
+    const start = Date.now();
+    try {
+      const result = await fn();
+      this.debug(label, { ...extra, durationMs: Date.now() - start });
+      return result;
+    } catch (err) {
+      this.error(label + ' failed', { ...extra, durationMs: Date.now() - start, err: serializeError(err) });
+      throw err;
     }
   }
 }
 
 export const logger = new Logger();
 
-// Convenience exports
+// Convenience named exports for direct use
 export const { debug, info, warn, error } = logger;

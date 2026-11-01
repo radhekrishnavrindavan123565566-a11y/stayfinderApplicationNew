@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Property from "@/models/Property";
 import Booking from "@/models/Booking";
@@ -103,28 +104,51 @@ export async function POST(req: NextRequest) {
       cancellationPolicy: body.cancellationPolicy || "moderate",
     });
 
-    // Notify users with matching saved searches
+    // Notify users with matching saved searches — bulk to avoid N+1
     const p = parsed.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const matchQuery: any = { isActive: true };
     const savedSearches = await SavedSearch.find(matchQuery).lean();
+
+    // Collect all matches first, then bulk-write
+    const matchedSearchIds: string[] = [];
+    const notifDocs: Array<{
+      userId: mongoose.Types.ObjectId;
+      type: string;
+      title: string;
+      body: string;
+      link: string;
+    }> = [];
+
     for (const s of savedSearches) {
       const f = s.filters;
-      const cityMatch = !f.city || p.location.city.toLowerCase().includes(f.city.toLowerCase());
-      const priceMatch = (!f.minPrice || p.price >= f.minPrice) && (!f.maxPrice || p.price <= f.maxPrice);
-      const typeMatch = !f.propertyType || p.propertyType === f.propertyType;
-      const bedsMatch = !f.bedrooms || p.bedrooms >= f.bedrooms;
+      const cityMatch  = !f.city         || p.location.city.toLowerCase().includes(f.city.toLowerCase());
+      const priceMatch = (!f.minPrice    || p.price >= f.minPrice) && (!f.maxPrice || p.price <= f.maxPrice);
+      const typeMatch  = !f.propertyType || p.propertyType === f.propertyType;
+      const bedsMatch  = !f.bedrooms     || p.bedrooms >= f.bedrooms;
       if (cityMatch && priceMatch && typeMatch && bedsMatch) {
-        const notif = await Notification.create({
+        matchedSearchIds.push(s._id.toString());
+        notifDocs.push({
           userId: s.userId,
-          type: "system",
+          type:  "system",
           title: `🔔 New match for "${s.name}"`,
-          body: `${p.title} in ${p.location.city} — ₹${p.price.toLocaleString("en-IN")}/month`,
-          link: `/properties/${property._id}`,
+          body:  `${p.title} in ${p.location.city} — ₹${p.price.toLocaleString("en-IN")}/month`,
+          link:  `/properties/${property._id}`,
         });
-        emit(s.userId.toString(), "notification:new", { notification: notif.toObject() });
-        await SavedSearch.findByIdAndUpdate(s._id, { lastNotifiedAt: new Date() });
       }
+    }
+
+    // Bulk insert notifications + bulk update saved searches
+    if (notifDocs.length > 0) {
+      const inserted = await Notification.insertMany(notifDocs);
+      // Emit socket events (non-blocking)
+      inserted.forEach((notif) => {
+        emit(notif.userId.toString(), "notification:new", { notification: notif.toObject() });
+      });
+      await SavedSearch.updateMany(
+        { _id: { $in: matchedSearchIds } },
+        { $set: { lastNotifiedAt: new Date() } }
+      );
     }
 
     // Send email to owner & log activity (non-blocking)

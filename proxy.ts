@@ -84,7 +84,22 @@ export function proxy(req: NextRequest) {
   }
 
   // Continue with response and add security headers for Lighthouse
-  const response = NextResponse.next();
+  const response = NextResponse.next({
+    request: {
+      headers: (() => {
+        // Inject request ID + start time for observability
+        const h = new Headers(req.headers);
+        const requestId = req.headers.get('x-request-id') ?? crypto.randomUUID?.() ?? Date.now().toString(36);
+        h.set('x-request-id', requestId);
+        h.set('x-request-start', Date.now().toString());
+        return h;
+      })(),
+    },
+  });
+
+  // Propagate request ID to response headers for client-side correlation
+  const requestId = req.headers.get('x-request-id') ?? '';
+  if (requestId) response.headers.set('x-request-id', requestId);
 
   // Security Headers for Lighthouse Best Practices
   const securityHeaders = {

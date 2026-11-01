@@ -1,40 +1,85 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
-export function successResponse(data: unknown, status = 200) {
-  return NextResponse.json({ success: true, data }, { status });
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function getRequestMeta(req?: NextRequest): Record<string, string> {
+  if (!req) return {};
+  const requestId = req.headers.get("x-request-id") ?? "";
+  const startMs = req.headers.get("x-request-start");
+  const durationMs = startMs ? String(Date.now() - Number(startMs)) : "";
+  return {
+    ...(requestId && { "x-request-id": requestId }),
+    ...(durationMs && { "x-response-time": `${durationMs}ms` }),
+  };
 }
 
-export function errorResponse(message: string, status = 400) {
-  return NextResponse.json({ success: false, error: message }, { status });
+// ── Public API ─────────────────────────────────────────────────────────────────
+
+export function successResponse(data: unknown, status = 200, req?: NextRequest) {
+  return NextResponse.json({ success: true, data }, {
+    status,
+    headers: getRequestMeta(req),
+  });
 }
 
-export function handleApiError(error: unknown) {
-  console.error("API Error:", error);
+export function errorResponse(message: string, status = 400, req?: NextRequest) {
+  return NextResponse.json({ success: false, error: message }, {
+    status,
+    headers: getRequestMeta(req),
+  });
+}
+
+export function handleApiError(error: unknown, req?: NextRequest) {
+  const requestId = req?.headers.get("x-request-id");
+  const meta = getRequestMeta(req);
+
   if (error instanceof Error) {
-    if (error.message === "Unauthorized") return errorResponse("Unauthorized", 401);
-    if (error.message === "Forbidden") return errorResponse("Forbidden", 403);
-    if (error.message === "Not Found") return errorResponse("Not Found", 404);
-    // JWT errors — treat as 401 not 500
-    if (
-      error.name === "JsonWebTokenError" ||
-      error.name === "TokenExpiredError" ||
-      error.name === "NotBeforeError"
-    ) {
-      return errorResponse("Invalid or expired token", 401);
+    // Known safe-to-expose errors
+    if (error.message === "Unauthorized") return errorResponse("Unauthorized", 401, req);
+    if (error.message === "Forbidden")    return errorResponse("Forbidden", 403, req);
+    if (error.message === "Not Found")    return errorResponse("Not Found", 404, req);
+
+    // JWT errors → 401
+    if (["JsonWebTokenError", "TokenExpiredError", "NotBeforeError"].includes(error.name)) {
+      return errorResponse("Invalid or expired token", 401, req);
     }
-    if (
+
+    // DB connectivity errors → generic 503 (don't expose internals)
+    const isDbError =
       error.message.includes("MONGODB_URI") ||
       error.message.includes("ECONNREFUSED") ||
       error.message.includes("MongoNetworkError") ||
       error.message.includes("MongoServerSelectionError") ||
       error.message.includes("buffering timed out") ||
-      error.message.includes("querySrv")
-    ) {
-      return errorResponse("Database connection error", 500);
+      error.message.includes("querySrv");
+    if (isDbError) {
+      logger.error("DB connectivity error", { err: error.message, requestId });
+      return NextResponse.json(
+        { success: false, error: "Service temporarily unavailable", requestId },
+        { status: 503, headers: meta }
+      );
     }
-    return errorResponse(error.message, 500);
+
+    // Mongoose validation errors → 422 with field details
+    if (error.name === "ValidationError") {
+      return NextResponse.json(
+        { success: false, error: "Validation failed", details: error.message },
+        { status: 422, headers: meta }
+      );
+    }
+
+    // Log unexpected errors but return a safe generic message
+    logger.error("Unhandled API error", { err: error, requestId });
+    return NextResponse.json(
+      { success: false, error: "Internal server error", requestId },
+      { status: 500, headers: meta }
+    );
   }
-  // Log non-Error objects too
-  console.error("Non-Error thrown:", JSON.stringify(error));
-  return errorResponse("Internal server error", 500);
+
+  logger.error("Non-Error thrown", { raw: JSON.stringify(error), requestId });
+  return NextResponse.json(
+    { success: false, error: "Internal server error", requestId },
+    { status: 500, headers: meta }
+  );
 }

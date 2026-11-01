@@ -37,4 +37,13 @@ const inquirySchema = new Schema<IInquiry>(
   { timestamps: true }
 );
 
+// ── Indexes ───────────────────────────────────────────────────────────────────
+inquirySchema.index({ status: 1, inquiryDate: -1 });          // admin list + pipeline filter
+inquirySchema.index({ tenantId: 1, createdAt: -1 });          // tenant's own inquiries
+inquirySchema.index({ propertyId: 1 });                       // property-level lookup
+inquirySchema.index({ ownerId: 1, status: 1 });               // owner dashboard
+inquirySchema.index({ createdAt: -1 });                       // activity stats (today/thisWeek)
+inquirySchema.index({ priority: 1, status: 1 });              // admin filters
+inquirySchema.index({ followUpDate: 1 }, { sparse: true });   // follow-up scheduler
+
 export default mongoose.models.Inquiry || mongoose.model<IInquiry>('Inquiry', inquirySchema);

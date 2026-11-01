@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   // Compress responses
   compress: true,
 
+  // Heavy server-only packages — don't bundle them into the Lambda
+  serverExternalPackages: [
+    "mongoose",
+    "@sentry/nextjs",
+    "nodemailer",
+    "bcryptjs",
+    "jsonwebtoken",
+    "sharp",
+  ],
+
   // Experimental optimizations
   experimental: {
     optimizePackageImports: [
@@ -42,21 +52,28 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "X-XSS-Protection", value: "1; mode=block" },
-          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
-          // Cache busting: force revalidation for HTML pages
-          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "X-Content-Type-Options",  value: "nosniff" },
+          { key: "X-Frame-Options",         value: "SAMEORIGIN" },
+          { key: "X-XSS-Protection",        value: "1; mode=block" },
+          { key: "Referrer-Policy",         value: "origin-when-cross-origin" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          { key: "Cache-Control",           value: "public, max-age=0, must-revalidate" },
         ],
       },
-      // API routes: no caching
+      // API routes: no caching by default
       {
         source: "/api/:path*",
         headers: [
           { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
-          { key: "Pragma", value: "no-cache" },
+          { key: "Pragma",  value: "no-cache" },
           { key: "Expires", value: "0" },
+        ],
+      },
+      // Admin stats can leverage the server-side TTL cache — allow short client cache too
+      {
+        source: "/api/admin/stats",
+        headers: [
+          { key: "Cache-Control", value: "private, max-age=30, stale-while-revalidate=60" },
         ],
       },
       // Static assets: long-term caching
