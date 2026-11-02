@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { Download, Share2, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import BackButton from "@/components/ui/BackButton";
 import Badge from "@/components/ui/Badge";
@@ -197,11 +198,12 @@ function ComparisonPageContent() {
               {/* Image */}
               <div className="relative w-full h-48 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                 {prop.images[0] ? (
-                  <Image
+                  <SafeImage
                     src={prop.images[0]}
                     alt={prop.title}
                     fill
                     className="object-cover"
+                    fallbackType="property"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-zinc-400">

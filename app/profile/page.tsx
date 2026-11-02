@@ -10,6 +10,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { User, Mail, Upload, Shield, CheckCircle, Clock, Camera, Phone, KeyRound, AlertCircle } from "lucide-react";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import TrustProfile from "@/components/trust/TrustProfile";
 import { useRouter } from "next/navigation";
 import BackButton from "@/components/ui/BackButton";
@@ -187,7 +188,7 @@ export default function ProfilePage() {
                 className="w-20 h-20 rounded-2xl bg-rose-100 dark:bg-rose-950 overflow-hidden flex items-center justify-center"
               >
                 {avatarPreview ? (
-                  <Image src={avatarPreview} alt="Avatar" width={80} height={80} className="object-cover w-full h-full" />
+                  <SafeImage src={avatarPreview} alt="Avatar" width={80} height={80} className="object-cover w-full h-full" fallbackType="avatar" />
                 ) : (
                   <span className="text-3xl font-bold text-rose-500">{user.username[0].toUpperCase()}</span>
                 )}

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { ChevronLeft, ChevronRight, X, Grid } from "lucide-react";
 
 interface ImageGalleryProps {
@@ -12,7 +13,7 @@ interface ImageGalleryProps {
 export default function ImageGallery({ images, title }: ImageGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fallback = "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800";
+  const fallback = "/placeholder-banner.svg";
   const imgs = images?.length ? images : [fallback];
 
   const prev = () => setCurrentIndex((i) => (i - 1 + imgs.length) % imgs.length);
@@ -22,11 +23,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
     <>
       <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[420px] rounded-2xl overflow-hidden">
         <div className="col-span-2 row-span-2 relative cursor-pointer group" onClick={() => { setCurrentIndex(0); setLightboxOpen(true); }}>
-          <Image src={imgs[0]} alt={title} fill className="object-cover group-hover:brightness-90 transition-all" />
+          <SafeImage src={imgs[0]} alt={title} fill className="object-cover group-hover:brightness-90 transition-all" fallbackType="property" />
         </div>
         {imgs.slice(1, 5).map((img, i) => (
           <div key={i} className="relative cursor-pointer group" onClick={() => { setCurrentIndex(i + 1); setLightboxOpen(true); }}>
-            <Image src={img} alt={`${title} ${i + 2}`} fill className="object-cover group-hover:brightness-90 transition-all" />
+            <SafeImage src={img} alt={`${title} ${i + 2}`} fill className="object-cover group-hover:brightness-90 transition-all" fallbackType="property" />
             {i === 3 && imgs.length > 5 && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white font-semibold flex items-center gap-1.5">
@@ -61,7 +62,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               animate={{ opacity: 1, scale: 1 }}
               className="relative w-full max-w-4xl h-[70vh] mx-16"
             >
-              <Image src={imgs[currentIndex]} alt={title} fill className="object-contain" />
+              <SafeImage src={imgs[currentIndex]} alt={title} fill className="object-contain" fallbackType="property" />
             </motion.div>
             <button onClick={next} className="absolute right-4 text-white p-2 hover:bg-white/10 rounded-xl">
               <ChevronRight className="w-8 h-8" />

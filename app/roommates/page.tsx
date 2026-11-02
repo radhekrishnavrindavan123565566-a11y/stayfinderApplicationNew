@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { format } from "date-fns";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
@@ -47,7 +48,7 @@ function ProfileCard({ profile, onMessage }: { profile: Profile; onMessage: (use
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden flex-shrink-0">
           {profile.userId.avatar
-            ? <Image src={profile.userId.avatar} alt={profile.userId.username} width={48} height={48} className="object-cover" />
+            ? <SafeImage src={profile.userId.avatar} alt={profile.userId.username} width={48} height={48} className="object-cover" fallbackType="avatar" />
             : profile.userId.username[0]?.toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">

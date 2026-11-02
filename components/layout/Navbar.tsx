@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
 import DarkModeToggle from "@/components/ui/DarkModeToggle";
 
@@ -151,7 +152,7 @@ export default function Navbar() {
                   <Menu className="w-4 h-4 text-zinc-600" />
                   <div className="w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center overflow-hidden">
                     {user.avatar ? (
-                      <Image src={user.avatar} alt={user.username} width={28} height={28} className="object-cover" />
+                      <SafeImage src={user.avatar} alt={user.username} width={28} height={28} className="object-cover" fallbackType="avatar" />
                     ) : (
                       <span className="text-xs font-bold text-rose-600">{user.username[0].toUpperCase()}</span>
                     )}

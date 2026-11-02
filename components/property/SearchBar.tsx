@@ -6,6 +6,7 @@ import { usePropertyStore, Property } from "@/store/propertyStore";
 import { useDebounce } from "@/hooks/useDebounce";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import axios from "axios";
 
@@ -63,7 +64,7 @@ function QuickResults({
       {!loading && results.length > 0 && (
         <div className="max-h-[420px] overflow-y-auto divide-y divide-zinc-50 dark:divide-zinc-800">
           {results.map((p, i) => {
-            const img = p.images?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=60";
+            const img = p.images?.[0];
             return (
               <motion.div
                 key={p._id}
@@ -78,7 +79,7 @@ function QuickResults({
                 >
                   {/* Thumbnail */}
                   <div className="relative w-16 h-12 rounded-xl overflow-hidden flex-shrink-0">
-                    <Image src={img} alt={p.title} fill sizes="64px" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <SafeImage src={img} alt={p.title} fill sizes="64px" className="object-cover group-hover:scale-105 transition-transform duration-300" fallbackType="property" />
                   </div>
 
                   {/* Info */}

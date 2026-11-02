@@ -16,6 +16,7 @@ import StarRating from "@/components/ui/StarRating";
 import Badge from "@/components/ui/Badge";
 import { Property } from "@/store/propertyStore";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { format } from "date-fns";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
@@ -386,7 +387,7 @@ export default function PropertyDetailPage() {
             <motion.div variants={fadeUp} className="flex items-center gap-4 pb-8 border-b border-zinc-100 dark:border-zinc-800 flex-wrap">
               <div className="w-14 h-14 rounded-full bg-rose-100 dark:bg-rose-950/30 flex items-center justify-center overflow-hidden flex-shrink-0">
                 {property.ownerId?.avatar ? (
-                  <Image src={property.ownerId.avatar} alt={property.ownerId.username} width={56} height={56} className="object-cover" />
+                  <SafeImage src={property.ownerId.avatar} alt={property.ownerId.username} width={56} height={56} className="object-cover" fallbackType="avatar" />
                 ) : (
                   <span className="text-xl font-bold text-rose-500">{property.ownerId?.username?.[0]?.toUpperCase()}</span>
                 )}

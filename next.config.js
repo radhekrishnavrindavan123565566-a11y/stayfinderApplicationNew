@@ -9,9 +9,25 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
+      // Stock photos
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'plus.unsplash.com' },
+      // Cloudinary (all sub-accounts)
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: '**.cloudinary.com' },
+      // Google auth avatars
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'lh4.googleusercontent.com' },
+      { protocol: 'https', hostname: 'lh5.googleusercontent.com' },
+      { protocol: 'https', hostname: 'lh6.googleusercontent.com' },
+      // GitHub avatars
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      // User-uploaded content on common CDNs
+      { protocol: 'https', hostname: '**.amazonaws.com' },
+      { protocol: 'https', hostname: '**.supabase.co' },
+      // SST own domain
+      { protocol: 'https', hostname: 'ssthomesolutions.com' },
+      { protocol: 'https', hostname: 'www.ssthomesolutions.com' },
     ],
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year for optimal caching
     dangerouslyAllowSVG: true,

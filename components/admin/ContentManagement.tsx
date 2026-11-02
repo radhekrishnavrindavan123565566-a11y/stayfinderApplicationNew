@@ -481,8 +481,10 @@ export default function ContentManagement({ onContentSelect }: ContentManagement
                       alt={banner.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
+                        // Replace broken image with an inline SVG — no external service needed
+                        e.currentTarget.onerror = null;
                         e.currentTarget.src =
-                          'https://via.placeholder.com/300x200?text=Banner';
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f4f4f5'/%3E%3Ctext x='150' y='105' text-anchor='middle' font-size='13' font-family='system-ui' fill='%23a1a1aa'%3EBanner Image%3C/text%3E%3C/svg%3E";
                       }}
                     />
                   </div>

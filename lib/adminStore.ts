@@ -34,7 +34,7 @@ const banners: Banner[] = [
     _id: '1',
     title: 'Welcome to SST Home Solutions',
     description: 'Find your perfect home today',
-    imageUrl: 'https://via.placeholder.com/1200x400?text=Welcome+Banner',
+    imageUrl: '/placeholder-banner.svg',
     link: '/',
     isActive: true,
     displayOrder: 1,

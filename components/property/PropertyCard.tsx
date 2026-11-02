@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Heart, Star, MapPin, Bed, Bath, Users, Zap } from "lucide-react";
 // import { GitCompare } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
@@ -54,7 +55,7 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
     // }
   };
 
-  const image = property.images?.[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800";
+  const image = property.images?.[0];
   const typeColor = TYPE_COLORS[property.propertyType] || "bg-zinc-700/90";
 
   return (
@@ -68,12 +69,13 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
       <Link href={`/properties/${property._id}`}>
         {/* Image */}
         <div className="relative h-52 overflow-hidden">
-          <Image
+          <SafeImage
             src={image}
             alt={property.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover group-hover:scale-110 transition-transform duration-700"
+            fallbackType="property"
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

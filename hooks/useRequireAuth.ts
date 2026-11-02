@@ -43,7 +43,7 @@ export function useRequireAuth(
         username: "admin",
         email: "admin@ssthomesolutions.com",
         role: "admin",
-        avatar: "https://via.placeholder.com/150",
+        avatar: "",  // No external placeholder — components fall back to initials
         wishlist: [],
       };
       useAuthStore.getState().setUser(resolvedUser);
